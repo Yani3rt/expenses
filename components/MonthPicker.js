@@ -20,7 +20,6 @@ export default function MonthPicker({ months, activeMonth }) {
 
   return (
     <label className="header-month-picker">
-      <span>Month</span>
       <select name="month" value={selectedMonth} onChange={handleChange} aria-label="Spending month">
         {months.map((month) => <option value={month.value} key={month.value}>{month.label}</option>)}
       </select>

@@ -11,5 +11,7 @@ test("dashboard query returns V1 sections", () => {
   assert.ok(Array.isArray(data.recentExpenses));
   assert.ok(Array.isArray(data.largestExpenses));
   assert.ok(Array.isArray(data.monthlyTotals));
+  assert.ok(data.recentExpenses.length <= 6);
+  assert.ok(data.largestExpenses.length <= 6);
   assert.equal(data.people, undefined);
 });

@@ -15,8 +15,11 @@ export default async function SpendingPage({ searchParams }) {
   return (
     <>
       <PageHeader
+        className="spending-page-header"
         kicker="Spending by category"
         title={heading}
+        titleClassName="spending-mobile-hide"
+        ledeClassName="spending-mobile-hide"
         action={<MonthPicker months={data.months} activeMonth={data.activeMonth} />}
       >
         Pick a month, or switch to All to see lifetime totals by category.

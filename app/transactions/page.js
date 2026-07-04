@@ -1,4 +1,5 @@
 import { ExpenseRow, PageHeader, SummaryMetrics } from "../../components/DashboardPrimitives.js";
+import TransactionsFilters, { ActiveFilterChips } from "../../components/TransactionsFilters.js";
 import { getTransactionsData } from "../../lib/queries.js";
 import { money, monthLabel } from "../../lib/format.js";
 
@@ -9,36 +10,24 @@ export default async function TransactionsPage({ searchParams }) {
   const params = await searchParams;
   const data = getTransactionsData({
     q: params?.q || "",
+    period: params?.period || "all",
     month: params?.month || "all",
     category: params?.category || "all",
+    sort: params?.sort || "newest",
   });
 
   return (
     <>
-      <PageHeader kicker="Transactions" title="Filtered expense ledger">
-        Search descriptions and notes, filter by month or category. Still read-only — just sharper eyes.
+      <PageHeader
+        className="transactions-page-header"
+        kicker="Transactions"
+        title="Filtered expense ledger"
+        titleClassName="transactions-mobile-hide"
+      >
       </PageHeader>
 
-      <form className="filter-card wide-filter" action="/transactions">
-        <label className="search-field">
-          Search
-          <input name="q" defaultValue={data.meta.q} placeholder="food, t-mobile, tech…" />
-        </label>
-        <label>
-          Month
-          <select name="month" defaultValue={data.meta.month}>
-            {data.months.map((month) => <option value={month.value} key={month.value}>{month.label}</option>)}
-          </select>
-        </label>
-        <label>
-          Category
-          <select name="category" defaultValue={data.meta.category}>
-            <option value="all">All categories</option>
-            {data.categories.map((category) => <option value={category.slug} key={category.slug}>{category.name}</option>)}
-          </select>
-        </label>
-        <button type="submit">Filter</button>
-      </form>
+      <TransactionsFilters meta={data.meta} months={data.months} categories={data.categories} />
+      <ActiveFilterChips meta={data.meta} categoryOptions={data.categories} />
 
       <SummaryMetrics summary={data.summary} totalLabel="Filtered spend" />
 
@@ -48,7 +37,11 @@ export default async function TransactionsPage({ searchParams }) {
             <p className="label">Ledger</p>
             <h2>{data.transactions.length} matching transactions</h2>
           </div>
-          <span className="readonly-chip">{data.meta.month !== "all" ? monthLabel(data.meta.month) : "All time"}</span>
+          <span className="readonly-chip">
+            {data.meta.month !== "all"
+              ? monthLabel(data.meta.month)
+              : data.meta.periodLabel}
+          </span>
         </div>
         {data.transactions.length ? (
           <div className="expense-list dense-list">
@@ -57,7 +50,8 @@ export default async function TransactionsPage({ searchParams }) {
         ) : (
           <div className="empty-state">
             <strong>No expenses match those filters.</strong>
-            <span>Broaden the range or clear the search. The DB remains untouched, as promised.</span>
+            <span>Try a broader date range, remove a chip, or clear all filters. The DB remains untouched, as promised.</span>
+            <a className="clear-filters-link" href="/transactions">Reset filters</a>
           </div>
         )}
         <div className="ledger-foot">Showing up to 200 rows · {money(data.summary.totalSpend)} total in this view</div>

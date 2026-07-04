@@ -48,7 +48,7 @@ export default function Sidebar() {
         </Link>
         <button
           type="button"
-          className="mobile-nav-toggle"
+          className={`mobile-nav-toggle${isOpen ? " is-open" : ""}`}
           aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
           aria-expanded={isOpen}
           aria-controls="primary-navigation"

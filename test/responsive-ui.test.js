@@ -17,4 +17,6 @@ test("small-screen layout collapses grids to one column and prevents horizontal 
   assert.match(styles, /body \{[^}]*overflow-x: hidden;/);
   assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.metrics-grid, \.content-grid, \.status-grid \{ grid-template-columns: minmax\(0, 1fr\);/);
   assert.match(styles, /@media \(max-width: 520px\)[\s\S]*\.expense-row \{[\s\S]*grid-template-columns: 44px minmax\(0, 1fr\);/);
+  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.category-table \.rank \{ grid-column: 1; grid-row: 1 \/ span 2;/);
+  assert.match(styles, /@media \(max-width: 520px\)[\s\S]*\.category-table b \{ grid-column: 2 \/ -1; grid-row: 3;/);
 });

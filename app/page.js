@@ -28,9 +28,9 @@ export default function Home() {
       <section className="content-grid">
         <CategoryBars categories={data.categories} />
         <Donut categories={data.categories} />
+        <MonthlyTrend months={data.monthlyTotals} className="span-12" />
         <ExpenseList title="Recent expenses" expenses={data.recentExpenses} />
         <ExpenseList title="Largest expenses" expenses={data.largestExpenses} compact />
-        <MonthlyTrend months={data.monthlyTotals} />
       </section>
     </>
   );

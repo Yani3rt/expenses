@@ -1,14 +1,15 @@
 import Link from "next/link";
+import InteractiveDonut from "./InteractiveDonut.js";
 import { categoryTone } from "../lib/categories.js";
 import { compactNumber, money, shortDate } from "../lib/format.js";
 
-export function PageHeader({ kicker, title, children, action }) {
+export function PageHeader({ kicker, title, children, action, className = "", titleClassName = "", ledeClassName = "" }) {
   return (
-    <header className="page-header">
+    <header className={`page-header ${className}`.trim()}>
       <div>
         <p className="label">{kicker}</p>
-        <h1>{title}</h1>
-        {children ? <p className="lede">{children}</p> : null}
+        <h1 className={titleClassName}>{title}</h1>
+        {children ? <p className={`lede ${ledeClassName}`.trim()}>{children}</p> : null}
       </div>
       {action ? <div className="page-action">{action}</div> : null}
     </header>
@@ -68,41 +69,13 @@ export function CategoryBars({ categories, title = "Where the money went", label
 }
 
 export function Donut({ categories }) {
-  const total = categories.reduce((sum, item) => sum + item.totalSpend, 0) || 1;
-  let offset = 25;
-  const circumference = 2 * Math.PI * 42;
-  const slices = categories.slice(0, 7).map((item) => {
-    const value = (item.totalSpend / total) * circumference;
-    const slice = { ...item, dash: `${value} ${circumference - value}`, offset };
-    offset -= value;
-    return slice;
-  });
-  return (
-    <section className="card span-5 center-card">
-      <p className="label">Category share</p>
-      <div className="donut-wrap">
-        <svg className="donut" viewBox="0 0 100 100" role="img" aria-label="Category spending donut chart">
-          <circle cx="50" cy="50" r="42" className="donut-base" />
-          {slices.map((slice) => (
-            <circle key={slice.categorySlug} cx="50" cy="50" r="42" className={`donut-slice tone-${categoryTone(slice.categorySlug)}`} strokeDasharray={slice.dash} strokeDashoffset={slice.offset} />
-          ))}
-        </svg>
-        <div className="donut-center">
-          <strong>{money(total)}</strong>
-          <span>Total</span>
-        </div>
-      </div>
-      <div className="legend">
-        {categories.slice(0, 6).map((c) => <CategoryPill key={c.categorySlug} slug={c.categorySlug}>{c.category}</CategoryPill>)}
-      </div>
-    </section>
-  );
+  return <InteractiveDonut categories={categories} />;
 }
 
-export function MonthlyTrend({ months }) {
+export function MonthlyTrend({ months, className = "span-5" }) {
   const max = Math.max(...months.map((m) => m.totalSpend), 1);
   return (
-    <section className="card span-5">
+    <section className={`card ${className}`}>
       <p className="label">Timeline</p>
       <h2>Monthly trend</h2>
       <div className="month-bars">
@@ -139,14 +112,15 @@ export function ExpenseList({ title, expenses, compact = false }) {
 
 export function ExpenseRow({ expense }) {
   return (
-    <article className="expense-row">
+    <article className={`expense-row${expense.notes ? " has-note" : ""}`}>
       <div className={`expense-icon tone-${categoryTone(expense.categorySlug)}`}>{expense.category.slice(0, 1)}</div>
-      <div>
+      <div className="expense-copy">
         <strong>{expense.description}</strong>
-        <span>{shortDate(expense.date)} · {expense.paidBy}{expense.notes ? ` · ${expense.notes}` : ""}</span>
+        <span className="expense-meta">{shortDate(expense.date)} · {expense.paidBy}</span>
+        {expense.notes ? <small className="expense-note">{expense.notes}</small> : null}
       </div>
       <CategoryPill slug={expense.categorySlug}>{expense.category}</CategoryPill>
-      <b>{money(expense.amount, expense.currency)}</b>
+      <b className="expense-amount">{money(expense.amount, expense.currency)}</b>
     </article>
   );
 }

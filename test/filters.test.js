@@ -36,3 +36,17 @@ test("transactions no longer support the last-30-days period", () => {
   assert.equal(last30.meta.period, "all");
   assert.deepEqual(last30.meta.dateRange, { from: null, to: null });
 });
+
+test("transactions support quick date presets", () => {
+  const lastMonth = getTransactionsData({ period: "last_month" });
+  assert.equal(lastMonth.meta.period, "last_month");
+  assert.ok(lastMonth.transactions.length > 0);
+  assert.ok(lastMonth.transactions.every((expense) => expense.date.startsWith("2026-06")));
+});
+
+test("transactions support amount sorting", () => {
+  const highest = getTransactionsData({ sort: "highest" });
+  const lowest = getTransactionsData({ sort: "lowest" });
+  assert.ok(highest.transactions[0].amount >= highest.transactions.at(-1).amount);
+  assert.ok(lowest.transactions[0].amount <= lowest.transactions.at(-1).amount);
+});
