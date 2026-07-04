@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { getDashboardData } from "../lib/queries.js";
+import { readFileSync } from "node:fs";
+
+const globalsCss = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 
 test("dashboard query returns V1 sections", () => {
   const data = getDashboardData();
@@ -14,4 +17,9 @@ test("dashboard query returns V1 sections", () => {
   assert.ok(data.recentExpenses.length <= 6);
   assert.ok(data.largestExpenses.length <= 6);
   assert.equal(data.people, undefined);
+});
+
+test("transactions load more animation styles are present", () => {
+  assert.match(globalsCss, /\.row-enter/);
+  assert.match(globalsCss, /@keyframes rowEnter/);
 });

@@ -221,6 +221,38 @@ h2 { margin: 6px 0 0; font-family: Manrope; font-size: 28px; letter-spacing: -.0
 }
 .filter-chip b { font-size: 14px; }
 .clear-filters-link { color: var(--blue); background: rgba(59,130,246,.08); }
+.load-more-wrap { display: flex; justify-content: center; margin-top: 20px; }
+.load-more-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(198,198,205,.8);
+  background: white;
+  color: var(--primary);
+  font-weight: 800;
+  box-shadow: 0 14px 30px rgba(19,27,46,.08);
+  cursor: pointer;
+}
+.load-more-link:disabled {
+  opacity: .65;
+  cursor: wait;
+}
+.row-enter {
+  animation: rowEnter .42s cubic-bezier(.22, 1, .36, 1);
+}
+@keyframes rowEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 
 .bars { display: grid; gap: 18px; }
 .bar-row { display: grid; gap: 8px; }

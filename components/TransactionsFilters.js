@@ -18,12 +18,21 @@ const SORT_OPTIONS = [
   { value: "lowest", label: "Lowest amount" },
 ];
 
+function shouldSkipParam(key, value) {
+  return !value || value === "all" || value === 0 || (key === "sort" && value === "newest") || (key === "limit" && Number(value) === 50);
+}
+
+function routeParams(meta, nextValues = {}) {
+  const { q, period, month, category, sort, offset, limit } = { ...meta, ...nextValues };
+  return { q, period, month, category, sort, offset, limit };
+}
+
 export function TransactionsPresets({ meta, onSelect, className = "", pathname = "/transactions" }) {
   function buildHref(nextValues = {}) {
     const params = new URLSearchParams();
-    const values = { ...meta, ...nextValues };
+    const values = routeParams(meta, nextValues);
     for (const [key, value] of Object.entries(values)) {
-      if (!value || value === "all" || (key === "sort" && value === "newest")) continue;
+      if (shouldSkipParam(key, value)) continue;
       params.set(key, value);
     }
     const query = params.toString();
@@ -88,9 +97,9 @@ export function ActiveFilterChips({ meta, categoryOptions }) {
 
   function buildHref(nextValues = {}) {
     const params = new URLSearchParams();
-    const values = { ...meta, ...nextValues };
+    const values = routeParams(meta, nextValues);
     for (const [key, value] of Object.entries(values)) {
-      if (!value || value === "all" || (key === "sort" && value === "newest")) continue;
+      if (shouldSkipParam(key, value)) continue;
       params.set(key, value);
     }
     const query = params.toString();
@@ -127,14 +136,17 @@ export default function TransactionsFilters({ meta, months, categories }) {
 
   function navigate(nextValues, mode = "push") {
     const params = new URLSearchParams(paramsString);
+    const shouldResetOffset = ["q", "period", "month", "category", "sort"].some((key) => key in nextValues);
 
     for (const [key, value] of Object.entries(nextValues)) {
-      if (!value || value === "all" || (key === "sort" && value === "newest")) {
+      if (shouldSkipParam(key, value)) {
         params.delete(key);
       } else {
         params.set(key, value);
       }
     }
+
+    if (shouldResetOffset) params.delete("offset");
 
     const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
     if (mode === "replace") {
@@ -182,17 +194,6 @@ export default function TransactionsFilters({ meta, months, categories }) {
           <TransactionsPresets meta={meta} onSelect={navigate} className="transactions-presets-mobile" />
 
           <form className="filter-card wide-filter instant-filter-card" onSubmit={(event) => event.preventDefault()}>
-            <label>
-              <span className="sr-only">Date range</span>
-              <select
-                name="period"
-                value={meta.period}
-                onChange={(event) => navigate({ period: event.target.value, month: "all" })}
-                aria-label="Date range"
-              >
-                {PERIOD_OPTIONS.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}
-              </select>
-            </label>
             <label>
               <span className="sr-only">Month</span>
               <select

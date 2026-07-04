@@ -50,3 +50,23 @@ test("transactions support amount sorting", () => {
   assert.ok(highest.transactions[0].amount >= highest.transactions.at(-1).amount);
   assert.ok(lowest.transactions[0].amount <= lowest.transactions.at(-1).amount);
 });
+
+test("transactions cap initial rows and expose pagination metadata", () => {
+  const data = getTransactionsData({ limit: 2, offset: 0 });
+  assert.equal(data.transactions.length, 2);
+  assert.equal(data.meta.limit, 2);
+  assert.equal(data.meta.offset, 0);
+  assert.equal(typeof data.meta.hasMore, "boolean");
+  assert.ok(data.meta.totalRows >= data.transactions.length);
+});
+
+test("transactions can load more rows with offset pagination", () => {
+  const firstPage = getTransactionsData({ limit: 2, offset: 0, sort: "newest" });
+  const secondPage = getTransactionsData({ limit: 2, offset: 2, sort: "newest" });
+  assert.equal(secondPage.meta.offset, 2);
+  assert.equal(secondPage.transactions.length <= 2, true);
+  assert.notDeepEqual(
+    firstPage.transactions.map((expense) => expense.id),
+    secondPage.transactions.map((expense) => expense.id),
+  );
+});

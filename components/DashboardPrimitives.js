@@ -110,9 +110,9 @@ export function ExpenseList({ title, expenses, compact = false }) {
   );
 }
 
-export function ExpenseRow({ expense }) {
+export function ExpenseRow({ expense, className = "" }) {
   return (
-    <article className={`expense-row${expense.notes ? " has-note" : ""}`}>
+    <article className={`expense-row${expense.notes ? " has-note" : ""} ${className}`.trim()}>
       <div className={`expense-icon tone-${categoryTone(expense.categorySlug)}`}>{expense.category.slice(0, 1)}</div>
       <div className="expense-copy">
         <strong>{expense.description}</strong>
