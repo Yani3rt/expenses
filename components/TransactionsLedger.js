@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ExpenseRow } from "./DashboardPrimitives.js";
 import { money, monthLabel } from "../lib/format.js";
 
@@ -22,6 +22,13 @@ export default function TransactionsLedger({ initialTransactions, summary, meta 
   const [state, setState] = useState(meta);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [enteredIds, setEnteredIds] = useState([]);
+
+  useEffect(() => {
+    setTransactions(initialTransactions);
+    setState(meta);
+    setEnteredIds([]);
+    setIsLoadingMore(false);
+  }, [initialTransactions, meta]);
 
   const displayedCount = transactions.length;
   const periodBadge = state.month !== "all" ? monthLabel(state.month) : state.periodLabel;

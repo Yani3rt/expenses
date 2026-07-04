@@ -27,7 +27,10 @@ test("transactions filters include presets, sorting, and debounced search naviga
 });
 
 test("transactions ledger appends rows and animates new entries", () => {
+  assert.match(transactionsLedger, /useEffect/);
   assert.match(transactionsLedger, /setTransactions\(\(current\) => \[\.\.\.current, \.\.\.nextItems\]\)/);
+  assert.match(transactionsLedger, /setTransactions\(initialTransactions\)/);
+  assert.match(transactionsLedger, /setState\(meta\)/);
   assert.match(transactionsLedger, /setEnteredIds\(newIds\)/);
   assert.match(transactionsLedger, /className=\{enteredLookup\.has\(expense\.id\) \? "row-enter" : ""\}/);
   assert.match(transactionsLedger, /Loading…/);
