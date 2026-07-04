@@ -34,6 +34,7 @@ test("transactions ledger appends rows and animates new entries", () => {
   assert.match(transactionsLedger, /setEnteredIds\(newIds\)/);
   assert.match(transactionsLedger, /className=\{enteredLookup\.has\(expense\.id\) \? "row-enter" : ""\}/);
   assert.match(transactionsLedger, /Loading…/);
+  assert.doesNotMatch(transactionsLedger, /Number\(value\) === 50/);
 });
 
 test("transactions api route exposes paginated ledger data", () => {

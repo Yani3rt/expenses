@@ -9,7 +9,7 @@ function buildTransactionsApiUrl(meta, nextValues = {}) {
   const { q, period, month, category, sort, offset, limit } = { ...meta, ...nextValues };
   const values = { q, period, month, category, sort, offset, limit };
   for (const [key, value] of Object.entries(values)) {
-    if (!value || value === "all" || value === 0 || (key === "sort" && value === "newest") || (key === "limit" && Number(value) === 50)) continue;
+    if (!value || value === "all" || value === 0 || (key === "sort" && value === "newest") || (key === "limit" && Number(value) === 10)) continue;
     params.set(key, value);
   }
   const href = params.toString() ? `/transactions?${params.toString()}` : "/transactions";

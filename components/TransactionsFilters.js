@@ -19,7 +19,7 @@ const SORT_OPTIONS = [
 ];
 
 function shouldSkipParam(key, value) {
-  return !value || value === "all" || value === 0 || (key === "sort" && value === "newest") || (key === "limit" && Number(value) === 50);
+  return !value || value === "all" || value === 0 || (key === "sort" && value === "newest") || (key === "limit" && Number(value) === 10);
 }
 
 function routeParams(meta, nextValues = {}) {

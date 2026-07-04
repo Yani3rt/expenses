@@ -52,9 +52,9 @@ test("transactions support amount sorting", () => {
 });
 
 test("transactions cap initial rows and expose pagination metadata", () => {
-  const data = getTransactionsData({ limit: 2, offset: 0 });
-  assert.equal(data.transactions.length, 2);
-  assert.equal(data.meta.limit, 2);
+  const data = getTransactionsData({ offset: 0 });
+  assert.equal(data.transactions.length <= 10, true);
+  assert.equal(data.meta.limit, 10);
   assert.equal(data.meta.offset, 0);
   assert.equal(typeof data.meta.hasMore, "boolean");
   assert.ok(data.meta.totalRows >= data.transactions.length);

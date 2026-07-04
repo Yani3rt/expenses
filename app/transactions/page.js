@@ -15,7 +15,7 @@ export default async function TransactionsPage({ searchParams }) {
     category: params?.category || "all",
     sort: params?.sort || "newest",
     offset: params?.offset || 0,
-    limit: params?.limit || 50,
+    limit: params?.limit || 10,
   });
 
   return (
