@@ -39,3 +39,26 @@ test("monthly trend card has an animated timeline reveal", () => {
   assert.match(styles, /\.monthly-trend-card \{[\s\S]*animation: trendCardSweep 620ms var\(--ease-out-expo\) both;/);
   assert.match(styles, /\.month-col \{[\s\S]*animation: trendColumnRise 520ms var\(--ease-out-quint\) both;/);
 });
+
+
+test("dashboard expense lists split the row evenly", () => {
+  assert.match(homePage, /<ExpenseList title="Recent expenses" expenses=\{data\.recentExpenses\} className="span-6 dashboard-expense-list" showCategory={false} \/>/);
+  assert.match(homePage, /<ExpenseList title="Largest expenses" expenses=\{data\.largestExpenses\} compact className="span-6 dashboard-expense-list" showCategory={false} \/>/);
+  assert.match(dashboardPrimitives, /export function ExpenseList\(\{ title, expenses, compact = false, className = "", showCategory = true \}\)/);
+  assert.match(dashboardPrimitives, /className \|\| \(compact \? "span-5" : "span-7"\)/);
+});
+
+
+test("dashboard expense lists stack earlier on tablet for legibility", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(homePage, /dashboard-expense-list/);
+  assert.match(styles, /@media \(max-width: 980px\) \{[\s\S]*\.dashboard-expense-list \{ grid-column: span 12; \}/);
+});
+
+
+test("dashboard home expense lists can hide category chips", () => {
+  assert.match(dashboardPrimitives, /showCategory = true/);
+  assert.match(dashboardPrimitives, /<ExpenseRow expense=\{expense\} showCategory=\{showCategory\}/);
+  assert.match(dashboardPrimitives, /showCategory \? <CategoryPill/);
+  assert.match(homePage, /showCategory=\{false\}/);
+});

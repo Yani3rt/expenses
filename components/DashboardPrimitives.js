@@ -99,9 +99,9 @@ export function MonthlyTrend({ months, className = "span-5" }) {
   );
 }
 
-export function ExpenseList({ title, expenses, compact = false }) {
+export function ExpenseList({ title, expenses, compact = false, className = "", showCategory = true }) {
   return (
-    <section className={`card ${compact ? "span-5" : "span-7"}`}>
+    <section className={`card ${className || (compact ? "span-5" : "span-7")}`.trim()}>
       <div className="section-head">
         <div>
           <p className="label">{compact ? "Watchlist" : "Transaction feed"}</p>
@@ -110,13 +110,13 @@ export function ExpenseList({ title, expenses, compact = false }) {
         {!compact ? <Link className="text-link" href="/transactions">Open ledger</Link> : null}
       </div>
       <div className="expense-list">
-        {expenses.map((expense) => <ExpenseRow expense={expense} key={`${title}-${expense.id}`} />)}
+        {expenses.map((expense) => <ExpenseRow expense={expense} showCategory={showCategory} key={`${title}-${expense.id}`} />)}
       </div>
     </section>
   );
 }
 
-export function ExpenseRow({ expense, className = "" }) {
+export function ExpenseRow({ expense, className = "", showCategory = true }) {
   return (
     <article className={`expense-row${expense.notes ? " has-note" : ""} ${className}`.trim()}>
       <div className={`expense-icon tone-${categoryTone(expense.categorySlug)}`}>
@@ -127,7 +127,7 @@ export function ExpenseRow({ expense, className = "" }) {
         <span className="expense-meta">{shortDate(expense.date)} · {expense.paidBy}</span>
         {expense.notes ? <small className="expense-note">{expense.notes}</small> : null}
       </div>
-      <CategoryPill slug={expense.categorySlug}>{expense.category}</CategoryPill>
+      {showCategory ? <CategoryPill slug={expense.categorySlug}>{expense.category}</CategoryPill> : null}
       <b className="expense-amount">{money(expense.amount, expense.currency)}</b>
     </article>
   );

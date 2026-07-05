@@ -29,8 +29,8 @@ export default function Home() {
         <CategoryBars categories={data.categories} />
         <Donut categories={data.categories} />
         <MonthlyTrend months={data.monthlyTotals} className="span-12" />
-        <ExpenseList title="Recent expenses" expenses={data.recentExpenses} />
-        <ExpenseList title="Largest expenses" expenses={data.largestExpenses} compact />
+        <ExpenseList title="Recent expenses" expenses={data.recentExpenses} className="span-6 dashboard-expense-list" showCategory={false} />
+        <ExpenseList title="Largest expenses" expenses={data.largestExpenses} compact className="span-6 dashboard-expense-list" showCategory={false} />
       </section>
     </>
   );
