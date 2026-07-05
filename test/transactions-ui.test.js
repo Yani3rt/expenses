@@ -74,3 +74,11 @@ test("transactions ledger animates on initial show and staggers visible rows", (
   assert.match(styles, /\.dense-list \.expense-row:nth-child\(3\) \{ animation-delay: 114ms; \}/);
   assert.match(styles, /\.row-enter \{ animation-duration: 520ms; \}/);
 });
+
+
+test("mobile transactions filter stack trims reserved sticky space", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.transactions-filter-shell \{ margin-top: 12px; padding-top: 66px; \}/);
+  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.sticky-search-bar \{[\s\S]*padding: 8px 10px;[\s\S]*gap: 8px;/);
+  assert.match(styles, /@media \(max-width: 520px\)[\s\S]*\.transactions-filter-shell \{ padding-top: 62px; \}/);
+});

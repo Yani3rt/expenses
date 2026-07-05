@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 const spendingPage = readFileSync(new URL("../app/spending/page.js", import.meta.url), "utf8");
 const monthPicker = readFileSync(new URL("../components/MonthPicker.js", import.meta.url), "utf8");
 const categoryDetailCards = readFileSync(new URL("../components/CategoryDetailCards.js", import.meta.url), "utf8");
+const dashboardPrimitives = readFileSync(new URL("../components/DashboardPrimitives.js", import.meta.url), "utf8");
 const globalsCss = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 
 test("spending month picker lives in the page header action, not a filter card", () => {
@@ -47,4 +48,14 @@ test("category detail cards become a horizontal scroll rail on smaller screens",
   assert.doesNotMatch(categoryCss, /category-details-supporting/);
   assert.doesNotMatch(categoryCss, /display: contents;/);
   assert.match(globalsCss, /flex: 0 0 min\(300px, 82vw\);/);
+});
+
+
+test("spending title animates when the month changes", () => {
+  assert.match(spendingPage, /animateTitleOnChange/);
+  assert.match(spendingPage, /titleAnimationKey=\{data\.activeMonth\}/);
+  assert.match(dashboardPrimitives, /title-animates-on-change/);
+  assert.match(dashboardPrimitives, /page-title-copy/);
+  assert.match(globalsCss, /@keyframes titleSwapIn/);
+  assert.match(globalsCss, /\.page-title-copy \{ display: inline-block; animation: titleSwapIn 360ms var\(--ease-out-quint\) both;/);
 });

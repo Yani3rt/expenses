@@ -4,12 +4,12 @@ import { AppIcon, CategoryIcon } from "./Icons.js";
 import { categoryTone } from "../lib/categories.js";
 import { compactNumber, money, shortDate } from "../lib/format.js";
 
-export function PageHeader({ kicker, title, children, action, className = "", titleClassName = "", ledeClassName = "" }) {
+export function PageHeader({ kicker, title, children, action, className = "", titleClassName = "", ledeClassName = "", animateTitleOnChange = false, titleAnimationKey }) {
   return (
     <header className={`page-header ${className}`.trim()}>
       <div>
         <p className="label">{kicker}</p>
-        <h1 className={titleClassName}>{title}</h1>
+        <h1 className={`${titleClassName}${animateTitleOnChange ? " title-animates-on-change" : ""}`.trim()}>{animateTitleOnChange ? <span className="page-title-copy" key={titleAnimationKey ?? title}>{title}</span> : title}</h1>
         {children ? <p className={`lede ${ledeClassName}`.trim()}>{children}</p> : null}
       </div>
       {action ? <div className="page-action">{action}</div> : null}

@@ -20,6 +20,8 @@ export default async function SpendingPage({ searchParams }) {
         title={heading}
         titleClassName="spending-mobile-hide"
         ledeClassName="spending-mobile-hide"
+        animateTitleOnChange
+        titleAnimationKey={data.activeMonth}
         action={<MonthPicker months={data.months} activeMonth={data.activeMonth} />}
       >
         Pick a month, or switch to All to see lifetime totals by category.

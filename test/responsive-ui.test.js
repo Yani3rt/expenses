@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const sidebar = readFileSync(new URL("../components/Sidebar.js", import.meta.url), "utf8");
+const mobileViewportAnimator = readFileSync(new URL("../components/MobileViewportAnimator.js", import.meta.url), "utf8");
+const layout = readFileSync(new URL("../app/layout.js", import.meta.url), "utf8");
 const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 
 test("mobile navigation uses a toggle button and backdrop instead of turning into a horizontal top nav", () => {
@@ -39,4 +41,22 @@ test("motion layer respects reduced motion and uses transform-based animations",
   assert.match(styles, /@keyframes fillBar/);
   assert.match(styles, /transform: translateY/);
   assert.match(styles, /transition: transform/);
+});
+
+
+test("mobile viewport animator pauses offscreen card animations until they enter view", () => {
+  assert.match(layout, /<MobileViewportAnimator \/>/);
+  assert.match(mobileViewportAnimator, /IntersectionObserver/);
+  assert.match(mobileViewportAnimator, /motion-pending/);
+  assert.match(mobileViewportAnimator, /\(max-width: 760px\)/);
+  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*animation-play-state: paused !important;/);
+  assert.match(styles, /\.motion-reveal-target\.motion-pending \{[\s\S]*will-change: transform, opacity;/);
+});
+
+
+test("mobile viewport animator re-arms when the Next.js route changes", () => {
+  assert.match(mobileViewportAnimator, /usePathname/);
+  assert.match(mobileViewportAnimator, /routeKey/);
+  assert.match(mobileViewportAnimator, /requestAnimationFrame/);
+  assert.match(mobileViewportAnimator, /\}, \[routeKey\]\);/);
 });
