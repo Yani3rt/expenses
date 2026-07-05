@@ -42,7 +42,7 @@ export function CategoryPill({ slug, children }) {
   );
 }
 
-export function CategoryBars({ categories, title = "Where the money went", label = "Category flow" }) {
+export function CategoryBars({ categories, title = "Category totals", label = "Spending breakdown" }) {
   const max = Math.max(...categories.map((c) => c.totalSpend), 1);
   return (
     <section className="card span-7">
@@ -104,7 +104,7 @@ export function ExpenseList({ title, expenses, compact = false, className = "", 
     <section className={`card ${className || (compact ? "span-5" : "span-7")}`.trim()}>
       <div className="section-head">
         <div>
-          <p className="label">{compact ? "Watchlist" : "Transaction feed"}</p>
+          <p className="label">{compact ? "Highest amounts" : "Recent spending"}</p>
           <h2>{title}</h2>
         </div>
         {!compact ? <Link className="text-link" href="/transactions">Open ledger</Link> : null}
@@ -137,9 +137,9 @@ export function SummaryMetrics({ summary, totalLabel = "Total spend" }) {
   return (
     <section className="metrics-grid compact-metrics">
       <MetricCard label={totalLabel} value={money(summary.totalSpend)} detail={`${compactNumber(summary.expenseCount)} expenses`} tone="blue" icon="money" />
-      <MetricCard label="Average expense" value={money(summary.averageExpense)} detail="Mean transaction size" tone="primary" icon="chart" />
-      <MetricCard label="First expense" value={shortDate(summary.firstExpenseDate)} detail="Oldest matching record" tone="indigo" icon="calendar" />
-      <MetricCard label="Latest expense" value={shortDate(summary.latestExpenseDate)} detail="Newest matching record" tone="emerald" icon="clock" />
+      <MetricCard label="Average expense" value={money(summary.averageExpense)} detail="Typical expense size" tone="primary" icon="chart" />
+      <MetricCard label="First expense" value={shortDate(summary.firstExpenseDate)} detail="Earliest matching expense" tone="indigo" icon="calendar" />
+      <MetricCard label="Latest expense" value={shortDate(summary.latestExpenseDate)} detail="Most recent matching expense" tone="emerald" icon="clock" />
     </section>
   );
 }

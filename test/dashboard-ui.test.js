@@ -62,3 +62,18 @@ test("dashboard home expense lists can hide category chips", () => {
   assert.match(dashboardPrimitives, /showCategory \? <CategoryPill/);
   assert.match(homePage, /showCategory=\{false\}/);
 });
+
+
+test("dashboard copy uses clearer household-friendly language", () => {
+  assert.match(homePage, /Read only/);
+  assert.match(homePage, /Lifetime spend/);
+  assert.match(homePage, /Biggest expense/);
+  assert.match(homePage, /See this month's spending, biggest categories, recent purchases, and whether the data is up to date\./);
+  assert.match(dashboardPrimitives, /Category totals/);
+  assert.match(dashboardPrimitives, /Spending breakdown/);
+  assert.match(dashboardPrimitives, /Recent spending/);
+  assert.match(dashboardPrimitives, /Highest amounts/);
+  assert.match(dashboardPrimitives, /Typical expense size/);
+  assert.match(dashboardPrimitives, /Earliest matching expense/);
+  assert.match(dashboardPrimitives, /Most recent matching expense/);
+});

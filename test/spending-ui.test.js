@@ -59,3 +59,8 @@ test("spending title animates when the month changes", () => {
   assert.match(globalsCss, /@keyframes titleSwapIn/);
   assert.match(globalsCss, /\.page-title-copy \{ display: inline-block; animation: titleSwapIn 360ms var\(--ease-out-quint\) both;/);
 });
+
+
+test("spending page explains the month switch more clearly", () => {
+  assert.match(spendingPage, /Choose a month to compare categories, or switch to All to review lifetime spending\./);
+});

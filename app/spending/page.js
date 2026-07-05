@@ -24,7 +24,7 @@ export default async function SpendingPage({ searchParams }) {
         titleAnimationKey={data.activeMonth}
         action={<MonthPicker months={data.months} activeMonth={data.activeMonth} />}
       >
-        Pick a month, or switch to All to see lifetime totals by category.
+        Choose a month to compare categories, or switch to All to review lifetime spending.
       </PageHeader>
 
       <SummaryMetrics summary={data.summary} totalLabel={data.activeMonth === "all" ? "All-time spend" : "Month spend"} />

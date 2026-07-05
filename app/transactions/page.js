@@ -23,9 +23,10 @@ export default async function TransactionsPage({ searchParams }) {
       <PageHeader
         className="transactions-page-header"
         kicker="Transactions"
-        title="Filtered expense ledger"
+        title="Expense ledger"
         titleClassName="transactions-mobile-hide"
       >
+        Search, filter, and sort the expenses that match.
       </PageHeader>
 
       <TransactionsFilters meta={data.meta} months={data.months} categories={data.categories} />

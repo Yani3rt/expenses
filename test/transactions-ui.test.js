@@ -82,3 +82,9 @@ test("mobile transactions filter stack trims reserved sticky space", () => {
   assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.sticky-search-bar \{[\s\S]*padding: 8px 10px;[\s\S]*gap: 8px;/);
   assert.match(styles, /@media \(max-width: 520px\)[\s\S]*\.transactions-filter-shell \{ padding-top: 62px; \}/);
 });
+
+
+test("transactions header copy explains the page purpose", () => {
+  assert.match(transactionsPage, /title="Expense ledger"/);
+  assert.match(transactionsPage, /Search, filter, and sort the expenses that match\./);
+});

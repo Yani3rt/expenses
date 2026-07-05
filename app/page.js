@@ -13,16 +13,16 @@ export default function Home() {
       <PageHeader
         kicker={monthLabel(data.month.activeMonth)}
         title="Dashboard"
-        action={<span className="readonly-chip"><span className="status-dot" />READ ONLY</span>}
+        action={<span className="readonly-chip"><span className="status-dot" />Read only</span>}
       >
-        Fast read on spending, category pressure, recent transactions, and database freshness.
+        See this month's spending, biggest categories, recent purchases, and whether the data is up to date.
       </PageHeader>
 
       <section className="metrics-grid">
         <MetricCard label="Month spend" value={money(data.month.totalSpend)} detail={`${compactNumber(data.month.expenseCount)} expenses · avg ${money(data.month.averageExpense)}`} tone="blue" icon="money" />
-        <MetricCard label="All-time tracked" value={money(data.overview.totalSpend)} detail={`${compactNumber(data.overview.expenseCount)} records since ${shortDate(data.overview.firstExpenseDate)}`} tone="primary" icon="database" />
+        <MetricCard label="Lifetime spend" value={money(data.overview.totalSpend)} detail={`${compactNumber(data.overview.expenseCount)} records since ${shortDate(data.overview.firstExpenseDate)}`} tone="primary" icon="database" />
         <MetricCard label="Top category" value={data.topCategory?.category || "—"} detail={data.topCategory ? `${money(data.topCategory.totalSpend)} · ${data.topCategory.expenseCount} expenses` : "No category data"} tone={categoryTone(data.topCategory?.categorySlug)} icon="tag" />
-        <MetricCard label="Largest expense" value={data.largestExpense ? money(data.largestExpense.amount) : "—"} detail={data.largestExpense ? `${data.largestExpense.description} · ${shortDate(data.largestExpense.date)}` : "No expenses"} tone="coral" icon="alert" />
+        <MetricCard label="Biggest expense" value={data.largestExpense ? money(data.largestExpense.amount) : "—"} detail={data.largestExpense ? `${data.largestExpense.description} · ${shortDate(data.largestExpense.date)}` : "No expenses"} tone="coral" icon="alert" />
       </section>
 
       <section className="content-grid">

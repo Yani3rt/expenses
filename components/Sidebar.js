@@ -59,7 +59,7 @@ export default function Sidebar() {
           <span className="brand-mark">EV</span>
           <span>
             <strong>Expense Viewer</strong>
-            <small>Read-only cockpit</small>
+            <small>Read-only viewer</small>
           </span>
         </Link>
         <button
@@ -99,7 +99,7 @@ export default function Sidebar() {
             <span className="brand-mark">EV</span>
             <span>
               <strong>Expense Viewer</strong>
-              <small>Read-only cockpit</small>
+              <small>Read-only viewer</small>
             </span>
           </Link>
           <button
@@ -140,7 +140,7 @@ export default function Sidebar() {
         <div className="sidebar-status">
           <span className="status-dot" />
           <div>
-            <strong>READ ONLY</strong>
+            <strong>Read only</strong>
             <small>No writes. No migrations.</small>
           </div>
         </div>
