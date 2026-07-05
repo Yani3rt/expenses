@@ -1,8 +1,8 @@
-import { CategoryBars, Donut, PageHeader, SummaryMetrics } from "../../components/DashboardPrimitives.js";
+import { CategoryBars, Donut, MetricCard, PageHeader } from "../../components/DashboardPrimitives.js";
 import CategoryDetailCards from "../../components/CategoryDetailCards.js";
 import MonthPicker from "../../components/MonthPicker.js";
 import { getSpendingData } from "../../lib/queries.js";
-import { monthLabel } from "../../lib/format.js";
+import { money, monthLabel } from "../../lib/format.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,14 +24,25 @@ export default async function SpendingPage({ searchParams }) {
         titleAnimationKey={data.activeMonth}
         action={<MonthPicker months={data.months} activeMonth={data.activeMonth} />}
       >
-        Choose a month to compare categories, or switch to All to review lifetime spending.
+        Pick a month to compare category spending.
       </PageHeader>
 
-      <SummaryMetrics
-        summary={data.summary}
-        totalLabel={data.activeMonth === "all" ? "All-time spend" : "Month spend"}
-        className="spending-summary-metrics"
-      />
+      <section className="metrics-grid compact-metrics spending-summary-metrics distilled-spending-metrics">
+        <MetricCard
+          label={data.activeMonth === "all" ? "All-time spend" : "Month spend"}
+          value={money(data.summary.totalSpend)}
+          detail={`${data.summary.expenseCount} expenses`}
+          tone="blue"
+          icon="money"
+        />
+        <MetricCard
+          label="Average expense"
+          value={money(data.summary.averageExpense)}
+          detail="Typical expense size"
+          tone="primary"
+          icon="chart"
+        />
+      </section>
 
       <section className="content-grid">
         <CategoryBars categories={data.categories} title="Category totals" label="Spending split" />

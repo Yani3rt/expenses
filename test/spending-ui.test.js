@@ -31,6 +31,15 @@ test("spending page hides title and supporting copy on the smallest mobile break
   assert.match(spendingPage, /ledeClassName="spending-mobile-hide"/);
 });
 
+test("spending page distills the summary row to the two core metrics", () => {
+  assert.match(spendingPage, /className="metrics-grid compact-metrics spending-summary-metrics distilled-spending-metrics"/);
+  assert.match(spendingPage, /label=\{data\.activeMonth === "all" \? "All-time spend" : "Month spend"\}/);
+  assert.match(spendingPage, /label="Average expense"/);
+  assert.doesNotMatch(spendingPage, /label="First expense"/);
+  assert.doesNotMatch(spendingPage, /label="Latest expense"/);
+  assert.match(globalsCss, /\.distilled-spending-metrics \{/);
+});
+
 test("spending page renders premium category detail cards in the deleted slot", () => {
   assert.match(spendingPage, /<CategoryDetailCards categories=\{data\.categories\} \/>/);
   assert.match(categoryDetailCards, /Count/);
@@ -62,5 +71,10 @@ test("spending title animates when the month changes", () => {
 
 
 test("spending page explains the month switch more clearly", () => {
-  assert.match(spendingPage, /Choose a month to compare categories, or switch to All to review lifetime spending\./);
+  assert.match(spendingPage, /Pick a month to compare category spending\./);
+});
+
+test("spending bars remove redundant average detail", () => {
+  assert.match(dashboardPrimitives, /<small>\{category\.expenseCount\} expenses<\/small>/);
+  assert.doesNotMatch(dashboardPrimitives, /avg \{money\(category\.averageExpense\)\}/);
 });

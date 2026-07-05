@@ -68,6 +68,7 @@ test("dashboard copy uses clearer household-friendly language", () => {
   assert.match(homePage, /Read only/);
   assert.match(homePage, /Lifetime spend/);
   assert.match(homePage, /Biggest expense/);
+  assert.doesNotMatch(homePage, /Top category/);
   assert.match(homePage, /See this month's spending, biggest categories, recent purchases, and whether the data is up to date\./);
   assert.match(dashboardPrimitives, /Category totals/);
   assert.match(dashboardPrimitives, /Spending breakdown/);
@@ -76,4 +77,11 @@ test("dashboard copy uses clearer household-friendly language", () => {
   assert.match(dashboardPrimitives, /Typical expense size/);
   assert.match(dashboardPrimitives, /Earliest matching expense/);
   assert.match(dashboardPrimitives, /Most recent matching expense/);
+});
+
+test("dashboard summary row uses three cards after removing top category", () => {
+  assert.match(homePage, /className="metrics-grid dashboard-summary-metrics"/);
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(styles, /\.dashboard-summary-metrics \{[\s\S]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/);
+  assert.match(styles, /\.dashboard-summary-metrics > \.metric \{[\s\S]*grid-column: span 1;/);
 });

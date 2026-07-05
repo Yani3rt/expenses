@@ -65,7 +65,7 @@ export function CategoryBars({ categories, title = "Category totals", label = "S
               <div className="bar-track">
                 <div className={`bar-fill tone-${tone}`} style={{ width: `${width}%` }} />
               </div>
-              <small>{category.expenseCount} expenses · avg {money(category.averageExpense)}</small>
+              <small>{category.expenseCount} expenses</small>
             </div>
           );
         })}

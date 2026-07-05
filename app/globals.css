@@ -308,6 +308,19 @@ body.sidebar-collapsed .workspace { padding-left: 76px; }
 .dashboard-summary-metrics > .metric:hover .metric-icon {
   transform: rotate(-4deg) scale(1.04);
 }
+.dashboard-summary-metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.dashboard-summary-metrics > .metric {
+  grid-column: span 1;
+}
+.distilled-spending-metrics {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.distilled-spending-metrics > .metric {
+  grid-column: span 1;
+}
 .span-5 { grid-column: span 5; }
 .span-6 { grid-column: span 6; }
 .span-7 { grid-column: span 7; }
