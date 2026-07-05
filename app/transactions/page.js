@@ -1,4 +1,4 @@
-import { PageHeader, SummaryMetrics } from "../../components/DashboardPrimitives.js";
+import { PageHeader } from "../../components/DashboardPrimitives.js";
 import TransactionsLedger from "../../components/TransactionsLedger.js";
 import TransactionsFilters, { ActiveFilterChips } from "../../components/TransactionsFilters.js";
 import { getTransactionsData } from "../../lib/queries.js";
@@ -26,13 +26,11 @@ export default async function TransactionsPage({ searchParams }) {
         title="Expense ledger"
         titleClassName="transactions-mobile-hide"
       >
-        Search, filter, and sort the expenses that match.
+        Search and narrow down the expenses you need.
       </PageHeader>
 
       <TransactionsFilters meta={data.meta} months={data.months} categories={data.categories} />
-      <ActiveFilterChips meta={data.meta} categoryOptions={data.categories} />
-
-      <SummaryMetrics summary={data.summary} totalLabel="Filtered spend" />
+      <ActiveFilterChips meta={data.meta} categoryOptions={data.categories} summary={data.summary} />
       <TransactionsLedger initialTransactions={data.transactions} meta={data.meta} summary={data.summary} />
     </>
   );

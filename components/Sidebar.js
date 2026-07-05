@@ -137,13 +137,6 @@ export default function Sidebar() {
             );
           })}
         </nav>
-        <div className="sidebar-status">
-          <span className="status-dot" />
-          <div>
-            <strong>Read only</strong>
-            <small>No writes. No migrations.</small>
-          </div>
-        </div>
       </aside>
     </>
   );

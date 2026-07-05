@@ -78,13 +78,18 @@ test("transactions ledger animates on initial show and staggers visible rows", (
 
 test("mobile transactions filter stack trims reserved sticky space", () => {
   const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
-  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.transactions-filter-shell \{ margin-top: 12px; padding-top: 66px; \}/);
-  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.sticky-search-bar \{[\s\S]*padding: 8px 10px;[\s\S]*gap: 8px;/);
-  assert.match(styles, /@media \(max-width: 520px\)[\s\S]*\.transactions-filter-shell \{ padding-top: 62px; \}/);
+  assert.match(styles, /@media \(max-width: 1080px\)[\s\S]*\.app-shell \{[\s\S]*align-content: start;[\s\S]*grid-auto-rows: min-content;[\s\S]*\}/);
+  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.transactions-filter-shell \{ margin-top: 12px; padding-top: 0; \}/);
+  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.sticky-search-bar \{[\s\S]*position: sticky;[\s\S]*top: 80px;[\s\S]*padding: 8px 10px;[\s\S]*gap: 8px;/);
+  assert.match(styles, /@media \(max-width: 520px\)[\s\S]*\.transactions-filter-shell \{ padding-top: 0; \}/);
+  assert.match(styles, /@media \(max-width: 520px\)[\s\S]*\.expense-row \{[\s\S]*grid-template-columns: 44px minmax\(0, 1fr\) auto;[\s\S]*\}/);
+  assert.match(styles, /@media \(max-width: 520px\)[\s\S]*\.expense-row b \{[\s\S]*grid-column: 3;[\s\S]*justify-self: end;[\s\S]*align-self: start;[\s\S]*\}/);
 });
 
 
 test("transactions header copy explains the page purpose", () => {
   assert.match(transactionsPage, /title="Expense ledger"/);
-  assert.match(transactionsPage, /Search, filter, and sort the expenses that match\./);
+  assert.match(transactionsPage, /Search and narrow down the expenses you need\./);
+  assert.doesNotMatch(transactionsPage, /<SummaryMetrics/);
+  assert.match(transactionsFilters, /filter-results-summary/);
 });

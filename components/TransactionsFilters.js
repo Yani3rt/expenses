@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { compactNumber, money } from "../lib/format.js";
 
 const PERIOD_OPTIONS = [
   { value: "all", label: "All time" },
@@ -65,7 +66,7 @@ export function TransactionsPresets({ meta, onSelect, className = "", pathname =
   );
 }
 
-export function ActiveFilterChips({ meta, categoryOptions }) {
+export function ActiveFilterChips({ meta, categoryOptions, summary }) {
   const chips = [];
   const categoryLabel = categoryOptions.find((category) => category.slug === meta.category)?.name;
 
@@ -91,7 +92,7 @@ export function ActiveFilterChips({ meta, categoryOptions }) {
     chips.push({ key: "sort", label: sortLabel, next: { sort: "newest" } });
   }
 
-  if (!chips.length) return null;
+  if (!chips.length && !summary) return null;
 
   const pathname = "/transactions";
 
@@ -108,6 +109,12 @@ export function ActiveFilterChips({ meta, categoryOptions }) {
 
   return (
     <div className="active-filter-row">
+      {summary ? (
+        <div className="filter-results-summary" aria-label="Current ledger summary">
+          <strong>{compactNumber(summary.expenseCount)} matches</strong>
+          <span>{money(summary.totalSpend)} total</span>
+        </div>
+      ) : null}
       <div className="active-filter-chips">
         {chips.map((chip) => (
           <a className="filter-chip" href={buildHref(chip.next)} key={chip.key}>
@@ -116,7 +123,7 @@ export function ActiveFilterChips({ meta, categoryOptions }) {
           </a>
         ))}
       </div>
-      <a className="clear-filters-link" href="/transactions">Clear all</a>
+      {chips.length ? <a className="clear-filters-link" href="/transactions">Clear all</a> : null}
     </div>
   );
 }

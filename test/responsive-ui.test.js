@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const sidebar = readFileSync(new URL("../components/Sidebar.js", import.meta.url), "utf8");
+const mobileBackToTop = readFileSync(new URL("../components/MobileBackToTop.js", import.meta.url), "utf8");
 const mobileViewportAnimator = readFileSync(new URL("../components/MobileViewportAnimator.js", import.meta.url), "utf8");
 const layout = readFileSync(new URL("../app/layout.js", import.meta.url), "utf8");
 const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
@@ -18,7 +19,8 @@ test("mobile navigation uses a toggle button and backdrop instead of turning int
 test("small-screen layout collapses grids to one column and prevents horizontal overflow regressions", () => {
   assert.match(styles, /body \{[^}]*overflow-x: hidden;/);
   assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.metrics-grid, \.content-grid, \.status-grid \{ grid-template-columns: minmax\(0, 1fr\);/);
-  assert.match(styles, /@media \(max-width: 520px\)[\s\S]*\.expense-row \{[\s\S]*grid-template-columns: 44px minmax\(0, 1fr\);/);
+  assert.match(styles, /@media \(max-width: 520px\)[\s\S]*\.expense-row \{[\s\S]*grid-template-columns: 44px minmax\(0, 1fr\) auto;/);
+  assert.match(styles, /@media \(max-width: 520px\)[\s\S]*\.expense-row b \{[\s\S]*grid-column: 3;[\s\S]*justify-self: end;/);
   assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.category-table \.rank \{ grid-column: 1; grid-row: 1 \/ span 2;/);
   assert.match(styles, /@media \(max-width: 520px\)[\s\S]*\.category-table b \{ grid-column: 2 \/ -1; grid-row: 3;/);
 });
@@ -59,4 +61,14 @@ test("mobile viewport animator re-arms when the Next.js route changes", () => {
   assert.match(mobileViewportAnimator, /routeKey/);
   assert.match(mobileViewportAnimator, /requestAnimationFrame/);
   assert.match(mobileViewportAnimator, /\}, \[routeKey\]\);/);
+});
+
+test("mobile back-to-top button only appears after the top leaves view", () => {
+  assert.match(layout, /data-top-sentinel/);
+  assert.match(layout, /<MobileBackToTop \/>/);
+  assert.match(mobileBackToTop, /IntersectionObserver/);
+  assert.match(mobileBackToTop, /data-top-sentinel/);
+  assert.match(mobileBackToTop, /window\.scrollTo\(\{ top: 0, behavior:/);
+  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.mobile-back-to-top \{/);
+  assert.match(styles, /\.mobile-back-to-top\.is-visible \{/);
 });
