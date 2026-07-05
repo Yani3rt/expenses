@@ -101,7 +101,7 @@
 }
 
 @keyframes titleSwapIn {
-  from { opacity: 0; transform: translateY(10px) scale(.985); filter: blur(8px); }
+  from { opacity: 0; transform: translateY(6px) scale(.992); filter: blur(4px); }
   to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 
@@ -270,7 +270,7 @@ body.sidebar-collapsed .workspace { padding-left: 76px; }
 .workspace { width: 100%; min-width: 0; padding: 36px 40px 44px; }
 .page-header { display: flex; justify-content: space-between; align-items: end; gap: 28px; padding: 4px 0 10px; }
 .page-header h1 { margin: 8px 0 0; font-family: Manrope, sans-serif; font-size: clamp(36px, 5vw, 56px); line-height: .96; letter-spacing: -.05em; }
-.page-title-copy { display: inline-block; animation: titleSwapIn 360ms var(--ease-out-quint) both; transform-origin: left center; }
+.page-title-copy { display: inline-block; animation: titleSwapIn 520ms var(--ease-out-quart) both; transform-origin: left center; }
 .page-header .lede { max-width: 680px; margin: 10px 0 0; color: var(--on-variant); font-size: 18px; line-height: 1.45; }
 .page-action { flex: none; }
 .readonly-chip { display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 999px; background: rgba(16,185,129,.10); color: var(--secondary); border: 1px solid rgba(0,108,73,.18); font-family: "JetBrains Mono"; font-weight: 800; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
@@ -293,10 +293,21 @@ body.sidebar-collapsed .workspace { padding-left: 76px; }
   display: grid;
   place-items: center;
   background: color-mix(in srgb, currentColor 12%, white);
+  transition: transform .24s var(--ease-out-quart), background .24s var(--ease-out-quart);
 }
 .metric-icon .app-icon { width: 20px; height: 20px; }
 .metric strong { display: block; margin: 18px 0 10px; font-family: Manrope; font-size: clamp(25px, 2.35vw, 30px); line-height: 1; letter-spacing: -.04em; overflow-wrap: anywhere; }
 .metric span { color: var(--on-variant); }
+.spending-summary-metrics > .metric:hover,
+.dashboard-summary-metrics > .metric:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 28px 76px rgba(19,27,46,.14);
+  border-color: rgba(198,198,205,.86);
+}
+.spending-summary-metrics > .metric:hover .metric-icon,
+.dashboard-summary-metrics > .metric:hover .metric-icon {
+  transform: rotate(-4deg) scale(1.04);
+}
 .span-5 { grid-column: span 5; }
 .span-6 { grid-column: span 6; }
 .span-7 { grid-column: span 7; }
@@ -490,7 +501,7 @@ h2 { margin: 6px 0 0; font-family: Manrope; font-size: 28px; letter-spacing: -.0
 .expense-row:hover { transform: translateX(3px); }
 .expense-row > * { min-width: 0; }
 .expense-row:last-child { border-bottom: 0; }
-.expense-copy { min-width: 0; display: grid; gap: 4px; }
+.expense-copy { min-width: 0; display: grid; gap: 4px; transition: transform .2s var(--ease-out-quart); }
 .expense-row strong { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .expense-row span { color: var(--on-variant); font-size: 14px; overflow-wrap: anywhere; }
 .expense-meta { font-size: 14px; }
@@ -508,6 +519,25 @@ h2 { margin: 6px 0 0; font-family: Manrope; font-size: 28px; letter-spacing: -.0
 .expense-amount { font-size: 20px; letter-spacing: -.03em; }
 .expense-icon { width: 44px; height: 44px; border-radius: 999px; display: grid; place-items: center; background: color-mix(in srgb, currentColor 18%, white); color: currentColor; font-weight: 800; }
 .expense-icon .app-icon { width: 20px; height: 20px; }
+.ledger-card .expense-row .expense-icon,
+.ledger-card .expense-row .pill,
+.ledger-card .expense-row .expense-amount {
+  transition: transform .2s var(--ease-out-quart), box-shadow .2s var(--ease-out-quart), background .2s var(--ease-out-quart);
+}
+.ledger-card .expense-row:hover .expense-icon {
+  transform: translateX(2px) scale(1.03);
+}
+.ledger-card .expense-row:hover .expense-copy {
+  transform: translateX(2px);
+}
+.ledger-card .expense-row:hover .pill {
+  transform: translateX(2px);
+  background: white;
+  box-shadow: 0 10px 24px rgba(19,27,46,.08);
+}
+.ledger-card .expense-row:hover .expense-amount {
+  transform: translateX(2px);
+}
 .ledger-card {
   margin-top: 18px;
   animation: ledgerReveal 520ms var(--ease-out-expo) both;

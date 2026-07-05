@@ -57,7 +57,7 @@ test("spending title animates when the month changes", () => {
   assert.match(dashboardPrimitives, /title-animates-on-change/);
   assert.match(dashboardPrimitives, /page-title-copy/);
   assert.match(globalsCss, /@keyframes titleSwapIn/);
-  assert.match(globalsCss, /\.page-title-copy \{ display: inline-block; animation: titleSwapIn 360ms var\(--ease-out-quint\) both;/);
+  assert.match(globalsCss, /\.page-title-copy \{ display: inline-block; animation: titleSwapIn 520ms var\(--ease-out-quart\) both;/);
 });
 
 

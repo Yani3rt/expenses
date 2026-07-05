@@ -133,9 +133,9 @@ export function ExpenseRow({ expense, className = "", showCategory = true }) {
   );
 }
 
-export function SummaryMetrics({ summary, totalLabel = "Total spend" }) {
+export function SummaryMetrics({ summary, totalLabel = "Total spend", className = "" }) {
   return (
-    <section className="metrics-grid compact-metrics">
+    <section className={`metrics-grid compact-metrics ${className}`.trim()}>
       <MetricCard label={totalLabel} value={money(summary.totalSpend)} detail={`${compactNumber(summary.expenseCount)} expenses`} tone="blue" icon="money" />
       <MetricCard label="Average expense" value={money(summary.averageExpense)} detail="Typical expense size" tone="primary" icon="chart" />
       <MetricCard label="First expense" value={shortDate(summary.firstExpenseDate)} detail="Earliest matching expense" tone="indigo" icon="calendar" />

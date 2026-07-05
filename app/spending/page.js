@@ -27,7 +27,11 @@ export default async function SpendingPage({ searchParams }) {
         Choose a month to compare categories, or switch to All to review lifetime spending.
       </PageHeader>
 
-      <SummaryMetrics summary={data.summary} totalLabel={data.activeMonth === "all" ? "All-time spend" : "Month spend"} />
+      <SummaryMetrics
+        summary={data.summary}
+        totalLabel={data.activeMonth === "all" ? "All-time spend" : "Month spend"}
+        className="spending-summary-metrics"
+      />
 
       <section className="content-grid">
         <CategoryBars categories={data.categories} title="Category totals" label="Spending split" />

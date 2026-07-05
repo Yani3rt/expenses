@@ -18,7 +18,7 @@ export default function Home() {
         See this month's spending, biggest categories, recent purchases, and whether the data is up to date.
       </PageHeader>
 
-      <section className="metrics-grid">
+      <section className="metrics-grid dashboard-summary-metrics">
         <MetricCard label="Month spend" value={money(data.month.totalSpend)} detail={`${compactNumber(data.month.expenseCount)} expenses · avg ${money(data.month.averageExpense)}`} tone="blue" icon="money" />
         <MetricCard label="Lifetime spend" value={money(data.overview.totalSpend)} detail={`${compactNumber(data.overview.expenseCount)} records since ${shortDate(data.overview.firstExpenseDate)}`} tone="primary" icon="database" />
         <MetricCard label="Top category" value={data.topCategory?.category || "—"} detail={data.topCategory ? `${money(data.topCategory.totalSpend)} · ${data.topCategory.expenseCount} expenses` : "No category data"} tone={categoryTone(data.topCategory?.categorySlug)} icon="tag" />
