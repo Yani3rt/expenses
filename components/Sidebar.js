@@ -3,22 +3,38 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { AppIcon } from "./Icons.js";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Dashboard", eyebrow: "Home" },
-  { href: "/spending", label: "Spending", eyebrow: "Categories" },
-  { href: "/transactions", label: "Transactions", eyebrow: "Ledger" },
-  { href: "/people", label: "People", eyebrow: "Paid by" },
-  { href: "/status", label: "Status", eyebrow: "DB" },
+  { href: "/", label: "Dashboard", eyebrow: "Home", icon: "dashboard" },
+  { href: "/spending", label: "Spending", eyebrow: "Categories", icon: "spending" },
+  { href: "/transactions", label: "Transactions", eyebrow: "Ledger", icon: "transactions" },
+  { href: "/people", label: "People", eyebrow: "Paid by", icon: "people" },
+  { href: "/status", label: "Status", eyebrow: "DB", icon: "status" },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("expense-viewer-sidebar-collapsed");
+    setIsCollapsed(saved === "true");
+  }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle("sidebar-collapsed", isCollapsed);
+    window.localStorage.setItem("expense-viewer-sidebar-collapsed", `${isCollapsed}`);
+
+    return () => {
+      document.body.classList.remove("sidebar-collapsed");
+    };
+  }, [isCollapsed]);
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -67,6 +83,16 @@ export default function Sidebar() {
         onClick={() => setIsOpen(false)}
       />
 
+      <button
+        type="button"
+        className="desktop-sidebar-restore"
+        aria-label="Show navigation sidebar"
+        onClick={() => setIsCollapsed(false)}
+      >
+        <AppIcon name="dashboard" />
+        <span>Menu</span>
+      </button>
+
       <aside className={`sidebar${isOpen ? " is-open" : ""}`}>
         <div className="sidebar-head">
           <Link className="brand desktop-brand" href="/">
@@ -76,6 +102,14 @@ export default function Sidebar() {
               <small>Read-only cockpit</small>
             </span>
           </Link>
+          <button
+            type="button"
+            className="desktop-sidebar-collapse"
+            aria-label="Hide navigation sidebar"
+            onClick={() => setIsCollapsed(true)}
+          >
+            <span aria-hidden="true">‹</span>
+          </button>
           <button
             type="button"
             className="mobile-nav-close"
@@ -90,8 +124,15 @@ export default function Sidebar() {
             const active = pathname === item.href;
             return (
               <Link className={active ? "active" : ""} href={item.href} key={item.href}>
-                <span>{item.label}</span>
-                <small>{item.eyebrow}</small>
+                <span className="nav-item-main">
+                  <span className="nav-icon-wrap">
+                    <AppIcon name={item.icon} />
+                  </span>
+                  <span className="nav-copy">
+                    <span>{item.label}</span>
+                    <small>{item.eyebrow}</small>
+                  </span>
+                </span>
               </Link>
             );
           })}

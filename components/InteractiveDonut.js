@@ -13,9 +13,9 @@ export default function InteractiveDonut({ categories }) {
 
   const slices = useMemo(() => {
     let offset = 25;
-    return categories.slice(0, 7).map((item) => {
+    return categories.slice(0, 7).map((item, index) => {
       const value = (item.totalSpend / total) * circumference;
-      const slice = { ...item, dash: `${value} ${circumference - value}`, offset };
+      const slice = { ...item, dash: `${value} ${circumference - value}`, offset, index };
       offset -= value;
       return slice;
     });
@@ -28,7 +28,7 @@ export default function InteractiveDonut({ categories }) {
   }
 
   return (
-    <section className="card span-5 center-card">
+    <section className="card span-5 center-card donut-card">
       <p className="label">Category share</p>
       <div className="donut-wrap">
         <svg className="donut" viewBox="0 0 100 100" role="img" aria-label="Category spending donut chart">
@@ -42,6 +42,7 @@ export default function InteractiveDonut({ categories }) {
                 cy="50"
                 r="42"
                 className={`donut-slice tone-${categoryTone(slice.categorySlug)}${isActive ? " is-active" : ""}`}
+                style={{ "--slice-index": slice.index }}
                 strokeDasharray={slice.dash}
                 strokeDashoffset={slice.offset}
                 tabIndex={0}
@@ -54,7 +55,7 @@ export default function InteractiveDonut({ categories }) {
             );
           })}
         </svg>
-        <div className="donut-center">
+        <div className="donut-center" key={active?.categorySlug ?? "total"}>
           {active ? (
             <>
               <strong>{money(active.totalSpend)}</strong>
@@ -71,13 +72,14 @@ export default function InteractiveDonut({ categories }) {
         </div>
       </div>
       <div className="legend interactive-legend">
-        {categories.slice(0, 6).map((category) => {
+        {categories.slice(0, 6).map((category, index) => {
           const isActive = category.categorySlug === active?.categorySlug;
           return (
             <button
               type="button"
               key={category.categorySlug}
               className={`legend-pill${isActive ? " is-active" : ""}`}
+              style={{ "--legend-index": index }}
               onMouseEnter={() => setActiveSlug(category.categorySlug)}
               onFocus={() => setActiveSlug(category.categorySlug)}
               onClick={() => openCategory(category.categorySlug)}

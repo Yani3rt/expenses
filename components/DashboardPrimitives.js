@@ -1,5 +1,6 @@
 import Link from "next/link";
 import InteractiveDonut from "./InteractiveDonut.js";
+import { AppIcon, CategoryIcon } from "./Icons.js";
 import { categoryTone } from "../lib/categories.js";
 import { compactNumber, money, shortDate } from "../lib/format.js";
 
@@ -16,10 +17,15 @@ export function PageHeader({ kicker, title, children, action, className = "", ti
   );
 }
 
-export function MetricCard({ label, value, detail, tone = "primary" }) {
+export function MetricCard({ label, value, detail, tone = "primary", icon = "dashboard" }) {
   return (
     <section className={`card metric tone-${tone}`}>
-      <p className="label">{label}</p>
+      <div className="metric-head">
+        <p className="label">{label}</p>
+        <span className="metric-icon" aria-hidden="true">
+          <AppIcon name={icon} />
+        </span>
+      </div>
       <strong>{value}</strong>
       <span>{detail}</span>
     </section>
@@ -75,12 +81,12 @@ export function Donut({ categories }) {
 export function MonthlyTrend({ months, className = "span-5" }) {
   const max = Math.max(...months.map((m) => m.totalSpend), 1);
   return (
-    <section className={`card ${className}`}>
+    <section className={`card monthly-trend-card ${className}`}>
       <p className="label">Timeline</p>
       <h2>Monthly trend</h2>
       <div className="month-bars">
-        {months.map((month) => (
-          <div className="month-col" key={month.month}>
+        {months.map((month, index) => (
+          <div className="month-col" key={month.month} style={{ "--month-index": index }}>
             <div className="month-track">
               <div style={{ height: `${Math.max((month.totalSpend / max) * 100, 6)}%` }} />
             </div>
@@ -113,7 +119,9 @@ export function ExpenseList({ title, expenses, compact = false }) {
 export function ExpenseRow({ expense, className = "" }) {
   return (
     <article className={`expense-row${expense.notes ? " has-note" : ""} ${className}`.trim()}>
-      <div className={`expense-icon tone-${categoryTone(expense.categorySlug)}`}>{expense.category.slice(0, 1)}</div>
+      <div className={`expense-icon tone-${categoryTone(expense.categorySlug)}`}>
+        <CategoryIcon slug={expense.categorySlug} />
+      </div>
       <div className="expense-copy">
         <strong>{expense.description}</strong>
         <span className="expense-meta">{shortDate(expense.date)} · {expense.paidBy}</span>
@@ -128,10 +136,10 @@ export function ExpenseRow({ expense, className = "" }) {
 export function SummaryMetrics({ summary, totalLabel = "Total spend" }) {
   return (
     <section className="metrics-grid compact-metrics">
-      <MetricCard label={totalLabel} value={money(summary.totalSpend)} detail={`${compactNumber(summary.expenseCount)} expenses`} tone="blue" />
-      <MetricCard label="Average expense" value={money(summary.averageExpense)} detail="Mean transaction size" tone="primary" />
-      <MetricCard label="First expense" value={shortDate(summary.firstExpenseDate)} detail="Oldest matching record" tone="indigo" />
-      <MetricCard label="Latest expense" value={shortDate(summary.latestExpenseDate)} detail="Newest matching record" tone="emerald" />
+      <MetricCard label={totalLabel} value={money(summary.totalSpend)} detail={`${compactNumber(summary.expenseCount)} expenses`} tone="blue" icon="money" />
+      <MetricCard label="Average expense" value={money(summary.averageExpense)} detail="Mean transaction size" tone="primary" icon="chart" />
+      <MetricCard label="First expense" value={shortDate(summary.firstExpenseDate)} detail="Oldest matching record" tone="indigo" icon="calendar" />
+      <MetricCard label="Latest expense" value={shortDate(summary.latestExpenseDate)} detail="Newest matching record" tone="emerald" icon="clock" />
     </section>
   );
 }

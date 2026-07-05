@@ -1,8 +1,8 @@
 import { CategoryBars, Donut, PageHeader, SummaryMetrics } from "../../components/DashboardPrimitives.js";
+import CategoryDetailCards from "../../components/CategoryDetailCards.js";
 import MonthPicker from "../../components/MonthPicker.js";
 import { getSpendingData } from "../../lib/queries.js";
-import { money, monthLabel, shortDate } from "../../lib/format.js";
-import { categoryTone } from "../../lib/categories.js";
+import { monthLabel } from "../../lib/format.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,21 +30,7 @@ export default async function SpendingPage({ searchParams }) {
       <section className="content-grid">
         <CategoryBars categories={data.categories} title="Category totals" label="Spending split" />
         <Donut categories={data.categories} />
-        <section className="card span-12">
-          <p className="label">Category ledger</p>
-          <h2>Ranked categories</h2>
-          <div className="category-table">
-            {data.categories.map((category, index) => (
-              <article key={category.categorySlug}>
-                <span className="rank">#{index + 1}</span>
-                <span className={`dot tone-${categoryTone(category.categorySlug)}`} />
-                <strong>{category.category}</strong>
-                <small>{category.expenseCount} expenses · {shortDate(category.firstDate)} → {shortDate(category.latestDate)}</small>
-                <b>{money(category.totalSpend)}</b>
-              </article>
-            ))}
-          </div>
-        </section>
+        <CategoryDetailCards categories={data.categories} />
       </section>
     </>
   );

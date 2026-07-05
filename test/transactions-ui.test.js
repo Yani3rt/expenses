@@ -64,3 +64,13 @@ test("transactions filters support a sticky mobile search bar with collapsible a
   assert.match(transactionsFilters, /className="sr-only"/);
   assert.match(transactionsFilters, /aria-label="Search transactions"/);
 });
+
+
+test("transactions ledger animates on initial show and staggers visible rows", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(styles, /@keyframes ledgerReveal/);
+  assert.match(styles, /\.ledger-card \{[\s\S]*animation: ledgerReveal 520ms var\(--ease-out-expo\) both;/);
+  assert.match(styles, /\.dense-list \.expense-row \{[\s\S]*animation: rowEnter 460ms var\(--ease-out-quint\) both;/);
+  assert.match(styles, /\.dense-list \.expense-row:nth-child\(3\) \{ animation-delay: 114ms; \}/);
+  assert.match(styles, /\.row-enter \{ animation-duration: 520ms; \}/);
+});
