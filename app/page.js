@@ -1,4 +1,5 @@
-import { CategoryBars, ChangeSummary, Donut, ExpenseList, MetricCard, MonthlyTrend, PageHeader } from "../components/DashboardPrimitives.js";
+import { ChangeSummary, Donut, ExpenseList, MetricCard, MonthlyTrend, PageHeader } from "../components/DashboardPrimitives.js";
+import DailySpendingChart from "../components/DailySpendingChart.js";
 import { getDashboardData } from "../lib/queries.js";
 import { compactNumber, money, monthLabel, shortDate } from "../lib/format.js";
 
@@ -35,11 +36,11 @@ export default function Home() {
 
       <section className="content-grid">
         <section className="dashboard-category-row">
-          <CategoryBars categories={data.categories} />
+          <ExpenseList title="Recent spending" expenses={data.recentExpenses} className="span-7 dashboard-recent-spending" showCategory={false} />
           <Donut categories={data.categories} />
         </section>
         <MonthlyTrend months={data.monthlyTotals} className="span-12" />
-        <ExpenseList title="Recent expenses" expenses={data.recentExpenses} className="span-6 dashboard-expense-list" showCategory={false} />
+        <DailySpendingChart dailyTotals={data.dailyTotals} className="span-6" />
         <ExpenseList title="Largest expenses" expenses={data.largestExpenses} compact className="span-6 dashboard-expense-list" showCategory={false} />
       </section>
     </>

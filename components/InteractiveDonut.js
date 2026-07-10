@@ -107,7 +107,7 @@ export default function InteractiveDonut({ categories }) {
               <span className="share-rank">{index + 1}</span>
               <i className={`dot tone-${categoryTone(row.categorySlug)}`} />
               <span className="share-category">{row.category}</span>
-              <strong>{percent(row.sharePercent)}</strong>
+              <strong>{money(row.totalSpend)}</strong>
             </button>
           );
         })}

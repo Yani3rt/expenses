@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 const homePage = readFileSync(new URL("../app/page.js", import.meta.url), "utf8");
 const dashboardPrimitives = readFileSync(new URL("../components/DashboardPrimitives.js", import.meta.url), "utf8");
 const interactiveDonut = readFileSync(new URL("../components/InteractiveDonut.js", import.meta.url), "utf8");
+const dailySpendingChart = readFileSync(new URL("../components/DailySpendingChart.js", import.meta.url), "utf8");
 const queries = readFileSync(new URL("../lib/queries.js", import.meta.url), "utf8");
 
 test("dashboard monthly trend spans the full content width", () => {
@@ -18,11 +19,12 @@ test("dashboard donut chart is interactive and can open filtered ledger views", 
   assert.match(interactiveDonut, /transactions\?category=/);
 });
 
-test("dashboard category share prioritizes percentages and aggregates overflow", () => {
+test("dashboard category share keeps percentage context and uses dollar ranking values", () => {
   assert.match(interactiveDonut, /buildCategoryShare/);
   assert.match(interactiveDonut, /useState\(null\)/);
   assert.match(interactiveDonut, />100%<\/strong>/);
   assert.match(interactiveDonut, /sharePercent/);
+  assert.match(interactiveDonut, /<strong>\{money\(row\.totalSpend\)\}<\/strong>/);
   assert.match(interactiveDonut, /All categories/);
   assert.match(interactiveDonut, /share-ranking/);
   assert.match(interactiveDonut, /isOther/);
@@ -50,7 +52,7 @@ test("dashboard share card uses a natural-height sticky ranked layout", () => {
 
 test("dashboard share sticky boundary ends before the timeline", () => {
   const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
-  assert.match(homePage, /<section className="dashboard-category-row">[\s\S]*<CategoryBars categories=\{data\.categories\} \/>[\s\S]*<Donut categories=\{data\.categories\} \/>[\s\S]*<\/section>[\s\S]*<MonthlyTrend/);
+  assert.match(homePage, /<section className="dashboard-category-row">[\s\S]*title="Recent spending"[\s\S]*<Donut categories=\{data\.categories\} \/>[\s\S]*<\/section>[\s\S]*<MonthlyTrend/);
   assert.match(styles, /\.dashboard-category-row \{[^}]*grid-column: 1 \/ -1;[^}]*display: grid;[^}]*grid-template-columns: repeat\(12, minmax\(0, 1fr\)\);/);
 });
 
@@ -64,11 +66,22 @@ test("monthly trend card keeps the data readable without decorative choreography
 });
 
 
-test("dashboard expense lists split the row evenly", () => {
-  assert.match(homePage, /<ExpenseList title="Recent expenses" expenses=\{data\.recentExpenses\} className="span-6 dashboard-expense-list" showCategory={false} \/>/);
+test("dashboard pairs daily spending with largest expenses", () => {
+  assert.match(homePage, /<DailySpendingChart dailyTotals=\{data\.dailyTotals\} className="span-6" \/>/);
   assert.match(homePage, /<ExpenseList title="Largest expenses" expenses=\{data\.largestExpenses\} compact className="span-6 dashboard-expense-list" showCategory={false} \/>/);
+  assert.doesNotMatch(homePage, /title="Recent expenses"/);
   assert.match(dashboardPrimitives, /export function ExpenseList\(\{ title, expenses, compact = false, className = "", showCategory = true \}\)/);
   assert.match(dashboardPrimitives, /className \|\| \(compact \? "span-5" : "span-7"\)/);
+});
+
+test("daily spending chart shows active days only with a scrollable responsive bar rail", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(dailySpendingChart, /Only days with recorded expenses are shown/);
+  assert.match(dailySpendingChart, /dailyTotals\.map/);
+  assert.match(dailySpendingChart, /Average per spending day/);
+  assert.match(dailySpendingChart, /Highest day/);
+  assert.match(styles, /\.daily-spending-bars \{[^}]*grid-auto-flow: column;[^}]*overflow-x: auto;/);
+  assert.match(styles, /\.daily-spending-track i \{[^}]*background: var\(--blue\);/);
 });
 
 
