@@ -1,5 +1,6 @@
 import Link from "next/link";
 import InteractiveDonut from "./InteractiveDonut.js";
+import InteractiveMonthlyTrend from "./InteractiveMonthlyTrend.js";
 import { AppIcon, CategoryIcon } from "./Icons.js";
 import { categoryTone } from "../lib/categories.js";
 import { compactNumber, money, monthLabel, shortDate } from "../lib/format.js";
@@ -125,24 +126,7 @@ export function Donut({ categories }) {
 }
 
 export function MonthlyTrend({ months, className = "span-5" }) {
-  const max = Math.max(...months.map((m) => m.totalSpend), 1);
-  return (
-    <section className={`card monthly-trend-card ${className}`}>
-      <p className="label">Timeline</p>
-      <h2>Monthly trend</h2>
-      <div className="month-bars">
-        {months.map((month, index) => (
-          <div className="month-col" key={month.month} style={{ "--month-index": index }}>
-            <div className="month-track">
-              <div style={{ height: `${Math.max((month.totalSpend / max) * 100, 6)}%` }} />
-            </div>
-            <strong>{money(month.totalSpend)}</strong>
-            <span>{month.month}</span>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
+  return <InteractiveMonthlyTrend months={months} className={className} />;
 }
 
 export function ExpenseList({ title, expenses, compact = false, className = "", showCategory = true }) {

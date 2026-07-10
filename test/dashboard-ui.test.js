@@ -6,6 +6,7 @@ const homePage = readFileSync(new URL("../app/page.js", import.meta.url), "utf8"
 const dashboardPrimitives = readFileSync(new URL("../components/DashboardPrimitives.js", import.meta.url), "utf8");
 const interactiveDonut = readFileSync(new URL("../components/InteractiveDonut.js", import.meta.url), "utf8");
 const dailySpendingChart = readFileSync(new URL("../components/DailySpendingChart.js", import.meta.url), "utf8");
+const interactiveMonthlyTrend = readFileSync(new URL("../components/InteractiveMonthlyTrend.js", import.meta.url), "utf8");
 const queries = readFileSync(new URL("../lib/queries.js", import.meta.url), "utf8");
 
 test("dashboard monthly trend spans the full content width", () => {
@@ -59,10 +60,22 @@ test("dashboard share sticky boundary ends before the timeline", () => {
 
 test("monthly trend card keeps the data readable without decorative choreography", () => {
   const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
-  assert.match(dashboardPrimitives, /monthly-trend-card/);
+  assert.match(dashboardPrimitives, /<InteractiveMonthlyTrend months=\{months\} className=\{className\} \/>/);
+  assert.match(interactiveMonthlyTrend, /monthly-trend-card/);
   assert.match(styles, /\.month-track div \{[^}]*background: var\(--blue\);/);
   assert.doesNotMatch(styles, /\.monthly-trend-card \{[^}]*animation:/);
   assert.doesNotMatch(styles, /\.month-col \{[^}]*animation:/);
+});
+
+test("monthly trend expands from three recent months to the full latest year", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(interactiveMonthlyTrend, /Array\.from\(\{ length: 12 \}/);
+  assert.match(interactiveMonthlyTrend, /months\.slice\(-3\)/);
+  assert.match(interactiveMonthlyTrend, /Show more/);
+  assert.match(interactiveMonthlyTrend, /Show less/);
+  assert.match(interactiveMonthlyTrend, /aria-expanded=\{expanded\}/);
+  assert.match(styles, /\.month-bars\.is-expanded \{[^}]*grid-template-columns: repeat\(6, minmax\(0, 1fr\)\);/);
+  assert.match(styles, /\.month-bars\.is-expanded \{ grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/);
 });
 
 
