@@ -77,6 +77,8 @@ test("monthly trend shows six desktop, four tablet, and three mobile months befo
   assert.match(interactiveMonthlyTrend, /aria-expanded=\{expanded\}/);
   assert.match(interactiveMonthlyTrend, /monthLabel\(value\)\.replace/);
   assert.match(interactiveMonthlyTrend, /<span>\{monthName\(month\.month\)\}<\/span>/);
+  assert.match(interactiveMonthlyTrend, /month\.month === currentMonth \? " is-current"/);
+  assert.match(styles, /\.month-col\.is-current span \{ color: var\(--secondary\); font-weight: 800; \}/);
   assert.match(styles, /\.month-bars\.is-expanded \{[^}]*grid-template-columns: repeat\(6, minmax\(0, 1fr\)\);/);
   assert.match(styles, /\.month-bars\.is-expanded \{ grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/);
   assert.match(styles, /@media \(max-width: 980px\)[\s\S]*\.month-bars\.has-six-months:not\(\.is-expanded\) \.month-col:nth-child\(-n \+ 2\) \{ display: none; \}/);

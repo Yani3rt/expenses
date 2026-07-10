@@ -21,6 +21,7 @@ export default function InteractiveMonthlyTrend({ months = [], className = "span
   const [expanded, setExpanded] = useState(false);
   const yearMonths = useMemo(() => fullYear(months), [months]);
   const latestMonthNumber = Number(months.at(-1)?.month?.slice(5, 7) || 0);
+  const currentMonth = months.at(-1)?.month;
   const recentMonths = yearMonths.slice(0, latestMonthNumber).slice(-6);
   const visibleMonths = expanded ? yearMonths : recentMonths;
   const max = Math.max(...visibleMonths.map((month) => Number(month.totalSpend || 0)), 1);
@@ -42,7 +43,7 @@ export default function InteractiveMonthlyTrend({ months = [], className = "span
         {visibleMonths.map((month, index) => {
           const total = Number(month.totalSpend || 0);
           return (
-            <div className="month-col" key={month.month} style={{ "--month-index": index }}>
+            <div className={`month-col${month.month === currentMonth ? " is-current" : ""}`} key={month.month} style={{ "--month-index": index }}>
               <div className="month-track">
                 <div style={{ height: total ? `${Math.max((total / max) * 100, 6)}%` : "0%" }} />
               </div>
