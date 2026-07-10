@@ -81,8 +81,15 @@ test("daily spending chart fits every active day on desktop and scrolls only on 
   assert.match(dailySpendingChart, /Average per spending day/);
   assert.match(dailySpendingChart, /Highest day/);
   assert.match(dailySpendingChart, /--spending-day-count/);
+  assert.match(dailySpendingChart, /scrollBy\(\{ left: direction \* rail\.clientWidth/);
+  assert.match(dailySpendingChart, /Show earlier spending days/);
+  assert.match(dailySpendingChart, /Show later spending days/);
+  assert.match(dailySpendingChart, /Swipe or use arrows/);
   assert.match(styles, /\.daily-spending-bars \{[^}]*grid-template-columns: repeat\(var\(--spending-day-count\), minmax\(0, 1fr\)\);/);
   assert.match(styles, /@media \(max-width: 760px\) \{[\s\S]*\.daily-spending-bars \{[^}]*overflow-x: auto;/);
+  assert.match(styles, /\.daily-spending-mobile-controls \{ display: flex;/);
+  assert.match(styles, /touch-action: pan-x;/);
+  assert.match(styles, /scrollbar-color: var\(--blue\) var\(--surface-low\);/);
   assert.match(styles, /\.daily-spending-track i \{[^}]*background: var\(--blue\);/);
 });
 

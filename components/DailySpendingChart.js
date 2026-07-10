@@ -1,6 +1,10 @@
+"use client";
+
+import { useRef } from "react";
 import { money, shortDate } from "../lib/format.js";
 
 export default function DailySpendingChart({ dailyTotals = [], className = "span-6" }) {
+  const barsRef = useRef(null);
   const totalSpend = dailyTotals.reduce((sum, day) => sum + Number(day.totalSpend || 0), 0);
   const maxSpend = Math.max(...dailyTotals.map((day) => Number(day.totalSpend || 0)), 1);
   const averagePerDay = dailyTotals.length ? totalSpend / dailyTotals.length : 0;
@@ -8,6 +12,12 @@ export default function DailySpendingChart({ dailyTotals = [], className = "span
     (peak, day) => (!peak || Number(day.totalSpend) > Number(peak.totalSpend) ? day : peak),
     null
   );
+
+  function moveBars(direction) {
+    const rail = barsRef.current;
+    if (!rail) return;
+    rail.scrollBy({ left: direction * rail.clientWidth * 0.78, behavior: "smooth" });
+  }
 
   return (
     <section className={`card daily-spending-card ${className}`.trim()}>
@@ -21,7 +31,14 @@ export default function DailySpendingChart({ dailyTotals = [], className = "span
 
       {dailyTotals.length ? (
         <>
-          <div className="daily-spending-bars" style={{ "--spending-day-count": dailyTotals.length }}>
+          <div className="daily-spending-mobile-controls">
+            <span>Swipe or use arrows · {dailyTotals.length} days</span>
+            <div>
+              <button type="button" onClick={() => moveBars(-1)} aria-label="Show earlier spending days">←</button>
+              <button type="button" onClick={() => moveBars(1)} aria-label="Show later spending days">→</button>
+            </div>
+          </div>
+          <div ref={barsRef} className="daily-spending-bars" style={{ "--spending-day-count": dailyTotals.length }}>
             {dailyTotals.map((day) => (
               <div className="daily-spending-day" key={day.date}>
                 <strong>{money(day.totalSpend)}</strong>
