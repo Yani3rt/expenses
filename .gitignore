@@ -36,6 +36,7 @@ Thumbs.db
 # Local caches
 .cache/
 .turbo/
+.worktrees/
 
 # SQLite/local data files if someone drops one in this project
 *.db
