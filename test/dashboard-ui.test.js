@@ -15,7 +15,19 @@ test("dashboard donut chart is interactive and can open filtered ledger views", 
   assert.match(dashboardPrimitives, /<InteractiveDonut categories=\{categories\} \/>/);
   assert.match(interactiveDonut, /router\.push\(`/);
   assert.doesNotMatch(interactiveDonut, /click to inspect/i);
-  assert.match(interactiveDonut, /expenses/);
+  assert.match(interactiveDonut, /transactions\?category=/);
+});
+
+test("dashboard category share prioritizes percentages and aggregates overflow", () => {
+  assert.match(interactiveDonut, /buildCategoryShare/);
+  assert.match(interactiveDonut, /useState\(null\)/);
+  assert.match(interactiveDonut, />100%<\/strong>/);
+  assert.match(interactiveDonut, /sharePercent/);
+  assert.match(interactiveDonut, /All categories/);
+  assert.match(interactiveDonut, /share-ranking/);
+  assert.match(interactiveDonut, /isOther/);
+  assert.match(interactiveDonut, /\/transactions\?category=/);
+  assert.doesNotMatch(interactiveDonut, /legend-pill/);
 });
 
 
@@ -25,6 +37,15 @@ test("donut chart keeps interaction without decorative reveal motion", () => {
   assert.match(interactiveDonut, /key=\{active\?\.categorySlug \?\? "total"\}/);
   assert.doesNotMatch(styles, /\.donut-card \{[^}]*animation:/);
   assert.doesNotMatch(styles, /\.donut-slice \{[^}]*animation:/);
+});
+
+test("dashboard share card uses a natural-height sticky ranked layout", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(styles, /\.donut-card \{[^}]*align-self: start;[^}]*position: sticky;[^}]*top:/);
+  assert.match(styles, /\.share-chart-stage \{/);
+  assert.match(styles, /\.share-ranking \{/);
+  assert.match(styles, /\.share-ranking-row \{[\s\S]*grid-template-columns:/);
+  assert.match(styles, /\.share-ranking-row \{[^}]*border-radius: 12px;/);
 });
 
 

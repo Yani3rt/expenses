@@ -72,3 +72,8 @@ test("mobile back-to-top button only appears after the top leaves view", () => {
   assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.mobile-back-to-top \{/);
   assert.match(styles, /\.mobile-back-to-top\.is-visible \{/);
 });
+
+test("dashboard share card returns to normal flow on smaller screens", () => {
+  assert.match(styles, /@media \(max-width: 980px\)[\s\S]*\.donut-card \{[^}]*position: static;/);
+  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.share-ranking \{[^}]*grid-template-columns: minmax\(0, 1fr\);/);
+});
