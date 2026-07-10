@@ -34,8 +34,10 @@ export default function Home() {
       <ChangeSummary comparison={data.comparison} />
 
       <section className="content-grid">
-        <CategoryBars categories={data.categories} />
-        <Donut categories={data.categories} />
+        <section className="dashboard-category-row">
+          <CategoryBars categories={data.categories} />
+          <Donut categories={data.categories} />
+        </section>
         <MonthlyTrend months={data.monthlyTotals} className="span-12" />
         <ExpenseList title="Recent expenses" expenses={data.recentExpenses} className="span-6 dashboard-expense-list" showCategory={false} />
         <ExpenseList title="Largest expenses" expenses={data.largestExpenses} compact className="span-6 dashboard-expense-list" showCategory={false} />

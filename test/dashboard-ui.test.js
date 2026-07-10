@@ -48,6 +48,12 @@ test("dashboard share card uses a natural-height sticky ranked layout", () => {
   assert.match(styles, /\.share-ranking-row \{[^}]*border-radius: 12px;/);
 });
 
+test("dashboard share sticky boundary ends before the timeline", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(homePage, /<section className="dashboard-category-row">[\s\S]*<CategoryBars categories=\{data\.categories\} \/>[\s\S]*<Donut categories=\{data\.categories\} \/>[\s\S]*<\/section>[\s\S]*<MonthlyTrend/);
+  assert.match(styles, /\.dashboard-category-row \{[^}]*grid-column: 1 \/ -1;[^}]*display: grid;[^}]*grid-template-columns: repeat\(12, minmax\(0, 1fr\)\);/);
+});
+
 
 test("monthly trend card keeps the data readable without decorative choreography", () => {
   const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");

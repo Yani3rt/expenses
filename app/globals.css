@@ -227,6 +227,7 @@ body.sidebar-collapsed .workspace { padding-left: 76px; }
 .dashboard-summary-metrics > .metric {
   grid-column: span 1;
 }
+.dashboard-category-row { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; align-items: start; min-width: 0; }
 .change-summary {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -1042,6 +1043,7 @@ footer { display: flex; flex-wrap: wrap; gap: 18px; margin: 28px 0 0; color: var
   .month-bars { gap: 12px; height: auto; padding-top: 18px; padding-bottom: 4px; }
   .month-col { min-width: 68px; }
   .month-track { height: 150px; }
+  .dashboard-category-row { grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .share-ranking { grid-template-columns: minmax(0, 1fr); }
   .donut-card-head { align-items: center; }
   .share-chart-stage { padding: 14px; }
