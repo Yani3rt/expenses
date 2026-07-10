@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ExpenseRow } from "./DashboardPrimitives.js";
 import { money, monthLabel } from "../lib/format.js";
+import { fetchTransactionsPage } from "../lib/transactions-client.js";
 
 function buildTransactionsApiUrl(meta, nextValues = {}) {
   const params = new URLSearchParams();
@@ -22,13 +23,20 @@ export default function TransactionsLedger({ initialTransactions, summary, meta 
   const [state, setState] = useState(meta);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [enteredIds, setEnteredIds] = useState([]);
+  const [loadError, setLoadError] = useState("");
+  const rowAnimationTimer = useRef(null);
 
   useEffect(() => {
     setTransactions(initialTransactions);
     setState(meta);
     setEnteredIds([]);
     setIsLoadingMore(false);
+    setLoadError("");
   }, [initialTransactions, meta]);
+
+  useEffect(() => () => {
+    if (rowAnimationTimer.current) window.clearTimeout(rowAnimationTimer.current);
+  }, []);
 
   const displayedCount = transactions.length;
   const periodBadge = state.month !== "all" ? monthLabel(state.month) : state.periodLabel;
@@ -36,22 +44,20 @@ export default function TransactionsLedger({ initialTransactions, summary, meta 
   async function loadMore() {
     if (isLoadingMore || !state.hasMore) return;
     setIsLoadingMore(true);
+    setLoadError("");
 
     try {
-      const response = await fetch(buildTransactionsApiUrl(state, { offset: displayedCount, limit: state.limit }), {
-        headers: { Accept: "application/json" },
-      });
-
-      if (!response.ok) throw new Error(`Failed to load more transactions: ${response.status}`);
-
-      const payload = await response.json();
-      const nextItems = payload.transactions || [];
+      const payload = await fetchTransactionsPage(buildTransactionsApiUrl(state, { offset: displayedCount, limit: state.limit }));
+      const nextItems = payload.transactions;
       const newIds = nextItems.map((expense) => expense.id);
 
       setTransactions((current) => [...current, ...nextItems]);
       setState(payload.meta);
       setEnteredIds(newIds);
-      window.setTimeout(() => setEnteredIds([]), 650);
+      if (rowAnimationTimer.current) window.clearTimeout(rowAnimationTimer.current);
+      rowAnimationTimer.current = window.setTimeout(() => setEnteredIds([]), 650);
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : "More transactions are temporarily unavailable. Please try again.");
     } finally {
       setIsLoadingMore(false);
     }
@@ -79,7 +85,14 @@ export default function TransactionsLedger({ initialTransactions, summary, meta 
               />
             ))}
           </div>
-          {state.hasMore ? (
+          {loadError ? (
+            <div className="ledger-error" role="status">
+              <span>{loadError}</span>
+              <button className="load-more-link" onClick={loadMore} type="button" disabled={isLoadingMore}>
+                Try again
+              </button>
+            </div>
+          ) : state.hasMore ? (
             <div className="load-more-wrap">
               <button className="load-more-link" onClick={loadMore} type="button" disabled={isLoadingMore}>
                 {isLoadingMore ? "Loading…" : "Load more"}

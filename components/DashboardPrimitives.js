@@ -2,7 +2,7 @@ import Link from "next/link";
 import InteractiveDonut from "./InteractiveDonut.js";
 import { AppIcon, CategoryIcon } from "./Icons.js";
 import { categoryTone } from "../lib/categories.js";
-import { compactNumber, money, shortDate } from "../lib/format.js";
+import { compactNumber, money, monthLabel, shortDate } from "../lib/format.js";
 
 export function PageHeader({ kicker, title, children, action, className = "", titleClassName = "", ledeClassName = "", animateTitleOnChange = false, titleAnimationKey }) {
   return (
@@ -28,6 +28,52 @@ export function MetricCard({ label, value, detail, tone = "primary", icon = "das
       </div>
       <strong>{value}</strong>
       <span>{detail}</span>
+    </section>
+  );
+}
+
+function comparisonNarrative(comparison) {
+  if (!comparison?.currentMonth || comparison.direction === "none") {
+    return "There is not enough expense history to compare months yet.";
+  }
+
+  const previousLabel = monthLabel(comparison.previousMonth);
+  if (comparison.previousTotal === 0) {
+    const driver = comparison.primaryDriver
+      ? ` ${comparison.primaryDriver.category} accounts for the largest share of the new spending.`
+      : "";
+    return `${monthLabel(comparison.currentMonth)} is the first month with recorded spending, so there is no prior month to compare yet.${driver}`;
+  }
+
+  if (comparison.direction === "flat") {
+    return `Spending was about the same as ${previousLabel}.`;
+  }
+
+  const movement = comparison.direction === "up" ? "rose" : "fell";
+  const percent = comparison.deltaPercent === null ? "" : ` (${compactNumber(Math.abs(comparison.deltaPercent))}%)`;
+  const mainDriver = comparison.direction === "up" ? comparison.primaryDriver : comparison.offsetDriver;
+  const driverCopy = mainDriver
+    ? ` ${mainDriver.category} had the largest ${comparison.direction === "up" ? "increase" : "drop"} at ${money(Math.abs(mainDriver.deltaAmount))}.`
+    : "";
+  const offsetCopy = comparison.direction === "up" && comparison.offsetDriver
+    ? ` ${comparison.offsetDriver.category} moved the other way, falling ${money(Math.abs(comparison.offsetDriver.deltaAmount))}.`
+    : "";
+
+  return `Spending ${movement} ${money(Math.abs(comparison.deltaAmount))}${percent} from ${previousLabel}.${driverCopy}${offsetCopy}`;
+}
+
+export function ChangeSummary({ comparison }) {
+  const currentMonth = comparison?.currentMonth || "all";
+  return (
+    <section className="change-summary" aria-labelledby="change-summary-title">
+      <div className="change-summary-copy">
+        <p className="label">What changed</p>
+        <h2 id="change-summary-title">The month in one sentence</h2>
+        <p>{comparisonNarrative(comparison)}</p>
+      </div>
+      <Link className="change-summary-action" href={`/transactions?month=${encodeURIComponent(currentMonth)}`}>
+        Explore this month
+      </Link>
     </section>
   );
 }

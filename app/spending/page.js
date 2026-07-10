@@ -1,4 +1,5 @@
-import { CategoryBars, Donut, MetricCard, PageHeader } from "../../components/DashboardPrimitives.js";
+import { MetricCard, PageHeader } from "../../components/DashboardPrimitives.js";
+import CategoryComparison from "../../components/CategoryComparison.js";
 import CategoryDetailCards from "../../components/CategoryDetailCards.js";
 import MonthPicker from "../../components/MonthPicker.js";
 import { getSpendingData } from "../../lib/queries.js";
@@ -11,6 +12,9 @@ export default async function SpendingPage({ searchParams }) {
   const params = await searchParams;
   const data = getSpendingData({ month: params?.month || undefined });
   const heading = data.activeMonth === "all" ? "All spending" : `Spending in ${monthLabel(data.activeMonth)}`;
+  const changeDetail = data.comparison.deltaPercent === null
+    ? "No prior spending"
+    : `${Math.abs(data.comparison.deltaPercent).toFixed(0)}% ${data.comparison.deltaAmount > 0 ? "higher" : data.comparison.deltaAmount < 0 ? "lower" : "unchanged"}`;
 
   return (
     <>
@@ -24,7 +28,9 @@ export default async function SpendingPage({ searchParams }) {
         titleAnimationKey={data.activeMonth}
         action={<MonthPicker months={data.months} activeMonth={data.activeMonth} />}
       >
-        Pick a month to compare category spending.
+        {data.comparison.mode === "comparison"
+          ? "Compare each category with the previous month."
+          : "Browse category totals across all recorded spending."}
       </PageHeader>
 
       <section className="metrics-grid compact-metrics spending-summary-metrics distilled-spending-metrics">
@@ -35,18 +41,27 @@ export default async function SpendingPage({ searchParams }) {
           tone="blue"
           icon="money"
         />
-        <MetricCard
-          label="Average expense"
-          value={money(data.summary.averageExpense)}
-          detail="Typical expense size"
-          tone="primary"
-          icon="chart"
-        />
+        {data.comparison.mode === "comparison" ? (
+          <MetricCard
+            label={`Change from ${monthLabel(data.previousMonth)}`}
+            value={`${data.comparison.deltaAmount > 0 ? "+" : ""}${money(data.comparison.deltaAmount)}`}
+            detail={changeDetail}
+            tone={data.comparison.deltaAmount > 0 ? "coral" : "emerald"}
+            icon="chart"
+          />
+        ) : (
+          <MetricCard
+            label="Average expense"
+            value={money(data.summary.averageExpense)}
+            detail="Typical expense size"
+            tone="primary"
+            icon="chart"
+          />
+        )}
       </section>
 
       <section className="content-grid">
-        <CategoryBars categories={data.categories} title="Category totals" label="Spending split" />
-        <Donut categories={data.categories} />
+        <CategoryComparison comparison={data.comparison} />
         <CategoryDetailCards categories={data.categories} />
       </section>
     </>

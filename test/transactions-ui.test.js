@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 const transactionsPage = readFileSync(new URL("../app/transactions/page.js", import.meta.url), "utf8");
 const transactionsFilters = readFileSync(new URL("../components/TransactionsFilters.js", import.meta.url), "utf8");
@@ -66,12 +66,10 @@ test("transactions filters support a sticky mobile search bar with collapsible a
 });
 
 
-test("transactions ledger animates on initial show and staggers visible rows", () => {
+test("transactions ledger reserves motion for newly loaded rows", () => {
   const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
-  assert.match(styles, /@keyframes ledgerReveal/);
-  assert.match(styles, /\.ledger-card \{[\s\S]*animation: ledgerReveal 520ms var\(--ease-out-expo\) both;/);
-  assert.match(styles, /\.dense-list \.expense-row \{[\s\S]*animation: rowEnter 460ms var\(--ease-out-quint\) both;/);
-  assert.match(styles, /\.dense-list \.expense-row:nth-child\(3\) \{ animation-delay: 114ms; \}/);
+  assert.doesNotMatch(styles, /\.ledger-card \{[^}]*animation:/);
+  assert.doesNotMatch(styles, /\.dense-list \.expense-row \{[^}]*animation:/);
   assert.match(styles, /\.row-enter \{ animation-duration: 520ms; \}/);
 });
 
@@ -92,4 +90,32 @@ test("transactions header copy explains the page purpose", () => {
   assert.match(transactionsPage, /Search and narrow down the expenses you need\./);
   assert.doesNotMatch(transactionsPage, /<SummaryMetrics/);
   assert.match(transactionsFilters, /filter-results-summary/);
+});
+
+test("transactions filtering exposes a visible pending state", () => {
+  assert.match(transactionsFilters, /useTransition/);
+  assert.match(transactionsFilters, /aria-busy=\{isPending\}/);
+  assert.match(transactionsFilters, /Updating results…/);
+  assert.match(transactionsFilters, /startTransition/);
+});
+
+test("transactions pagination preserves rows and offers retry after failure", () => {
+  assert.match(transactionsLedger, /fetchTransactionsPage/);
+  assert.match(transactionsLedger, /loadError/);
+  assert.match(transactionsLedger, /setLoadError/);
+  assert.match(transactionsLedger, /Try again/);
+  assert.match(transactionsLedger, /clearTimeout/);
+});
+
+test("app includes route loading and recoverable database error states", () => {
+  const loadingUrl = new URL("../app/loading.js", import.meta.url);
+  const errorUrl = new URL("../app/error.js", import.meta.url);
+  assert.equal(existsSync(loadingUrl), true);
+  assert.equal(existsSync(errorUrl), true);
+  const loading = readFileSync(loadingUrl, "utf8");
+  const error = readFileSync(errorUrl, "utf8");
+  assert.match(loading, /loading-shell/);
+  assert.match(error, /"use client"/);
+  assert.match(error, /reset\(\)/);
+  assert.match(error, /No expense data was changed/);
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { compactNumber, money } from "../lib/format.js";
 
@@ -134,6 +134,7 @@ export default function TransactionsFilters({ meta, months, categories }) {
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(meta.q);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     setQuery(meta.q);
@@ -156,11 +157,13 @@ export default function TransactionsFilters({ meta, months, categories }) {
     if (shouldResetOffset) params.delete("offset");
 
     const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
-    if (mode === "replace") {
-      router.replace(nextUrl);
-    } else {
-      router.push(nextUrl);
-    }
+    startTransition(() => {
+      if (mode === "replace") {
+        router.replace(nextUrl);
+      } else {
+        router.push(nextUrl);
+      }
+    });
   }
 
   useEffect(() => {
@@ -173,7 +176,7 @@ export default function TransactionsFilters({ meta, months, categories }) {
   }, [query, meta.q]);
 
   return (
-    <div className="transactions-filter-shell">
+    <div className="transactions-filter-shell" aria-busy={isPending}>
       <div className="transactions-filter-stack">
         <div className="sticky-search-bar">
           <label className="search-field compact-search-field">
@@ -196,6 +199,9 @@ export default function TransactionsFilters({ meta, months, categories }) {
             Filters
           </button>
         </div>
+        <span className={`filter-pending-status${isPending ? " is-visible" : ""}`} role="status" aria-live="polite">
+          {isPending ? "Updating results…" : ""}
+        </span>
 
         <div className={`advanced-filters-panel${isExpanded ? " is-open" : ""}`} id="transactions-advanced-filters">
           <TransactionsPresets meta={meta} onSelect={navigate} className="transactions-presets-mobile" />

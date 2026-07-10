@@ -36,11 +36,11 @@ test("desktop sidebar can be collapsed and restored without replacing mobile nav
 });
 
 
-test("motion layer respects reduced motion and uses transform-based animations", () => {
+test("functional motion respects reduced motion", () => {
   assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
-  assert.match(styles, /@keyframes pageRise/);
-  assert.match(styles, /@keyframes softPop/);
-  assert.match(styles, /@keyframes fillBar/);
+  assert.match(styles, /@keyframes titleSwapIn/);
+  assert.match(styles, /@keyframes rowEnter/);
+  assert.match(styles, /@keyframes loadingPulse/);
   assert.match(styles, /transform: translateY/);
   assert.match(styles, /transition: transform/);
 });

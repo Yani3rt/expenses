@@ -1,7 +1,7 @@
 ---
 version: alpha
 name: Insight Financial
-description: A calm, read-only financial dashboard design system for the expense-viewer project.
+description: A calm, household-focused read-only spending viewer design system.
 colors:
   surface: '#f7f9fb'
   surface-dim: '#d8dadc'
@@ -106,8 +106,8 @@ rounded:
   sm: 0.25rem
   DEFAULT: 0.5rem
   md: 0.75rem
-  lg: 1rem
-  xl: 1.5rem
+  lg: 0.875rem
+  xl: 1rem
   full: 9999px
 spacing:
   base: 8px
@@ -122,8 +122,8 @@ components:
     textColor: '{colors.on-surface}'
     rounded: '{rounded.xl}'
     padding: 32px
-  insight-card-glass:
-    backgroundColor: '#ffffff'
+  insight-panel:
+    backgroundColor: '{colors.surface-container-low}'
     textColor: '{colors.on-surface}'
     rounded: '{rounded.xl}'
     padding: 32px
@@ -197,9 +197,9 @@ components:
 ---
 
 ## Brand & Style
-The design system is built on the principle of "Financial Lucidity." It rejects the traditional, high-density spreadsheet aesthetic in favor of a clean, sophisticated, and spatial interface. The target audience is the modern professional who values high-level insights over granular data entry.
+The design system is built around a **friendly household cockpit**. It rejects dense accounting software and generic fintech dashboards in favor of clear comparisons, readable expense history, and plain-language explanations that help household members answer questions together.
 
-The style is a blend of **Minimalism** and **Glassmorphism**, utilizing generous white space and subtle depth to make complex financial data feel approachable and "airy." The emotional response should be one of control, clarity, and calm. Editing interactions are suppressed; exploratory interactions such as filtering, sorting, date switching, search, and drilldowns are encouraged. The UI should feel like a high-end editorial dashboard rather than a utility form.
+The style is restrained, direct, and reassuring. Flat tonal layers and crisp borders make the data feel dependable without turning every section into a floating card. Editing interactions are suppressed; filtering, sorting, date switching, search, and drilldowns remain encouraged. Small moments of warmth come from household-friendly copy and category color, not decorative effects.
 
 This app is a **read-only viewer**. The visual language must reinforce that posture: no edit affordances, no destructive actions, and no UI that implies the database can be changed from this project.
 
@@ -225,19 +225,19 @@ For numerical data and metadata labels, **JetBrains Mono** is utilized. Its mono
 ## Layout & Spacing
 The layout follows a **Fluid Grid** model with a max-width of 1440px. A 12-column system is used for desktop, collapsing to 4 columns on mobile.
 
-The rhythm is intentionally spacious to counteract "spreadsheet fatigue." Large 40px margins surround the main viewport. Components are grouped into "clusters" with 24px gaps. On mobile, the layout reflows into a single vertical stack, prioritizing the monthly total, category breakdown, recent expenses, largest expenses, and then filters/search. Dense raw-data views should remain secondary on mobile.
+The rhythm is spacious enough for scanning without hiding useful context. Desktop uses a 12-column structure with 24px section gaps; mobile becomes one column while retaining compact route titles. The dashboard prioritizes the current-month comparison and its explanation before category and transaction detail.
 
 ## Elevation & Depth
-Depth is conveyed through **Tonal Layers** and **Ambient Shadows**. The base canvas is the lightest neutral (`#F7F9FB`). Cards sit on a secondary elevation using pure white backgrounds with a very soft, large-radius shadow at approximately 15% opacity of the primary Navy to create a "floating" effect.
+Depth is conveyed through **Tonal Layers and Borders**. The base canvas is `#F7F9FB`; primary content uses white and secondary regions use the low surface token. Static content normally uses a one-pixel border with no shadow. A tight `0 4px 12px` shadow is reserved for sticky or temporarily elevated controls.
 
-Interactive or "insight" cards utilize a subtle **Glassmorphism** effect—a 4px backdrop blur with a 60% translucent white fill—to sit atop the primary data layer. This creates a sense of hierarchy where summary insights feel more "present" than the historical transaction feed.
+Interactive state is communicated through selection color, focus treatment, and short 150–220ms transitions. Static content does not lift on hover. Motion communicates navigation, filtering, loading, or drilldown state; page-wide entrance sequences and looping decorative effects are excluded.
 
 ## Shapes
-The shape language is consistently **Rounded**. The standard 0.5rem (8px) radius is applied to small components like input chips and buttons, while large containers and data cards use the `rounded-xl` (1.5rem / 24px) setting. This significant curvature removes the "sharpness" associated with traditional financial software, making the dashboard feel friendly and organic.
+The shape language is gently rounded rather than pillowy. Compact controls use 10–12px radii, standard content containers use 14–16px, and full pills are reserved for chips and status labels.
 
 ## Components
-- **Insight Cards:** These are the primary containers. They feature a white background, `rounded-xl` corners, and internal padding of 32px. Titles use `label-caps` for a technical feel.
-- **Charts:** Donut and line charts must use a 3px stroke width. Gradients are encouraged for line charts, fading from the accent color to transparent.
+- **Summary Regions:** Use white or low-surface backgrounds, 14–16px corners, concise headings, and 22–28px padding. Prefer an unboxed region when grouping and whitespace already communicate structure.
+- **Charts:** Use solid category colors and quiet neutral tracks. Avoid decorative glows and gradients; animation is limited to interaction feedback.
 - **Transaction Feed:** Instead of a table, use a refined list. Each row has a 1px border-bottom in the lightest neutral. Icons are housed in a circular background at roughly 20% opacity of the category color.
 - **Trend Chips:** Small, pill-shaped badges (`rounded-full`) showing percentage changes. Use `primary` for neutral, `secondary` for positive/savings, and `error-container`/`on-error-container` for overspending or negative signals.
 - **Segmented Controls:** Used for time-period switching (e.g., 1W, 1M, 1Y). These should look like a single pill-shaped track with a sliding white "active" state background.
@@ -250,7 +250,7 @@ Do:
 - Present expense data as read-only insights.
 - Support filtering, sorting, drilldowns, search, and export of query results.
 - Make database freshness and read-only status visible.
-- Prefer cards, timelines, and refined lists over dense spreadsheets.
+- Prefer ranked explanations, timelines, and refined lists over dense spreadsheets or repeated card grids.
 - Keep money, dates, and percentages visually aligned with mono/tabular styling.
 
 Don't:
