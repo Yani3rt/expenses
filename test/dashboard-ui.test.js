@@ -94,23 +94,25 @@ test("dashboard gives daily spending more room beside largest expenses", () => {
   assert.match(dashboardPrimitives, /className \|\| \(compact \? "span-5" : "span-7"\)/);
 });
 
-test("daily spending chart fits every active day on desktop and scrolls only on smaller screens", () => {
+test("daily spending uses a responsive line chart and scrolls only on smaller screens", () => {
   const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(dailySpendingChart, /Only days with recorded expenses are shown/);
   assert.match(dailySpendingChart, /dailyTotals\.map/);
   assert.match(dailySpendingChart, /Average per spending day/);
   assert.match(dailySpendingChart, /Highest day/);
-  assert.match(dailySpendingChart, /--spending-day-count/);
+  assert.match(dailySpendingChart, /daily-line-chart/);
+  assert.match(dailySpendingChart, /<polyline className="daily-line-path"/);
+  assert.match(dailySpendingChart, /<polygon className="daily-line-area"/);
+  assert.match(dailySpendingChart, /<circle cx=\{point\.x\}/);
   assert.match(dailySpendingChart, /scrollBy\(\{ left: direction \* rail\.clientWidth/);
   assert.match(dailySpendingChart, /Show earlier spending days/);
   assert.match(dailySpendingChart, /Show later spending days/);
   assert.match(dailySpendingChart, /Swipe or use arrows/);
-  assert.match(styles, /\.daily-spending-bars \{[^}]*grid-template-columns: repeat\(var\(--spending-day-count\), minmax\(0, 1fr\)\);/);
-  assert.match(styles, /@media \(max-width: 760px\) \{[\s\S]*\.daily-spending-bars \{[^}]*overflow-x: auto;/);
+  assert.match(styles, /\.daily-line-path \{[^}]*stroke: var\(--blue\);/);
+  assert.match(styles, /@media \(max-width: 760px\) \{[\s\S]*\.daily-spending-chart-rail \{[^}]*overflow-x: auto;/);
   assert.match(styles, /\.daily-spending-mobile-controls \{ display: flex;/);
   assert.match(styles, /touch-action: pan-x;/);
   assert.match(styles, /scrollbar-color: var\(--blue\) var\(--surface-low\);/);
-  assert.match(styles, /\.daily-spending-track i \{[^}]*background: var\(--blue\);/);
 });
 
 test("recent spending ledger link matches the category reset control", () => {
