@@ -425,6 +425,7 @@ h2 { margin: 6px 0 0; font-family: Manrope; font-size: 28px; letter-spacing: -.0
 .donut-card-head h2 { margin-top: 4px; font-size: 22px; }
 .share-reset { min-height: 36px; padding: 0 12px; border: 1px solid var(--outline); border-radius: 999px; background: var(--surface-lowest); color: var(--on-variant); font-size: 12px; font-weight: 800; cursor: pointer; }
 .share-reset:hover, .share-reset[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: white; }
+.dashboard-ledger-link { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
 .share-chart-stage { display: grid; place-items: center; padding: 18px; border-radius: 14px; background: var(--surface-low); }
 .donut-wrap { position: relative; width: min(244px, 100%); aspect-ratio: 1; isolation: isolate; }
 .donut-wrap::before { content: ""; position: absolute; inset: 21%; border-radius: 999px; background: var(--surface-lowest); box-shadow: inset 0 0 0 1px rgba(198,198,205,.58); }
@@ -447,9 +448,9 @@ h2 { margin: 6px 0 0; font-family: Manrope; font-size: 28px; letter-spacing: -.0
 .expense-list { display: grid; gap: 4px; min-width: 0; }
 .daily-spending-card { overflow: hidden; }
 .daily-spending-lede { margin: 8px 0 0; color: var(--on-variant); }
-.daily-spending-bars { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(76px, 110px); align-items: end; gap: 12px; min-width: 0; overflow-x: auto; padding: 18px 2px 10px; }
+.daily-spending-bars { display: grid; grid-template-columns: repeat(var(--spending-day-count), minmax(0, 1fr)); align-items: end; gap: 6px; min-width: 0; padding: 18px 2px 10px; }
 .daily-spending-day { display: grid; grid-template-rows: auto 180px auto; gap: 8px; min-width: 0; text-align: center; }
-.daily-spending-day > strong { font-family: "JetBrains Mono", monospace; font-size: 12px; white-space: nowrap; }
+.daily-spending-day > strong { font-family: "JetBrains Mono", monospace; font-size: clamp(8px, .75vw, 11px); white-space: nowrap; }
 .daily-spending-track { display: flex; align-items: end; overflow: hidden; border-radius: 12px; background: var(--surface-low); }
 .daily-spending-track i { display: block; width: 100%; border-radius: 12px 12px 4px 4px; background: var(--blue); }
 .daily-spending-day > span { color: var(--on-variant); font-family: "JetBrains Mono", monospace; font-size: 11px; }
@@ -899,7 +900,7 @@ footer { display: flex; flex-wrap: wrap; gap: 18px; margin: 28px 0 0; color: var
 }
 
 @media (max-width: 980px) {
-  .dashboard-expense-list { grid-column: span 12; }
+  .daily-spending-card, .dashboard-expense-list { grid-column: span 12; }
   .donut-card { position: static; top: auto; align-self: stretch; }
   .share-ranking { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -1056,7 +1057,7 @@ footer { display: flex; flex-wrap: wrap; gap: 18px; margin: 28px 0 0; color: var
   .month-col { min-width: 68px; }
   .month-track { height: 150px; }
   .dashboard-category-row { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-  .daily-spending-bars { grid-auto-columns: minmax(72px, 92px); }
+  .daily-spending-bars { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(72px, 92px); overflow-x: auto; }
   .daily-spending-summary { grid-template-columns: minmax(0, 1fr); }
   .share-ranking { grid-template-columns: minmax(0, 1fr); }
   .donut-card-head { align-items: center; }

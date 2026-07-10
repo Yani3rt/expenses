@@ -21,7 +21,7 @@ export default function DailySpendingChart({ dailyTotals = [], className = "span
 
       {dailyTotals.length ? (
         <>
-          <div className="daily-spending-bars">
+          <div className="daily-spending-bars" style={{ "--spending-day-count": dailyTotals.length }}>
             {dailyTotals.map((day) => (
               <div className="daily-spending-day" key={day.date}>
                 <strong>{money(day.totalSpend)}</strong>

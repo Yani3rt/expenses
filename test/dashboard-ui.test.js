@@ -66,29 +66,35 @@ test("monthly trend card keeps the data readable without decorative choreography
 });
 
 
-test("dashboard pairs daily spending with largest expenses", () => {
-  assert.match(homePage, /<DailySpendingChart dailyTotals=\{data\.dailyTotals\} className="span-6" \/>/);
-  assert.match(homePage, /<ExpenseList title="Largest expenses" expenses=\{data\.largestExpenses\} compact className="span-6 dashboard-expense-list" showCategory={false} \/>/);
+test("dashboard gives daily spending more room beside largest expenses", () => {
+  assert.match(homePage, /<DailySpendingChart dailyTotals=\{data\.dailyTotals\} className="span-7" \/>/);
+  assert.match(homePage, /<ExpenseList title="Largest expenses" expenses=\{data\.largestExpenses\} compact className="span-5 dashboard-expense-list" showCategory={false} \/>/);
   assert.doesNotMatch(homePage, /title="Recent expenses"/);
   assert.match(dashboardPrimitives, /export function ExpenseList\(\{ title, expenses, compact = false, className = "", showCategory = true \}\)/);
   assert.match(dashboardPrimitives, /className \|\| \(compact \? "span-5" : "span-7"\)/);
 });
 
-test("daily spending chart shows active days only with a scrollable responsive bar rail", () => {
+test("daily spending chart fits every active day on desktop and scrolls only on smaller screens", () => {
   const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(dailySpendingChart, /Only days with recorded expenses are shown/);
   assert.match(dailySpendingChart, /dailyTotals\.map/);
   assert.match(dailySpendingChart, /Average per spending day/);
   assert.match(dailySpendingChart, /Highest day/);
-  assert.match(styles, /\.daily-spending-bars \{[^}]*grid-auto-flow: column;[^}]*overflow-x: auto;/);
+  assert.match(dailySpendingChart, /--spending-day-count/);
+  assert.match(styles, /\.daily-spending-bars \{[^}]*grid-template-columns: repeat\(var\(--spending-day-count\), minmax\(0, 1fr\)\);/);
+  assert.match(styles, /@media \(max-width: 760px\) \{[\s\S]*\.daily-spending-bars \{[^}]*overflow-x: auto;/);
   assert.match(styles, /\.daily-spending-track i \{[^}]*background: var\(--blue\);/);
+});
+
+test("recent spending ledger link matches the category reset control", () => {
+  assert.match(dashboardPrimitives, /className="share-reset dashboard-ledger-link"[^>]*>Open ledger<\/Link>/);
 });
 
 
 test("dashboard expense lists stack earlier on tablet for legibility", () => {
   const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(homePage, /dashboard-expense-list/);
-  assert.match(styles, /@media \(max-width: 980px\) \{[\s\S]*\.dashboard-expense-list \{ grid-column: span 12; \}/);
+  assert.match(styles, /@media \(max-width: 980px\) \{[\s\S]*\.daily-spending-card, \.dashboard-expense-list \{ grid-column: span 12; \}/);
 });
 
 

@@ -40,8 +40,8 @@ export default function Home() {
           <Donut categories={data.categories} />
         </section>
         <MonthlyTrend months={data.monthlyTotals} className="span-12" />
-        <DailySpendingChart dailyTotals={data.dailyTotals} className="span-6" />
-        <ExpenseList title="Largest expenses" expenses={data.largestExpenses} compact className="span-6 dashboard-expense-list" showCategory={false} />
+        <DailySpendingChart dailyTotals={data.dailyTotals} className="span-7" />
+        <ExpenseList title="Largest expenses" expenses={data.largestExpenses} compact className="span-5 dashboard-expense-list" showCategory={false} />
       </section>
     </>
   );

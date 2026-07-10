@@ -153,7 +153,7 @@ export function ExpenseList({ title, expenses, compact = false, className = "", 
           <p className="label">{compact ? "Highest amounts" : "Recent spending"}</p>
           <h2>{title}</h2>
         </div>
-        {!compact ? <Link className="text-link" href="/transactions">Open ledger</Link> : null}
+        {!compact ? <Link className="share-reset dashboard-ledger-link" href="/transactions">Open ledger</Link> : null}
       </div>
       <div className="expense-list">
         {expenses.map((expense) => <ExpenseRow expense={expense} showCategory={showCategory} key={`${title}-${expense.id}`} />)}
