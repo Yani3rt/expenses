@@ -46,7 +46,7 @@ test("spending page distills the summary row to the two core metrics", () => {
 });
 
 test("spending page renders premium category detail cards in the deleted slot", () => {
-  assert.match(spendingPage, /<CategoryDetailCards categories=\{data\.categories\} \/>/);
+  assert.match(spendingPage, /<CategoryDetailCards categories=\{data\.categories\}/);
   assert.match(categoryDetailCards, /Count/);
   assert.match(categoryDetailCards, /Average/);
   assert.match(categoryDetailCards, /Last:/);
@@ -98,7 +98,7 @@ test("spending replaces category totals and share with one real comparison", () 
   assert.match(spendingPage, /<CategoryComparison comparison=\{data\.comparison\} \/>/);
   assert.doesNotMatch(spendingPage, /<CategoryBars/);
   assert.doesNotMatch(spendingPage, /<Donut/);
-  assert.match(spendingPage, /<CategoryDetailCards categories=\{data\.categories\} \/>/);
+  assert.match(spendingPage, /<CategoryDetailCards categories=\{data\.categories\}/);
   assert.match(categoryComparison, /Category comparison/);
   assert.match(categoryComparison, /currentTotal/);
   assert.match(categoryComparison, /previousTotal/);
@@ -114,4 +114,12 @@ test("category comparison is full width, uses paired bars, and stacks on mobile"
   assert.match(globalsCss, /\.comparison-bar-previous/);
   assert.match(globalsCss, /\.direction-up \.category-comparison-delta/);
   assert.match(globalsCss, /@media \(max-width: 760px\)[\s\S]*\.category-comparison-row \{[\s\S]*grid-template-columns: minmax\(0, 1fr\) minmax\(0, 1fr\);/);
+});
+
+test("retained category cards explain their selected-period details", () => {
+  assert.match(spendingPage, /const detailPeriodLabel = data\.activeMonth === "all"/);
+  assert.match(spendingPage, /<CategoryDetailCards categories=\{data\.categories\} periodLabel=\{detailPeriodLabel\}/);
+  assert.match(categoryDetailCards, /Selected month details/);
+  assert.match(categoryDetailCards, /Category activity/);
+  assert.match(categoryDetailCards, /Counts, averages, and latest activity for \{periodLabel\}\./);
 });

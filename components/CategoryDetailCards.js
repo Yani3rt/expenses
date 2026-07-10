@@ -96,16 +96,25 @@ function CategoryCard({ category }) {
   );
 }
 
-export default function CategoryDetailCards({ categories }) {
+function CategoryDetailsHeader({ periodLabel }) {
+  const eyebrow = periodLabel === "all recorded spending" ? "Historical details" : "Selected month details";
+
+  return (
+    <div className="section-head category-details-head">
+      <div>
+        <p className="label">{eyebrow}</p>
+        <h2>Category activity</h2>
+        <p className="category-comparison-lede">Counts, averages, and latest activity for {periodLabel}.</p>
+      </div>
+    </div>
+  );
+}
+
+export default function CategoryDetailCards({ categories, periodLabel }) {
   if (!categories?.length) {
     return (
       <section className="card span-12 category-details-shell">
-        <div className="section-head category-details-head">
-          <div>
-            <p className="label">Category details</p>
-            <h2>Premium monthly breakdown</h2>
-          </div>
-        </div>
+        <CategoryDetailsHeader periodLabel={periodLabel} />
         <div className="empty-state">
           <strong>No category rows for this period.</strong>
           <span>Choose a different month to explore the breakdown.</span>
@@ -116,6 +125,7 @@ export default function CategoryDetailCards({ categories }) {
 
   return (
     <section className="card span-12 category-details-shell">
+      <CategoryDetailsHeader periodLabel={periodLabel} />
       <div className="category-details-grid" role="list" aria-label="Category details cards">
         {categories.map((category) => (
           <div className="category-details-item" key={category.categorySlug} role="listitem">

@@ -12,6 +12,7 @@ export default async function SpendingPage({ searchParams }) {
   const params = await searchParams;
   const data = getSpendingData({ month: params?.month || undefined });
   const heading = data.activeMonth === "all" ? "All spending" : `Spending in ${monthLabel(data.activeMonth)}`;
+  const detailPeriodLabel = data.activeMonth === "all" ? "all recorded spending" : monthLabel(data.activeMonth);
   const changeDetail = data.comparison.deltaPercent === null
     ? "No prior spending"
     : `${Math.abs(data.comparison.deltaPercent).toFixed(0)}% ${data.comparison.deltaAmount > 0 ? "higher" : data.comparison.deltaAmount < 0 ? "lower" : "unchanged"}`;
@@ -62,7 +63,7 @@ export default async function SpendingPage({ searchParams }) {
 
       <section className="content-grid">
         <CategoryComparison comparison={data.comparison} />
-        <CategoryDetailCards categories={data.categories} />
+        <CategoryDetailCards categories={data.categories} periodLabel={detailPeriodLabel} />
       </section>
     </>
   );
