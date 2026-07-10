@@ -178,3 +178,34 @@ Expected: build exits 0 and diff check reports no errors.
 - [ ] **Step 4: Smoke-test the live page**
 
 Use the already approved localhost-only server with `EXPENSE_DB_PATH=/Users/yani/Dev/expenses/expenses.db`, reload `/spending`, and verify the selected month, previous month, category deltas, retained detail cards, and filtered transaction links.
+
+### Task 6: Clarify retained detail cards
+
+**Files:**
+- Modify: `components/CategoryDetailCards.js`
+- Modify: `app/spending/page.js`
+- Modify: `test/spending-ui.test.js`
+
+**Interfaces:**
+- Consumes: the selected period label passed as `periodLabel`.
+- Produces: a top-left section header reading `Selected month details`, `Category activity`, and `Counts, averages, and latest activity for {periodLabel}.`
+
+- [ ] **Step 1: Write a failing copy contract**
+
+Assert that Spending passes `monthLabel(data.activeMonth)` into `CategoryDetailCards`, and that the component renders the approved label, heading, and contextual sentence.
+
+- [ ] **Step 2: Verify the test fails**
+
+Run: `node --test test/spending-ui.test.js`
+
+Expected: the new clarification assertions fail.
+
+- [ ] **Step 3: Implement the section clarification**
+
+Add a `periodLabel` prop, render the clarification in the existing `category-details-head`, and preserve both the category grid and empty state.
+
+- [ ] **Step 4: Verify and smoke-test**
+
+Run: `node --test test/spending-ui.test.js && EXPENSE_DB_PATH=/Users/yani/Dev/expenses/expenses.db pnpm test`
+
+Expected: all tests pass. Reload `/spending?month=2026-06` and confirm the selected-month detail copy renders above the cards.
