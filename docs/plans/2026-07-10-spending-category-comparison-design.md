@@ -24,6 +24,12 @@ Each comparison row shows the category, selected-month total, previous-month tot
 
 The detailed category cards remain below the comparison and continue to show selected-month count, average, and latest expense. They provide drill-down context that is not duplicated by the comparison rows.
 
+The retained detail-card section has a top-left explanation so it does not look like an unlabeled continuation of the comparison:
+
+- Label: **Selected month details**
+- Heading: **Category activity**
+- Supporting copy: **Counts, averages, and latest activity for {selected month}.**
+
 For `All`, the summary retains all-time spend and average expense. The main comparison component switches to a historical breakdown mode showing category total, count, and share, without previous-period or delta columns. The detailed category cards remain below it.
 
 ## Data design
