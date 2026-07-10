@@ -21,7 +21,7 @@ export default function InteractiveMonthlyTrend({ months = [], className = "span
   const [expanded, setExpanded] = useState(false);
   const yearMonths = useMemo(() => fullYear(months), [months]);
   const latestMonthNumber = Number(months.at(-1)?.month?.slice(5, 7) || 0);
-  const recentMonths = yearMonths.slice(0, latestMonthNumber).slice(-4);
+  const recentMonths = yearMonths.slice(0, latestMonthNumber).slice(-6);
   const visibleMonths = expanded ? yearMonths : recentMonths;
   const max = Math.max(...visibleMonths.map((month) => Number(month.totalSpend || 0)), 1);
 
@@ -38,7 +38,7 @@ export default function InteractiveMonthlyTrend({ months = [], className = "span
           </button>
         ) : null}
       </div>
-      <div className={`month-bars${expanded ? " is-expanded" : ""}${!expanded && visibleMonths.length === 4 ? " has-four-months" : ""}`}>
+      <div className={`month-bars${expanded ? " is-expanded" : ""}${!expanded && visibleMonths.length === 6 ? " has-six-months" : ""}`}>
         {visibleMonths.map((month, index) => {
           const total = Number(month.totalSpend || 0);
           return (
