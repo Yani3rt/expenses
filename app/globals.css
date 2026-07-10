@@ -939,6 +939,9 @@ footer { display: flex; flex-wrap: wrap; gap: 18px; margin: 28px 0 0; color: var
 }
 
 @media (max-width: 760px) {
+  .page-header .readonly-chip { display: none; }
+  .dashboard-recent-spending .expense-row:nth-child(n + 4) { display: none; }
+  .dashboard-recent-spending .expense-row:nth-child(3) { border-bottom: 0; }
   .motion-reveal-target.motion-pending,
   .motion-reveal-target.motion-pending * {
     animation-play-state: paused !important;

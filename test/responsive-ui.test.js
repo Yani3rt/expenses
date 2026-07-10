@@ -25,6 +25,11 @@ test("small-screen layout collapses grids to one column and prevents horizontal 
   assert.match(styles, /@media \(max-width: 520px\)[\s\S]*\.category-table b \{ grid-column: 2 \/ -1; grid-row: 3;/);
 });
 
+test("mobile dashboard hides secondary status and limits recent spending to three rows", () => {
+  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.page-header \.readonly-chip \{ display: none; \}/);
+  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.dashboard-recent-spending \.expense-row:nth-child\(n \+ 4\) \{ display: none; \}/);
+});
+
 
 test("desktop sidebar can be collapsed and restored without replacing mobile navigation", () => {
   assert.match(sidebar, /desktop-sidebar-collapse/);
