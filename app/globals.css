@@ -1060,6 +1060,7 @@ footer { display: flex; flex-wrap: wrap; gap: 18px; margin: 28px 0 0; color: var
   }
   .expense-row .pill { display: none; }
   .month-bars { gap: 12px; height: auto; padding-top: 18px; padding-bottom: 4px; }
+  .month-bars.has-four-months:not(.is-expanded) .month-col:first-child { display: none; }
   .month-bars.is-expanded { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 24px; }
   .month-col { min-width: 68px; }
   .month-track { height: 150px; }

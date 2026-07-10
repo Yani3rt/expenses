@@ -67,15 +67,17 @@ test("monthly trend card keeps the data readable without decorative choreography
   assert.doesNotMatch(styles, /\.month-col \{[^}]*animation:/);
 });
 
-test("monthly trend expands from three recent months to the full latest year", () => {
+test("monthly trend shows four recent calendar months off mobile and expands to the full latest year", () => {
   const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(interactiveMonthlyTrend, /Array\.from\(\{ length: 12 \}/);
-  assert.match(interactiveMonthlyTrend, /months\.slice\(-3\)/);
+  assert.match(interactiveMonthlyTrend, /yearMonths\.slice\(0, latestMonthNumber\)\.slice\(-4\)/);
+  assert.match(interactiveMonthlyTrend, /has-four-months/);
   assert.match(interactiveMonthlyTrend, /Show more/);
   assert.match(interactiveMonthlyTrend, /Show less/);
   assert.match(interactiveMonthlyTrend, /aria-expanded=\{expanded\}/);
   assert.match(styles, /\.month-bars\.is-expanded \{[^}]*grid-template-columns: repeat\(6, minmax\(0, 1fr\)\);/);
   assert.match(styles, /\.month-bars\.is-expanded \{ grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/);
+  assert.match(styles, /\.month-bars\.has-four-months:not\(\.is-expanded\) \.month-col:first-child \{ display: none; \}/);
 });
 
 
