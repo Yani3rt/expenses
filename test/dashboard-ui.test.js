@@ -13,6 +13,17 @@ test("dashboard monthly trend spans the full content width", () => {
   assert.match(homePage, /<MonthlyTrend months=\{data\.monthlyTotals\} className="span-12" \/>/);
 });
 
+test("month spend metric renders active-day totals as a decorative background sparkline", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(homePage, /label="Month spend"[\s\S]*sparklineData=\{data\.dailyTotals\}/);
+  assert.match(dashboardPrimitives, /function MetricSparkline\(\{ data \}\)/);
+  assert.match(dashboardPrimitives, /className="metric-sparkline"/);
+  assert.match(dashboardPrimitives, /aria-hidden="true"/);
+  assert.match(dashboardPrimitives, /<polyline points=\{linePoints\}/);
+  assert.match(styles, /\.metric-sparkline \{[^}]*position: absolute;[^}]*inset:/);
+  assert.match(styles, /\.metric > :not\(\.metric-sparkline\) \{ position: relative; z-index: 1; \}/);
+});
+
 test("dashboard donut chart is interactive and can open filtered ledger views", () => {
   assert.match(dashboardPrimitives, /<InteractiveDonut categories=\{categories\} \/>/);
   assert.match(interactiveDonut, /router\.push\(`/);

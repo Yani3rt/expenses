@@ -18,9 +18,30 @@ export function PageHeader({ kicker, title, children, action, className = "", ti
   );
 }
 
-export function MetricCard({ label, value, detail, tone = "primary", icon = "dashboard" }) {
+function MetricSparkline({ data }) {
+  const values = data.map((item) => Number(item.totalSpend || 0)).filter((value) => value > 0);
+  if (values.length < 2) return null;
+
+  const max = Math.max(...values, 1);
+  const linePoints = values.map((value, index) => {
+    const x = 4 + (index * 92) / (values.length - 1);
+    const y = 42 - (value / max) * 34;
+    return `${x},${y}`;
+  }).join(" ");
+  const areaPoints = `4,48 ${linePoints} 96,48`;
+
+  return (
+    <svg className="metric-sparkline" viewBox="0 0 100 48" preserveAspectRatio="none" aria-hidden="true">
+      <polygon points={areaPoints} />
+      <polyline points={linePoints} />
+    </svg>
+  );
+}
+
+export function MetricCard({ label, value, detail, tone = "primary", icon = "dashboard", sparklineData = null }) {
   return (
     <section className={`card metric tone-${tone}`}>
+      {sparklineData?.length ? <MetricSparkline data={sparklineData} /> : null}
       <div className="metric-head">
         <p className="label">{label}</p>
         <span className="metric-icon" aria-hidden="true">

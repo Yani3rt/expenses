@@ -20,7 +20,7 @@ export default function Home() {
       </PageHeader>
 
       <section className="metrics-grid dashboard-summary-metrics">
-        <MetricCard label="Month spend" value={money(data.month.totalSpend)} detail={`${compactNumber(data.month.expenseCount)} expenses · avg ${money(data.month.averageExpense)}`} tone="blue" icon="money" />
+        <MetricCard label="Month spend" value={money(data.month.totalSpend)} detail={`${compactNumber(data.month.expenseCount)} expenses · avg ${money(data.month.averageExpense)}`} tone="blue" icon="money" sparklineData={data.dailyTotals} />
         <MetricCard
           label={data.comparison.previousMonth ? `Change from ${monthLabel(data.comparison.previousMonth)}` : "Change from prior month"}
           value={`${data.comparison.deltaAmount > 0 ? "+" : ""}${money(data.comparison.deltaAmount)}`}
