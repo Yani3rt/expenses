@@ -6,6 +6,7 @@ const sidebar = readFileSync(new URL("../components/Sidebar.js", import.meta.url
 const mobileBackToTop = readFileSync(new URL("../components/MobileBackToTop.js", import.meta.url), "utf8");
 const mobileViewportAnimator = readFileSync(new URL("../components/MobileViewportAnimator.js", import.meta.url), "utf8");
 const layout = readFileSync(new URL("../app/layout.js", import.meta.url), "utf8");
+const dashboard = readFileSync(new URL("../app/page.js", import.meta.url), "utf8");
 const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 
 test("mobile navigation uses a toggle button and backdrop instead of turning into a horizontal top nav", () => {
@@ -26,6 +27,8 @@ test("small-screen layout collapses grids to one column and prevents horizontal 
 });
 
 test("mobile dashboard hides secondary status and limits recent spending to three rows", () => {
+  assert.match(dashboard, /ledeClassName="dashboard-header-lede"/);
+  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.dashboard-header-lede \{ display: none; \}/);
   assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.page-header \.readonly-chip \{ display: none; \}/);
   assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.dashboard-recent-spending \.expense-row:nth-child\(n \+ 4\) \{ display: none; \}/);
 });

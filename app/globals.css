@@ -945,6 +945,7 @@ footer { display: flex; flex-wrap: wrap; gap: 18px; margin: 28px 0 0; color: var
 }
 
 @media (max-width: 760px) {
+  .dashboard-header-lede { display: none; }
   .page-header .readonly-chip { display: none; }
   .dashboard-recent-spending .expense-row:nth-child(n + 4) { display: none; }
   .dashboard-recent-spending .expense-row:nth-child(3) { border-bottom: 0; }

@@ -13,6 +13,7 @@ export default function Home() {
       <PageHeader
         kicker={monthLabel(data.month.activeMonth)}
         title="Dashboard"
+        ledeClassName="dashboard-header-lede"
         action={<span className="readonly-chip"><span className="status-dot" />Read only</span>}
       >
         See this month's spending, biggest categories, recent purchases, and whether the data is up to date.
