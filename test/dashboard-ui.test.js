@@ -75,6 +75,8 @@ test("monthly trend shows four recent calendar months off mobile and expands to 
   assert.match(interactiveMonthlyTrend, /Show more/);
   assert.match(interactiveMonthlyTrend, /Show less/);
   assert.match(interactiveMonthlyTrend, /aria-expanded=\{expanded\}/);
+  assert.match(interactiveMonthlyTrend, /monthLabel\(value\)\.replace/);
+  assert.match(interactiveMonthlyTrend, /<span>\{monthName\(month\.month\)\}<\/span>/);
   assert.match(styles, /\.month-bars\.is-expanded \{[^}]*grid-template-columns: repeat\(6, minmax\(0, 1fr\)\);/);
   assert.match(styles, /\.month-bars\.is-expanded \{ grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/);
   assert.match(styles, /\.month-bars\.has-four-months:not\(\.is-expanded\) \.month-col:first-child \{ display: none; \}/);

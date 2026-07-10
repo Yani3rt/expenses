@@ -1,7 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { money } from "../lib/format.js";
+import { money, monthLabel } from "../lib/format.js";
+
+function monthName(value) {
+  return monthLabel(value).replace(/\s+\d{4}$/, "");
+}
 
 function fullYear(months) {
   const latestYear = months.at(-1)?.month?.slice(0, 4);
@@ -43,7 +47,7 @@ export default function InteractiveMonthlyTrend({ months = [], className = "span
                 <div style={{ height: total ? `${Math.max((total / max) * 100, 6)}%` : "0%" }} />
               </div>
               <strong>{money(total)}</strong>
-              <span>{month.month}</span>
+              <span>{monthName(month.month)}</span>
             </div>
           );
         })}
