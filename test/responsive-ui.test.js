@@ -31,7 +31,8 @@ test("mobile dashboard hides secondary status and limits recent spending to thre
   assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.dashboard-header-lede \{ display: none; \}/);
   assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.page-header \.readonly-chip \{ display: none; \}/);
   assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.dashboard-recent-spending \.expense-row:nth-child\(n \+ 4\) \{ display: none; \}/);
-  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.dashboard-recent-spending \.dashboard-ledger-link \{ align-self: flex-end; \}/);
+  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.dashboard-recent-spending \.section-head \{ flex-direction: row; align-items: flex-start; \}/);
+  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.dashboard-recent-spending \.dashboard-ledger-link \{ align-self: auto; flex: none; \}/);
 });
 
 

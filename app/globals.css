@@ -1001,7 +1001,8 @@ footer { display: flex; flex-wrap: wrap; gap: 18px; margin: 28px 0 0; color: var
   .change-summary { grid-template-columns: minmax(0, 1fr); padding: 20px 18px; }
   .change-summary-action { width: fit-content; }
   .section-head { flex-direction: column; margin-bottom: 18px; }
-  .dashboard-recent-spending .dashboard-ledger-link { align-self: flex-end; }
+  .dashboard-recent-spending .section-head { flex-direction: row; align-items: flex-start; }
+  .dashboard-recent-spending .dashboard-ledger-link { align-self: auto; flex: none; }
   .filter-card { padding: 16px; }
   .filter-card button,
   .wide-filter label:not(.search-field),
