@@ -95,4 +95,5 @@ test("dashboard category boundary becomes one column on mobile", () => {
 
 test("tablet dashboard limits recent spending and stacks category share", () => {
   assert.match(styles, /@media \(max-width: 980px\)[\s\S]*\.dashboard-recent-spending \.expense-row:nth-child\(n \+ 4\) \{ display: none; \}/);
+  assert.match(styles, /@media \(max-width: 980px\)[\s\S]*\.dashboard-category-row > \.card \{ grid-column: 1 \/ -1; width: 100%; \}/);
 });
