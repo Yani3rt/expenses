@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import AnimatedText from "./AnimatedText.js";
 import { buildCategoryShare } from "../lib/category-share.js";
 import { categoryTone } from "../lib/categories.js";
 import { money } from "../lib/format.js";
@@ -11,6 +12,7 @@ function percent(value) {
 
 export default function InteractiveDonut({ categories }) {
   const [activeSlug, setActiveSlug] = useState(null);
+  const [playfulSlug, setPlayfulSlug] = useState(null);
   const share = useMemo(() => buildCategoryShare(categories), [categories]);
   const safeTotal = share.totalSpend || 1;
   const circumference = 2 * Math.PI * 42;
@@ -31,6 +33,11 @@ export default function InteractiveDonut({ categories }) {
     setActiveSlug(row.categorySlug);
   }
 
+  function playCategory(row) {
+    setPlayfulSlug(row.categorySlug);
+    selectCategory(row);
+  }
+
   return (
     <section className="card span-5 donut-card">
       <div className="donut-card-head">
@@ -45,7 +52,13 @@ export default function InteractiveDonut({ categories }) {
 
       <div className="share-chart-stage">
         <div className="donut-wrap">
-          <svg className="donut" viewBox="0 0 100 100" role="img" aria-label="Category spending share chart">
+          <svg
+            className={`donut${playfulSlug ? " is-playful" : ""}`}
+            viewBox="0 0 100 100"
+            role="img"
+            aria-label="Category spending share chart"
+            onAnimationEnd={() => setPlayfulSlug(null)}
+          >
             <circle cx="50" cy="50" r="42" className="donut-base" />
             {slices.map((slice) => {
               const isActive = slice.categorySlug === active?.categorySlug;
@@ -63,7 +76,7 @@ export default function InteractiveDonut({ categories }) {
                   aria-label={`Show ${slice.category} share, ${percent(slice.sharePercent)}`}
                   onMouseEnter={() => setActiveSlug(slice.categorySlug)}
                   onFocus={() => setActiveSlug(slice.categorySlug)}
-                  onClick={() => selectCategory(slice)}
+                  onClick={() => playCategory(slice)}
                 />
               );
             })}
@@ -71,15 +84,15 @@ export default function InteractiveDonut({ categories }) {
           <div className="donut-center" key={active?.categorySlug ?? "total"}>
             {active ? (
               <>
-                <strong>{percent(active.sharePercent)}</strong>
+                <AnimatedText as="strong">{percent(active.sharePercent)}</AnimatedText>
                 <span>{active.category}</span>
-                <small>{money(active.totalSpend)}</small>
+                <AnimatedText as="small" staggerOffset={4}>{money(active.totalSpend)}</AnimatedText>
               </>
             ) : (
               <>
-                <strong>100%</strong>
+                <AnimatedText as="strong">100%</AnimatedText>
                 <span>Total spending</span>
-                <small>{money(share.totalSpend)}</small>
+                <AnimatedText as="small" staggerOffset={4}>{money(share.totalSpend)}</AnimatedText>
               </>
             )}
           </div>

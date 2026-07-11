@@ -43,6 +43,7 @@ test("spending page distills the summary row to the two core metrics", () => {
   assert.doesNotMatch(spendingPage, /label="First expense"/);
   assert.doesNotMatch(spendingPage, /label="Latest expense"/);
   assert.match(globalsCss, /\.distilled-spending-metrics \{/);
+  assert.equal((spendingPage.match(/animateValue/g) || []).length, 3);
 });
 
 test("spending page renders premium category detail cards in the deleted slot", () => {
@@ -52,6 +53,11 @@ test("spending page renders premium category detail cards in the deleted slot", 
   assert.match(categoryDetailCards, /Last:/);
   assert.doesNotMatch(categoryDetailCards, /router\.push/);
   assert.doesNotMatch(categoryDetailCards, /featured/);
+});
+
+test("category card titles and primary amounts use neutral text color", () => {
+  assert.match(globalsCss, /\.category-card-head h3 \{[\s\S]*?color: var\(--on-surface\);/);
+  assert.match(globalsCss, /\.category-card-amount \{[\s\S]*?color: var\(--on-surface\);/);
 });
 
 test("category detail cards become a horizontal scroll rail on smaller screens", () => {

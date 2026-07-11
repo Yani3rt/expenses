@@ -1,11 +1,12 @@
 import Link from "next/link";
 import InteractiveDonut from "./InteractiveDonut.js";
 import InteractiveMonthlyTrend from "./InteractiveMonthlyTrend.js";
+import AnimatedText from "./AnimatedText.js";
 import { AppIcon, CategoryIcon } from "./Icons.js";
 import { categoryTone } from "../lib/categories.js";
 import { compactNumber, money, monthLabel, shortDate } from "../lib/format.js";
 
-export function PageHeader({ kicker, title, children, action, className = "", titleClassName = "", ledeClassName = "", animateTitleOnChange = false, titleAnimationKey }) {
+export function PageHeader({ kicker, title, children, action, className = "", titleClassName = "", ledeClassName = "", animateTitleOnChange = true, titleAnimationKey }) {
   return (
     <header className={`page-header ${className}`.trim()}>
       <div>
@@ -38,7 +39,7 @@ function MetricSparkline({ data }) {
   );
 }
 
-export function MetricCard({ label, value, detail, tone = "primary", icon = "dashboard", sparklineData = null }) {
+export function MetricCard({ label, value, detail, tone = "primary", icon = "dashboard", sparklineData = null, animateValue = false }) {
   return (
     <section className={`card metric tone-${tone}`}>
       {sparklineData?.length ? <MetricSparkline data={sparklineData} /> : null}
@@ -48,7 +49,7 @@ export function MetricCard({ label, value, detail, tone = "primary", icon = "das
           <AppIcon name={icon} />
         </span>
       </div>
-      <strong>{value}</strong>
+      {animateValue ? <AnimatedText as="strong">{value}</AnimatedText> : <strong>{value}</strong>}
       <span>{detail}</span>
     </section>
   );

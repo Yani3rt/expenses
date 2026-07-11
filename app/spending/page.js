@@ -41,6 +41,7 @@ export default async function SpendingPage({ searchParams }) {
           detail={`${data.summary.expenseCount} expenses`}
           tone="blue"
           icon="money"
+          animateValue
         />
         {data.comparison.mode === "comparison" ? (
           <MetricCard
@@ -49,6 +50,7 @@ export default async function SpendingPage({ searchParams }) {
             detail={changeDetail}
             tone={data.comparison.deltaAmount > 0 ? "coral" : "emerald"}
             icon="chart"
+            animateValue
           />
         ) : (
           <MetricCard
@@ -57,6 +59,7 @@ export default async function SpendingPage({ searchParams }) {
             detail="Typical expense size"
             tone="primary"
             icon="chart"
+            animateValue
           />
         )}
       </section>

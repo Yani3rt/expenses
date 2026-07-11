@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { money, shortDate } from "../lib/format.js";
 
 export default function DailySpendingChart({ dailyTotals = [], className = "span-6" }) {
   const barsRef = useRef(null);
+  const chartRef = useRef(null);
   const totalSpend = dailyTotals.reduce((sum, day) => sum + Number(day.totalSpend || 0), 0);
   const maxSpend = Math.max(...dailyTotals.map((day) => Number(day.totalSpend || 0)), 1);
   const averagePerDay = dailyTotals.length ? totalSpend / dailyTotals.length : 0;
@@ -24,6 +25,20 @@ export default function DailySpendingChart({ dailyTotals = [], className = "span
   const areaPoints = points.length
     ? `${points[0].x},${chartBaseline} ${linePoints} ${points.at(-1).x},${chartBaseline}`
     : "";
+
+  useEffect(() => {
+    const chart = chartRef.current;
+    if (!chart || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry?.isIntersecting) return;
+      chart.classList.add("is-in-view");
+      observer.unobserve(chart);
+    }, { threshold: 0.28 });
+
+    observer.observe(chart);
+    return () => observer.disconnect();
+  }, [dailyTotals.length]);
 
   function moveBars(direction) {
     const rail = barsRef.current;
@@ -52,6 +67,7 @@ export default function DailySpendingChart({ dailyTotals = [], className = "span
           </div>
           <div ref={barsRef} className="daily-spending-chart-rail">
             <svg
+              ref={chartRef}
               className="daily-line-chart"
               style={{ "--daily-line-width": `${chartWidth}px` }}
               viewBox={`0 0 ${chartWidth} 220`}
@@ -66,9 +82,9 @@ export default function DailySpendingChart({ dailyTotals = [], className = "span
               </defs>
               {[58, 106, 154].map((y) => <line className="daily-line-grid" x1="36" x2={chartWidth - 36} y1={y} y2={y} key={y} />)}
               <polygon className="daily-line-area" points={areaPoints} />
-              <polyline className="daily-line-path" points={linePoints} />
-              {points.map((point) => (
-                <g className="daily-line-point" key={point.date}>
+              <polyline className="daily-line-path" points={linePoints} pathLength="1" />
+              {points.map((point, index) => (
+                <g className="daily-line-point" key={point.date} style={{ "--point-index": index }}>
                   <text x={point.x} y={Math.max(point.y - 13, 16)} textAnchor="middle">{money(point.totalSpend)}</text>
                   <circle cx={point.x} cy={point.y} r="5" />
                   <text className="daily-line-date" x={point.x} y="207" textAnchor="middle">{shortDate(point.date)}</text>

@@ -20,7 +20,7 @@ export default function Home() {
       </PageHeader>
 
       <section className="metrics-grid dashboard-summary-metrics">
-        <MetricCard label="Month spend" value={money(data.month.totalSpend)} detail={`${compactNumber(data.month.expenseCount)} expenses · avg ${money(data.month.averageExpense)}`} tone="blue" icon="money" sparklineData={data.dailyTotals} />
+        <MetricCard label="Month spend" value={money(data.month.totalSpend)} detail={`${compactNumber(data.month.expenseCount)} expenses · avg ${money(data.month.averageExpense)}`} tone="blue" icon="money" sparklineData={data.dailyTotals} animateValue />
         <MetricCard
           label={data.comparison.previousMonth ? `Change from ${monthLabel(data.comparison.previousMonth)}` : "Change from prior month"}
           value={`${data.comparison.deltaAmount > 0 ? "+" : ""}${money(data.comparison.deltaAmount)}`}
@@ -29,8 +29,9 @@ export default function Home() {
             : `${compactNumber(Math.abs(data.comparison.deltaPercent))}% ${data.comparison.direction === "up" ? "higher" : data.comparison.direction === "down" ? "lower" : "unchanged"}`}
           tone={data.comparison.direction === "up" ? "coral" : "emerald"}
           icon="chart"
+          animateValue
         />
-        <MetricCard label="Largest expense this month" value={data.largestExpense ? money(data.largestExpense.amount) : "—"} detail={data.largestExpense ? `${data.largestExpense.description} · ${shortDate(data.largestExpense.date)}` : "No expenses"} tone="primary" icon="alert" />
+        <MetricCard label="Largest expense this month" value={data.largestExpense ? money(data.largestExpense.amount) : "—"} detail={data.largestExpense ? `${data.largestExpense.description} · ${shortDate(data.largestExpense.date)}` : "No expenses"} tone="primary" icon="alert" animateValue />
       </section>
 
       <ChangeSummary comparison={data.comparison} />

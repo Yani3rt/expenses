@@ -19,6 +19,7 @@ function fullYear(months) {
 
 export default function InteractiveMonthlyTrend({ months = [], className = "span-5" }) {
   const [expanded, setExpanded] = useState(false);
+  const [playfulMonth, setPlayfulMonth] = useState(null);
   const yearMonths = useMemo(() => fullYear(months), [months]);
   const latestMonthNumber = Number(months.at(-1)?.month?.slice(5, 7) || 0);
   const currentMonth = months.at(-1)?.month;
@@ -43,13 +44,20 @@ export default function InteractiveMonthlyTrend({ months = [], className = "span
         {visibleMonths.map((month, index) => {
           const total = Number(month.totalSpend || 0);
           return (
-            <div className={`month-col${month.month === currentMonth ? " is-current" : ""}`} key={month.month} style={{ "--month-index": index }}>
-              <div className="month-track">
+            <button
+              className={`month-col${month.month === currentMonth ? " is-current" : ""}${playfulMonth === month.month ? " is-playful" : ""}`}
+              key={month.month}
+              type="button"
+              style={{ "--month-index": index }}
+              onClick={() => setPlayfulMonth(month.month)}
+              aria-label={`Animate ${monthName(month.month)} spending, ${money(total)}`}
+            >
+              <div className="month-track" onAnimationEnd={() => setPlayfulMonth(null)}>
                 <div style={{ height: total ? `${Math.max((total / max) * 100, 6)}%` : "0%" }} />
               </div>
               <strong>{money(total)}</strong>
               <span>{monthName(month.month)}</span>
-            </div>
+            </button>
           );
         })}
       </div>

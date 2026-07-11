@@ -7,10 +7,16 @@ const dashboardPrimitives = readFileSync(new URL("../components/DashboardPrimiti
 const interactiveDonut = readFileSync(new URL("../components/InteractiveDonut.js", import.meta.url), "utf8");
 const dailySpendingChart = readFileSync(new URL("../components/DailySpendingChart.js", import.meta.url), "utf8");
 const interactiveMonthlyTrend = readFileSync(new URL("../components/InteractiveMonthlyTrend.js", import.meta.url), "utf8");
+const animatedText = readFileSync(new URL("../components/AnimatedText.js", import.meta.url), "utf8");
 const queries = readFileSync(new URL("../lib/queries.js", import.meta.url), "utf8");
 
 test("dashboard monthly trend spans the full content width", () => {
   assert.match(homePage, /<MonthlyTrend months=\{data\.monthlyTotals\} className="span-12" \/>/);
+});
+
+test("page headers animate their large title by default on every route", () => {
+  assert.match(dashboardPrimitives, /animateTitleOnChange = true/);
+  assert.match(dashboardPrimitives, /<span className="page-title-copy" key=\{titleAnimationKey \?\? title\}>\{title\}<\/span>/);
 });
 
 test("month spend metric renders active-day totals as a decorative background sparkline", () => {
@@ -30,15 +36,46 @@ test("dashboard donut chart selects categories without navigating away", () => {
   assert.doesNotMatch(interactiveDonut, /useRouter|router\.push|transactions\?category=/);
 });
 
+test("dashboard donut ring provides the same simple click animation", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(interactiveDonut, /const \[playfulSlug, setPlayfulSlug\] = useState\(null\)/);
+  assert.match(interactiveDonut, /onClick=\{\(\) => playCategory\(slice\)\}/);
+  assert.match(interactiveDonut, /onAnimationEnd=\{\(\) => setPlayfulSlug\(null\)\}/);
+  assert.match(styles, /\.donut\.is-playful \{ animation: donut-ring-play 420ms/);
+  assert.match(styles, /@keyframes donut-ring-play/);
+});
+
 test("dashboard category share keeps percentage context and uses dollar ranking values", () => {
   assert.match(interactiveDonut, /buildCategoryShare/);
   assert.match(interactiveDonut, /useState\(null\)/);
-  assert.match(interactiveDonut, />100%<\/strong>/);
+  assert.match(interactiveDonut, /<AnimatedText as="strong">100%<\/AnimatedText>/);
   assert.match(interactiveDonut, /sharePercent/);
   assert.match(interactiveDonut, /<strong>\{money\(row\.totalSpend\)\}<\/strong>/);
   assert.match(interactiveDonut, /All categories/);
   assert.match(interactiveDonut, /share-ranking/);
   assert.doesNotMatch(interactiveDonut, /legend-pill/);
+});
+
+test("donut center values animate character-by-character while category labels stay still", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(interactiveDonut, /import AnimatedText/);
+  assert.match(animatedText, /className="donut-center-character"/);
+  assert.match(animatedText, /"--character-index": staggerOffset \+ index/);
+  assert.match(interactiveDonut, /key=\{active\?\.categorySlug \?\? "total"\}/);
+  assert.match(interactiveDonut, /<span>\{active\.category\}<\/span>/);
+  assert.match(interactiveDonut, /<span>Total spending<\/span>/);
+  assert.doesNotMatch(interactiveDonut, /<AnimatedText as="span"/);
+  assert.match(styles, /\.donut-center-character \{[^}]*animation: donut-center-character-in/);
+  assert.match(styles, /@keyframes donut-center-character-in/);
+  assert.match(styles, /@media \(prefers-reduced-motion: reduce\) \{[\s\S]*\.donut-center-character \{ animation: none; \}/);
+});
+
+test("dashboard summary values use the category-share character animation on show", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(dashboardPrimitives, /animateValue = false/);
+  assert.match(dashboardPrimitives, /animateValue \? <AnimatedText as="strong">\{value\}<\/AnimatedText>/);
+  assert.equal((homePage.match(/animateValue/g) || []).length, 3);
+  assert.match(styles, /\.metric strong \.donut-center-character \{ color: inherit; \}/);
 });
 
 
@@ -93,6 +130,17 @@ test("monthly trend shows six desktop, four tablet, and three mobile months befo
   assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.month-bars\.has-six-months:not\(\.is-expanded\) \.month-col:nth-child\(-n \+ 3\) \{ display: none; \}/);
 });
 
+test("monthly trend circles provide a simple replayable click animation", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(interactiveMonthlyTrend, /const \[playfulMonth, setPlayfulMonth\] = useState\(null\)/);
+  assert.match(interactiveMonthlyTrend, /type="button"/);
+  assert.match(interactiveMonthlyTrend, /onClick=\{\(\) => setPlayfulMonth\(month\.month\)\}/);
+  assert.match(interactiveMonthlyTrend, /onAnimationEnd=\{\(\) => setPlayfulMonth\(null\)\}/);
+  assert.match(styles, /\.month-col\.is-playful \.month-track \{ animation: month-circle-play/);
+  assert.match(styles, /@keyframes month-circle-play/);
+  assert.doesNotMatch(styles, /\.month-col\.is-playful[^\n]*::before/);
+});
+
 
 test("dashboard gives daily spending more room beside largest expenses", () => {
   assert.match(homePage, /<DailySpendingChart dailyTotals=\{data\.dailyTotals\} className="span-7" \/>/);
@@ -121,6 +169,18 @@ test("daily spending uses a responsive line chart and scrolls only on smaller sc
   assert.match(styles, /\.daily-spending-mobile-controls \{ display: flex;/);
   assert.match(styles, /touch-action: pan-x;/);
   assert.match(styles, /scrollbar-color: var\(--blue\) var\(--surface-low\);/);
+});
+
+test("daily spending chart animates once when it enters the viewport", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(dailySpendingChart, /const chartRef = useRef\(null\)/);
+  assert.match(dailySpendingChart, /new IntersectionObserver/);
+  assert.match(dailySpendingChart, /chart\.classList\.add\("is-in-view"\)/);
+  assert.match(dailySpendingChart, /observer\.unobserve\(chart\)/);
+  assert.match(dailySpendingChart, /pathLength="1"/);
+  assert.match(styles, /\.daily-line-chart\.is-in-view \.daily-line-path \{ animation: daily-line-draw 900ms/);
+  assert.match(styles, /\.daily-line-chart\.is-in-view \.daily-line-area \{ animation: daily-area-reveal 700ms/);
+  assert.match(styles, /@keyframes daily-point-pop/);
 });
 
 test("recent spending ledger link matches the category reset control", () => {
