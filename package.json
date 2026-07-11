@@ -10,9 +10,17 @@
     "test": "node --test"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
+    "d3-scale": "^4.0.2",
+    "d3-shape": "^3.2.0",
+    "motion": "^12.42.2",
     "next": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "tailwind-merge": "^3.6.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.2",
+    "tailwindcss": "^4.3.2"
+  }
 }

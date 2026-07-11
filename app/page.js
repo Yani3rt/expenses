@@ -1,5 +1,7 @@
 import { ChangeSummary, Donut, ExpenseList, MetricCard, MonthlyTrend, PageHeader } from "../components/DashboardPrimitives.js";
 import DailySpendingChart from "../components/DailySpendingChart.js";
+import InteractiveLargestExpenses from "../components/InteractiveLargestExpenses.js";
+import DitheredSpendingCharts from "../components/DitheredSpendingCharts.js";
 import { getDashboardData } from "../lib/queries.js";
 import { compactNumber, money, monthLabel, shortDate } from "../lib/format.js";
 
@@ -43,7 +45,12 @@ export default function Home() {
         </section>
         <MonthlyTrend months={data.monthlyTotals} className="span-12" />
         <DailySpendingChart dailyTotals={data.dailyTotals} className="span-7" />
-        <ExpenseList title="Largest expenses" expenses={data.largestExpenses} compact className="span-5 dashboard-expense-list" showCategory={false} />
+        <InteractiveLargestExpenses expensesByRange={data.largestExpensesByRange} className="span-5 dashboard-expense-list" />
+        <DitheredSpendingCharts
+          monthlyTotals={data.monthlyTotals}
+          dailyTotals={data.dailyTotals}
+          previousDailyTotals={data.previousDailyTotals}
+        />
       </section>
     </>
   );

@@ -7,6 +7,10 @@ const dashboardPrimitives = readFileSync(new URL("../components/DashboardPrimiti
 const interactiveDonut = readFileSync(new URL("../components/InteractiveDonut.js", import.meta.url), "utf8");
 const dailySpendingChart = readFileSync(new URL("../components/DailySpendingChart.js", import.meta.url), "utf8");
 const interactiveMonthlyTrend = readFileSync(new URL("../components/InteractiveMonthlyTrend.js", import.meta.url), "utf8");
+const interactiveLargestExpenses = readFileSync(new URL("../components/InteractiveLargestExpenses.js", import.meta.url), "utf8");
+const rangeTabs = readFileSync(new URL("../components/RangeTabs.js", import.meta.url), "utf8");
+const ditheredSpendingCharts = readFileSync(new URL("../components/DitheredSpendingCharts.js", import.meta.url), "utf8");
+const ditherChartContext = readFileSync(new URL("../components/dither-kit/chart-context.jsx", import.meta.url), "utf8");
 const animatedText = readFileSync(new URL("../components/AnimatedText.js", import.meta.url), "utf8");
 const queries = readFileSync(new URL("../lib/queries.js", import.meta.url), "utf8");
 const nextConfig = readFileSync(new URL("../next.config.mjs", import.meta.url), "utf8");
@@ -17,6 +21,45 @@ test("development server accepts the local loopback hosts used by the app", () =
 
 test("dashboard monthly trend spans the full content width", () => {
   assert.match(homePage, /<MonthlyTrend months=\{data\.monthlyTotals\} className="span-12" \/>/);
+});
+
+test("dashboard adds three dithered area views after the existing charts", () => {
+  assert.match(homePage, /<DitheredSpendingCharts[\s\S]*monthlyTotals=\{data\.monthlyTotals\}[\s\S]*dailyTotals=\{data\.dailyTotals\}[\s\S]*previousDailyTotals=\{data\.previousDailyTotals\}/);
+  assert.match(ditheredSpendingCharts, /Cumulative daily spend/);
+  assert.match(ditheredSpendingCharts, /Monthly spending history/);
+  assert.match(ditheredSpendingCharts, /Daily spending/);
+  assert.equal((ditheredSpendingCharts.match(/<AreaChart/g) || []).length, 2);
+  assert.equal((ditheredSpendingCharts.match(/<BarChart/g) || []).length, 1);
+  assert.match(ditheredSpendingCharts, /<Bar dataKey="totalSpend" variant="dotted" \/>/);
+  assert.match(ditheredSpendingCharts, /<BarChart[\s\S]*?<XAxis dataKey="label" \/>[\s\S]*?<Legend isClickable \/>/);
+  assert.doesNotMatch(ditheredSpendingCharts, /<BarChart[\s\S]*?<YAxis[\s\S]*?<\/BarChart>/);
+  assert.match(ditheredSpendingCharts, /bloom="aura"/);
+  assert.match(ditheredSpendingCharts, /variant="gradient"/);
+  assert.match(ditheredSpendingCharts, /function ChartCard/);
+  assert.match(ditheredSpendingCharts, /<article ref=\{cardRef\} className="card span-12 dither-chart-card"/);
+  assert.equal((ditheredSpendingCharts.match(/<ChartCard/g) || []).length, 3);
+  assert.doesNotMatch(ditheredSpendingCharts, /dither-chart-grid|Spending, three ways/);
+  assert.match(ditheredSpendingCharts, /new IntersectionObserver/);
+  assert.match(ditheredSpendingCharts, /threshold: 0\.25/);
+  assert.match(ditheredSpendingCharts, /replayToken/);
+  assert.match(ditheredSpendingCharts, /animationDuration: 1000/);
+  assert.match(ditheredSpendingCharts, /key: hasEntered \? id : `\$\{id\}-idle`/);
+});
+
+test("dither chart series registration callbacks stay stable between renders", () => {
+  assert.match(ditherChartContext, /import \{ createContext, use, useCallback, useState \} from "react"/);
+  assert.match(ditherChartContext, /const registerSeries = useCallback\(\(spec\) => \{/);
+  assert.match(ditherChartContext, /const unregisterSeries = useCallback\(\(dataKey\) => \{/);
+});
+
+test("dither charts retain their measured stage when Tailwind utilities are unavailable", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(styles, /\.dither-chart-stage > div \{ position: relative; width: 100%; height: 100%; \}/);
+  assert.match(styles, /\.dither-chart-stage canvas,[\s\S]*\.dither-chart-stage svg \{ position: absolute;/);
+  assert.match(styles, /\.dither-chart-stage svg text \{ font-size: 11px; \}/);
+  assert.equal((ditheredSpendingCharts.match(/margins=\{\{[^}]*left: 68/g) || []).length, 2);
+  assert.match(ditheredSpendingCharts, /<BarChart[^>]*margins=\{\{ top: 42, left: 16 \}\}/);
+  assert.match(styles, /\.dither-chart-stage > div > div:not\(:has\(> button\)\) \{[^}]*background: var\(--surface-lowest\);[^}]*border: 1px solid var\(--outline\);[^}]*box-shadow: var\(--shadow\);/);
 });
 
 test("page headers animate their large title by default on every route", () => {
@@ -193,7 +236,7 @@ test("monthly trend circles provide a simple replayable click animation", () => 
 
 test("dashboard gives daily spending more room beside largest expenses", () => {
   assert.match(homePage, /<DailySpendingChart dailyTotals=\{data\.dailyTotals\} className="span-7" \/>/);
-  assert.match(homePage, /<ExpenseList title="Largest expenses" expenses=\{data\.largestExpenses\} compact className="span-5 dashboard-expense-list" showCategory={false} \/>/);
+  assert.match(homePage, /<InteractiveLargestExpenses expensesByRange=\{data\.largestExpensesByRange\} className="span-5 dashboard-expense-list" \/>/);
   assert.doesNotMatch(homePage, /title="Recent expenses"/);
   assert.match(dashboardPrimitives, /export function ExpenseList\(\{ title, expenses, compact = false, className = "", showCategory = true \}\)/);
   assert.match(dashboardPrimitives, /className \|\| \(compact \? "span-5" : "span-7"\)/);
@@ -225,14 +268,27 @@ test("daily spending switches between the current week and month", () => {
   assert.match(dailySpendingChart, /const \[range, setRange\] = useState\("month"\)/);
   assert.match(dailySpendingChart, /currentWeekBounds\(today\)/);
   assert.match(dailySpendingChart, /day\.date >= weekBounds\.start && day\.date <= weekBounds\.end/);
-  assert.match(dailySpendingChart, /role="tablist" aria-label="Spending period"/);
-  assert.match(dailySpendingChart, /role="tab" aria-selected=\{range === "week"\}/);
-  assert.match(dailySpendingChart, /role="tab" aria-selected=\{range === "month"\}/);
-  assert.match(dailySpendingChart, /className="spending-range-pill"/);
+  assert.match(dailySpendingChart, /<RangeTabs[\s\S]*options=\{DAILY_RANGE_OPTIONS\}[\s\S]*value=\{range\}[\s\S]*onChange=\{setRange\}/);
+  assert.match(rangeTabs, /role="tablist"/);
+  assert.match(rangeTabs, /role="tab"/);
+  assert.match(rangeTabs, /aria-selected=\{option\.value === value\}/);
   assert.match(dailySpendingChart, /No spending this \{range\}/);
-  assert.match(styles, /\.spending-range-tabs \{[^}]*position: relative;[^}]*display: grid;/);
-  assert.match(styles, /\.spending-range-tabs\.is-month \.spending-range-pill \{[^}]*translateX\(calc\(100% \+ 2px\)\)/);
-  assert.match(styles, /@media \(prefers-reduced-motion: reduce\) \{[\s\S]*\.spending-range-pill,[\s\S]*transition: none !important;/);
+  assert.match(styles, /\.range-tabs \{[^}]*position: relative;[^}]*display: grid;/);
+  assert.match(styles, /\.range-tabs\.index-1 \.range-tabs-pill \{[^}]*translateX\(calc\(100% \+ 2px\)\)/);
+  assert.match(styles, /@media \(prefers-reduced-motion: reduce\) \{[\s\S]*\.range-tabs-pill,[\s\S]*transition: none !important;/);
+});
+
+test("largest expenses switches between week, month, and year with month as default", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(interactiveLargestExpenses, /const \[range, setRange\] = useState\("month"\)/);
+  assert.match(interactiveLargestExpenses, /\{ value: "week", label: "Week" \}/);
+  assert.match(interactiveLargestExpenses, /\{ value: "month", label: "Month" \}/);
+  assert.match(interactiveLargestExpenses, /\{ value: "year", label: "Year" \}/);
+  assert.match(interactiveLargestExpenses, /const expenses = expensesByRange\[range\] \|\| \[\]/);
+  assert.match(interactiveLargestExpenses, /<RangeTabs[\s\S]*value=\{range\}[\s\S]*onChange=\{setRange\}/);
+  assert.match(interactiveLargestExpenses, /No expenses this \{range\}/);
+  assert.match(styles, /\.range-tabs\.count-3 \.range-tabs-pill \{[^}]*width: calc\(\(100% - 10px\) \/ 3\);/);
+  assert.match(styles, /\.range-tabs\.index-2 \.range-tabs-pill \{[^}]*translateX\(calc\(200% \+ 4px\)\)/);
 });
 
 test("daily spending chart animates once when it enters the viewport", () => {

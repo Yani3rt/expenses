@@ -3,6 +3,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { money, shortDate } from "../lib/format.js";
 import { currentWeekBounds } from "../lib/date-range.js";
+import RangeTabs from "./RangeTabs.js";
+
+const DAILY_RANGE_OPTIONS = [
+  { value: "week", label: "Week" },
+  { value: "month", label: "Month" },
+];
 
 export default function DailySpendingChart({ dailyTotals = [], className = "span-6" }) {
   const barsRef = useRef(null);
@@ -64,11 +70,13 @@ export default function DailySpendingChart({ dailyTotals = [], className = "span
           <h2>Spending days this {range}</h2>
           <p className="daily-spending-lede">Only days with recorded expenses this {range} are shown.</p>
         </div>
-        <div className={`spending-range-tabs is-${range}`} role="tablist" aria-label="Spending period">
-          <span className="spending-range-pill" aria-hidden="true" />
-          <button className="spending-range-tab" type="button" role="tab" aria-selected={range === "week"} aria-controls="daily-spending-panel" onClick={() => setRange("week")}>Week</button>
-          <button className="spending-range-tab" type="button" role="tab" aria-selected={range === "month"} aria-controls="daily-spending-panel" onClick={() => setRange("month")}>Month</button>
-        </div>
+        <RangeTabs
+          options={DAILY_RANGE_OPTIONS}
+          value={range}
+          onChange={setRange}
+          label="Spending period"
+          className="spending-range-tabs"
+        />
       </div>
 
       <div id="daily-spending-panel" role="tabpanel" aria-live="polite">
