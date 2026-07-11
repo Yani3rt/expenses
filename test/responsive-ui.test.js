@@ -90,4 +90,9 @@ test("dashboard share card returns to normal flow on smaller screens", () => {
 
 test("dashboard category boundary becomes one column on mobile", () => {
   assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.dashboard-category-row \{[^}]*grid-template-columns: minmax\(0, 1fr\);/);
+  assert.match(styles, /@media \(max-width: 980px\)[\s\S]*\.dashboard-category-row \{[^}]*grid-template-columns: minmax\(0, 1fr\);/);
+});
+
+test("tablet dashboard limits recent spending and stacks category share", () => {
+  assert.match(styles, /@media \(max-width: 980px\)[\s\S]*\.dashboard-recent-spending \.expense-row:nth-child\(n \+ 4\) \{ display: none; \}/);
 });
