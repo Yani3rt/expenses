@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { buildCategoryShare } from "../lib/category-share.js";
 import { categoryTone } from "../lib/categories.js";
 import { money } from "../lib/format.js";
@@ -11,7 +10,6 @@ function percent(value) {
 }
 
 export default function InteractiveDonut({ categories }) {
-  const router = useRouter();
   const [activeSlug, setActiveSlug] = useState(null);
   const share = useMemo(() => buildCategoryShare(categories), [categories]);
   const safeTotal = share.totalSpend || 1;
@@ -29,11 +27,8 @@ export default function InteractiveDonut({ categories }) {
 
   const active = slices.find((slice) => slice.categorySlug === activeSlug) || null;
 
-  function openCategory(row) {
+  function selectCategory(row) {
     setActiveSlug(row.categorySlug);
-    if (!row.isOther) {
-      router.push(`/transactions?category=${encodeURIComponent(row.categorySlug)}`);
-    }
   }
 
   return (
@@ -65,10 +60,10 @@ export default function InteractiveDonut({ categories }) {
                   strokeDashoffset={slice.offset}
                   tabIndex={0}
                   role="button"
-                  aria-label={`${slice.isOther ? "Show" : "Open"} ${slice.category} share, ${percent(slice.sharePercent)}`}
+                  aria-label={`Show ${slice.category} share, ${percent(slice.sharePercent)}`}
                   onMouseEnter={() => setActiveSlug(slice.categorySlug)}
                   onFocus={() => setActiveSlug(slice.categorySlug)}
-                  onClick={() => openCategory(slice)}
+                  onClick={() => selectCategory(slice)}
                 />
               );
             })}
@@ -101,7 +96,7 @@ export default function InteractiveDonut({ categories }) {
               key={row.categorySlug}
               onMouseEnter={() => setActiveSlug(row.categorySlug)}
               onFocus={() => setActiveSlug(row.categorySlug)}
-              onClick={() => openCategory(row)}
+              onClick={() => selectCategory(row)}
               aria-pressed={isActive}
             >
               <span className="share-rank">{index + 1}</span>

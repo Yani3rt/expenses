@@ -24,11 +24,10 @@ test("month spend metric renders active-day totals as a decorative background sp
   assert.match(styles, /\.metric > :not\(\.metric-sparkline\) \{ position: relative; z-index: 1; \}/);
 });
 
-test("dashboard donut chart is interactive and can open filtered ledger views", () => {
+test("dashboard donut chart selects categories without navigating away", () => {
   assert.match(dashboardPrimitives, /<InteractiveDonut categories=\{categories\} \/>/);
-  assert.match(interactiveDonut, /router\.push\(`/);
-  assert.doesNotMatch(interactiveDonut, /click to inspect/i);
-  assert.match(interactiveDonut, /transactions\?category=/);
+  assert.match(interactiveDonut, /function selectCategory\(row\)/);
+  assert.doesNotMatch(interactiveDonut, /useRouter|router\.push|transactions\?category=/);
 });
 
 test("dashboard category share keeps percentage context and uses dollar ranking values", () => {
@@ -39,8 +38,6 @@ test("dashboard category share keeps percentage context and uses dollar ranking 
   assert.match(interactiveDonut, /<strong>\{money\(row\.totalSpend\)\}<\/strong>/);
   assert.match(interactiveDonut, /All categories/);
   assert.match(interactiveDonut, /share-ranking/);
-  assert.match(interactiveDonut, /isOther/);
-  assert.match(interactiveDonut, /\/transactions\?category=/);
   assert.doesNotMatch(interactiveDonut, /legend-pill/);
 });
 
