@@ -55,34 +55,63 @@ export function MetricCard({ label, value, detail, tone = "primary", icon = "das
   );
 }
 
+function ChangeSignal({ direction, children }) {
+  const arrow = direction === "down" ? "↓" : direction === "up" ? "↑" : "→";
+  return (
+    <strong className={`change-signal is-${direction}`}>
+      <span className="change-signal-arrow" aria-hidden="true">{arrow}</span>
+      {children}
+    </strong>
+  );
+}
+
 function comparisonNarrative(comparison) {
   if (!comparison?.currentMonth || comparison.direction === "none") {
-    return "There is not enough expense history to compare months yet.";
+    return "Once another month is recorded, you’ll see the comparison here.";
   }
 
   const previousLabel = monthLabel(comparison.previousMonth);
   if (comparison.previousTotal === 0) {
     const driver = comparison.primaryDriver
-      ? ` ${comparison.primaryDriver.category} accounts for the largest share of the new spending.`
+      ? ` ${comparison.primaryDriver.category} led the way at ${money(Math.abs(comparison.primaryDriver.deltaAmount))}.`
       : "";
-    return `${monthLabel(comparison.currentMonth)} is the first month with recorded spending, so there is no prior month to compare yet.${driver}`;
+    return `${monthLabel(comparison.currentMonth)} gives you a fresh starting point.${driver}`;
   }
 
   if (comparison.direction === "flat") {
-    return `Spending was about the same as ${previousLabel}.`;
+    return <>You landed <ChangeSignal direction="flat">about the same</ChangeSignal> as you did in {previousLabel}.</>;
   }
 
-  const movement = comparison.direction === "up" ? "rose" : "fell";
-  const percent = comparison.deltaPercent === null ? "" : ` (${compactNumber(Math.abs(comparison.deltaPercent))}%)`;
+  const directionWord = comparison.direction === "up" ? "more" : "less";
+  const percent = comparison.deltaPercent === null
+    ? ""
+    : ` · ${compactNumber(Math.abs(comparison.deltaPercent))}%`;
   const mainDriver = comparison.direction === "up" ? comparison.primaryDriver : comparison.offsetDriver;
   const driverCopy = mainDriver
-    ? ` ${mainDriver.category} had the largest ${comparison.direction === "up" ? "increase" : "drop"} at ${money(Math.abs(mainDriver.deltaAmount))}.`
+    ? comparison.direction === "up"
+      ? <> {mainDriver.category} led the increase at <ChangeSignal direction="up">{money(Math.abs(mainDriver.deltaAmount))}</ChangeSignal>.</>
+      : <> {mainDriver.category} made the biggest difference, down <ChangeSignal direction="down">{money(Math.abs(mainDriver.deltaAmount))}</ChangeSignal>.</>
     : "";
   const offsetCopy = comparison.direction === "up" && comparison.offsetDriver
-    ? ` ${comparison.offsetDriver.category} moved the other way, falling ${money(Math.abs(comparison.offsetDriver.deltaAmount))}.`
+    ? <> {comparison.offsetDriver.category} helped offset that, down <ChangeSignal direction="down">{money(Math.abs(comparison.offsetDriver.deltaAmount))}</ChangeSignal>.</>
     : "";
 
-  return `Spending ${movement} ${money(Math.abs(comparison.deltaAmount))}${percent} from ${previousLabel}.${driverCopy}${offsetCopy}`;
+  return (
+    <>
+      You spent <ChangeSignal direction={comparison.direction}>{money(Math.abs(comparison.deltaAmount))}{percent}</ChangeSignal> {directionWord} than in {previousLabel}.
+      {driverCopy}
+      {offsetCopy}
+    </>
+  );
+}
+
+function comparisonHeadline(comparison) {
+  if (!comparison?.currentMonth || comparison.direction === "none") return "More history needed";
+  if (comparison.previousTotal === 0) return "A fresh starting point";
+  if (comparison.direction === "down") return "A lighter month";
+  if (comparison.direction === "up") return "Spending picked up";
+  if (comparison.direction === "flat") return "Holding steady.";
+  return "This month at a glance";
 }
 
 export function ChangeSummary({ comparison }) {
@@ -90,12 +119,11 @@ export function ChangeSummary({ comparison }) {
   return (
     <section className="change-summary" aria-labelledby="change-summary-title">
       <div className="change-summary-copy">
-        <p className="label">What changed</p>
-        <h2 id="change-summary-title">The month in one sentence</h2>
+        <h2 id="change-summary-title">{comparisonHeadline(comparison)}</h2>
         <p>{comparisonNarrative(comparison)}</p>
       </div>
-      <Link className="change-summary-action" href={`/transactions?month=${encodeURIComponent(currentMonth)}`}>
-        Explore this month
+      <Link className="change-summary-action dashboard-delight-action" href={`/transactions?month=${encodeURIComponent(currentMonth)}`}>
+        Explore this month <span className="dashboard-action-arrow" aria-hidden="true">→</span>
       </Link>
     </section>
   );
@@ -159,7 +187,7 @@ export function ExpenseList({ title, expenses, compact = false, className = "", 
           <p className="label">{compact ? "Highest amounts" : "Recent spending"}</p>
           <h2>{title}</h2>
         </div>
-        {!compact ? <Link className="share-reset dashboard-ledger-link" href="/transactions">Open ledger</Link> : null}
+        {!compact ? <Link className="share-reset dashboard-ledger-link dashboard-delight-action" href="/transactions">Open ledger <span className="dashboard-action-arrow" aria-hidden="true">→</span></Link> : null}
       </div>
       <div className="expense-list">
         {expenses.map((expense) => <ExpenseRow expense={expense} showCategory={showCategory} key={`${title}-${expense.id}`} />)}

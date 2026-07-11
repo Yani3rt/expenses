@@ -9,6 +9,11 @@ const dailySpendingChart = readFileSync(new URL("../components/DailySpendingChar
 const interactiveMonthlyTrend = readFileSync(new URL("../components/InteractiveMonthlyTrend.js", import.meta.url), "utf8");
 const animatedText = readFileSync(new URL("../components/AnimatedText.js", import.meta.url), "utf8");
 const queries = readFileSync(new URL("../lib/queries.js", import.meta.url), "utf8");
+const nextConfig = readFileSync(new URL("../next.config.mjs", import.meta.url), "utf8");
+
+test("development server accepts the local loopback hosts used by the app", () => {
+  assert.match(nextConfig, /allowedDevOrigins:\s*\[[^\]]*"localhost"[^\]]*"127\.0\.0\.1"[^\]]*\]/);
+});
 
 test("dashboard monthly trend spans the full content width", () => {
   assert.match(homePage, /<MonthlyTrend months=\{data\.monthlyTotals\} className="span-12" \/>/);
@@ -40,9 +45,53 @@ test("dashboard donut ring provides the same simple click animation", () => {
   const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(interactiveDonut, /const \[playfulSlug, setPlayfulSlug\] = useState\(null\)/);
   assert.match(interactiveDonut, /onClick=\{\(\) => playCategory\(slice\)\}/);
+  assert.match(interactiveDonut, /onClick=\{\(\) => playCategory\(row\)\}/);
   assert.match(interactiveDonut, /onAnimationEnd=\{\(\) => setPlayfulSlug\(null\)\}/);
   assert.match(styles, /\.donut\.is-playful \{ animation: donut-ring-play 420ms/);
   assert.match(styles, /@keyframes donut-ring-play/);
+});
+
+test("dashboard actions use a quick arrow and press response", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(dashboardPrimitives, /className="change-summary-action dashboard-delight-action"/);
+  assert.match(dashboardPrimitives, /className="share-reset dashboard-ledger-link dashboard-delight-action"/);
+  assert.equal((dashboardPrimitives.match(/className="dashboard-action-arrow" aria-hidden="true">→<\/span>/g) || []).length, 2);
+  assert.match(styles, /\.dashboard-delight-action \{[^}]*transition: transform \.18s/);
+  assert.match(styles, /\.dashboard-delight-action:hover \.dashboard-action-arrow[^}]*translateX\(3px\)/);
+  assert.match(styles, /\.dashboard-delight-action:active \{[^}]*scale\(\.98\)/);
+  assert.match(styles, /@media \(prefers-reduced-motion: reduce\) \{[\s\S]*transition-duration: 0\.01ms !important;/);
+});
+
+test("dashboard change summary headline reflects the comparison state", () => {
+  assert.match(dashboardPrimitives, /function comparisonHeadline\(comparison\)/);
+  assert.match(dashboardPrimitives, /comparison\.direction === "down"[\s\S]*"A lighter month"/);
+  assert.match(dashboardPrimitives, /comparison\.direction === "up"[\s\S]*"Spending picked up"/);
+  assert.match(dashboardPrimitives, /comparison\.direction === "flat"[\s\S]*"Holding steady\."/);
+  assert.match(dashboardPrimitives, /<h2 id="change-summary-title">\{comparisonHeadline\(comparison\)\}<\/h2>/);
+  assert.doesNotMatch(dashboardPrimitives, />The month in one sentence<\/h2>/);
+  assert.doesNotMatch(dashboardPrimitives, /<p className="label">What changed<\/p>/);
+});
+
+test("dashboard comparison sentence uses warm household-friendly language", () => {
+  assert.match(dashboardPrimitives, /You spent <ChangeSignal direction=\{comparison\.direction\}>/);
+  assert.match(dashboardPrimitives, /\{directionWord\} than in \{previousLabel\}/);
+  assert.match(dashboardPrimitives, /made the biggest difference, down/);
+  assert.match(dashboardPrimitives, /led the increase at/);
+  assert.match(dashboardPrimitives, /helped offset that, down/);
+  assert.match(dashboardPrimitives, /You landed <ChangeSignal direction="flat">about the same<\/ChangeSignal> as you did in/);
+  assert.match(dashboardPrimitives, /gives you a fresh starting point/);
+});
+
+test("dashboard comparison uses semantic color and arrows without relying on color alone", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(dashboardPrimitives, /function ChangeSignal\(\{ direction, children \}\)/);
+  assert.match(dashboardPrimitives, /direction === "down" \? "↓" : direction === "up" \? "↑" : "→"/);
+  assert.match(dashboardPrimitives, /className=\{`change-signal is-\$\{direction\}`\}/);
+  assert.match(dashboardPrimitives, /className="change-signal-arrow" aria-hidden="true"/);
+  assert.match(styles, /\.change-signal \{[^}]*display: inline-flex;[^}]*white-space: nowrap;/);
+  assert.match(styles, /\.change-signal\.is-down \{[^}]*color: var\(--secondary\);/);
+  assert.match(styles, /\.change-signal\.is-up \{[^}]*color: #b54708;/);
+  assert.match(styles, /\.change-signal\.is-flat \{[^}]*color: var\(--primary\);/);
 });
 
 test("dashboard category share keeps percentage context and uses dollar ranking values", () => {
@@ -152,8 +201,8 @@ test("dashboard gives daily spending more room beside largest expenses", () => {
 
 test("daily spending uses a responsive line chart and scrolls only on smaller screens", () => {
   const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
-  assert.match(dailySpendingChart, /Only days with recorded expenses are shown/);
-  assert.match(dailySpendingChart, /dailyTotals\.map/);
+  assert.match(dailySpendingChart, /Only days with recorded expenses this \{range\} are shown/);
+  assert.match(dailySpendingChart, /visibleTotals\.map/);
   assert.match(dailySpendingChart, /Average per spending day/);
   assert.match(dailySpendingChart, /Highest day/);
   assert.match(dailySpendingChart, /daily-line-chart/);
@@ -171,6 +220,21 @@ test("daily spending uses a responsive line chart and scrolls only on smaller sc
   assert.match(styles, /scrollbar-color: var\(--blue\) var\(--surface-low\);/);
 });
 
+test("daily spending switches between the current week and month", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(dailySpendingChart, /const \[range, setRange\] = useState\("month"\)/);
+  assert.match(dailySpendingChart, /currentWeekBounds\(today\)/);
+  assert.match(dailySpendingChart, /day\.date >= weekBounds\.start && day\.date <= weekBounds\.end/);
+  assert.match(dailySpendingChart, /role="tablist" aria-label="Spending period"/);
+  assert.match(dailySpendingChart, /role="tab" aria-selected=\{range === "week"\}/);
+  assert.match(dailySpendingChart, /role="tab" aria-selected=\{range === "month"\}/);
+  assert.match(dailySpendingChart, /className="spending-range-pill"/);
+  assert.match(dailySpendingChart, /No spending this \{range\}/);
+  assert.match(styles, /\.spending-range-tabs \{[^}]*position: relative;[^}]*display: grid;/);
+  assert.match(styles, /\.spending-range-tabs\.is-month \.spending-range-pill \{[^}]*translateX\(calc\(100% \+ 2px\)\)/);
+  assert.match(styles, /@media \(prefers-reduced-motion: reduce\) \{[\s\S]*\.spending-range-pill,[\s\S]*transition: none !important;/);
+});
+
 test("daily spending chart animates once when it enters the viewport", () => {
   const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(dailySpendingChart, /const chartRef = useRef\(null\)/);
@@ -184,7 +248,7 @@ test("daily spending chart animates once when it enters the viewport", () => {
 });
 
 test("recent spending ledger link matches the category reset control", () => {
-  assert.match(dashboardPrimitives, /className="share-reset dashboard-ledger-link"[^>]*>Open ledger<\/Link>/);
+  assert.match(dashboardPrimitives, /className="share-reset dashboard-ledger-link dashboard-delight-action"/);
 });
 
 

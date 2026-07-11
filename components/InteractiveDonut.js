@@ -109,7 +109,7 @@ export default function InteractiveDonut({ categories }) {
               key={row.categorySlug}
               onMouseEnter={() => setActiveSlug(row.categorySlug)}
               onFocus={() => setActiveSlug(row.categorySlug)}
-              onClick={() => selectCategory(row)}
+              onClick={() => playCategory(row)}
               aria-pressed={isActive}
             >
               <span className="share-rank">{index + 1}</span>
