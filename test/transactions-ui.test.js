@@ -181,9 +181,18 @@ test("transaction detail dialog exposes category-month cards, chart, and expense
   assert.match(dialog, /Transactions/);
   assert.match(dialog, /Average expense/);
   assert.match(dialog, /Change from/);
-  assert.match(dialog, /New this month/);
+  assert.match(dialog, /return "New"/);
   assert.match(dialog, /Spending by day/);
-  assert.match(dialog, /category-month-chart/);
+  assert.match(dialog, /import \{ BarChart \} from "\.\/dither-kit\/bar-chart"/);
+  assert.match(dialog, /import \{ Bar \} from "\.\/dither-kit\/bar"/);
+  assert.match(dialog, /import \{ XAxis \} from "\.\/dither-kit\/x-axis"/);
+  assert.match(dialog, /import \{ Tooltip \} from "\.\/dither-kit\/tooltip"/);
+  assert.match(dialog, /<BarChart[\s\S]*className="category-month-dither"/);
+  assert.match(dialog, /<XAxis dataKey="day" \/>/);
+  assert.match(dialog, /<Tooltip labelKey="label"/);
+  assert.match(dialog, /<Bar isClickable dataKey="totalSpend" variant="dotted" \/>/);
+  assert.doesNotMatch(dialog, /<Legend/);
+  assert.doesNotMatch(dialog, /<YAxis/);
   assert.match(dialog, /category-month-expenses/);
   assert.match(dialog, /is-selected/);
   assert.match(dialog, /categoryMonth\.dailyTotals\.map/);
@@ -205,7 +214,7 @@ test("transaction detail dialog exposes category-month cards, chart, and expense
   assert.match(globalStyles, /\.transaction-dialog-backdrop\s*\{[^}]*animation:\s*transactionBackdropIn/);
   assert.match(globalStyles, /\.transaction-dialog\s*\{[^}]*animation:\s*transactionDialogIn/);
   assert.match(globalStyles, /\.transaction-detail-summary div\s*\{[^}]*animation:\s*transactionInsightIn/);
-  assert.match(globalStyles, /\.category-month-bar i\s*\{[^}]*animation:\s*transactionBarIn/);
+  assert.match(globalStyles, /\.category-month-dither\s*\{[^}]*height:\s*180px/);
 });
 
 test("interactive hover belongs only to ledger row buttons", () => {
@@ -223,13 +232,26 @@ test("interactive hover belongs only to ledger row buttons", () => {
   assert.doesNotMatch(styles, /\.ledger-card \.ledger-row-button:hover \.expense-(?:icon|copy|amount)/);
 });
 
-test("category-month chart and expense list expose semantic data", () => {
+test("category-month dither chart and expense list expose useful data", () => {
   const dialog = readFileSync(transactionDetailDialogUrl, "utf8");
-  assert.match(dialog, /role="list" aria-label=/);
-  assert.match(dialog, /role="listitem"/);
-  assert.match(dialog, /aria-label=\{`\$\{shortDate\(day\.date\)\}:/);
+  assert.match(dialog, /day: date\.slice\(-2\)/);
+  assert.match(dialog, /label: shortDate\(date\)/);
+  assert.match(dialog, /valueFormatter=\{\(value\) => money\(value, shownTransaction\.currency\)\}/);
   assert.match(dialog, /aria-current=\{expense\.id === shownTransaction\.id \? "true" : undefined\}/);
-  assert.match(dialog, /className="category-month-bar" aria-hidden="true"/);
+});
+
+test("category-month modal uses restrained category-aware color", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  const categories = readFileSync(new URL("../lib/categories.js", import.meta.url), "utf8");
+
+  assert.match(categories, /hogar:\s*"primary"/);
+  assert.match(styles, /\.transaction-dialog-head \.label\s*\{[^}]*var\(--category-accent\)/);
+  assert.match(styles, /\.transaction-detail-summary div\s*\{[^}]*color-mix\(in srgb, var\(--category-accent\) 7%, var\(--surface-lowest\)\)/);
+  assert.match(styles, /\.transaction-detail-summary div\s*\{[^}]*border:\s*1px solid color-mix\(in srgb, var\(--category-accent\) 18%, var\(--outline\)\)/);
+  assert.match(styles, /\.transaction-dialog-close:hover\s*\{[^}]*var\(--category-accent\)/);
+  assert.match(styles, /\.transaction-dialog-close:focus-visible[^}]*outline:\s*2px solid var\(--category-accent\)/);
+  assert.match(styles, /\.category-month-expense\.is-selected\s*\{[^}]*border:\s*1px solid color-mix\(in srgb, var\(--category-accent\) 40%, var\(--outline\)\)/);
+  assert.doesNotMatch(styles, /\.category-month-expense\.is-selected\s*\{[^}]*box-shadow:\s*inset 3px 0/);
 });
 
 test("interactive expense rows keep native button content phrasing-only", () => {

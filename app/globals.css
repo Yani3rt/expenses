@@ -617,32 +617,28 @@ h2 { margin: 6px 0 0; font-family: Manrope; font-size: 28px; letter-spacing: -.0
 .transaction-dialog-backdrop { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: rgba(19,27,46,.48); backdrop-filter: blur(4px); animation: transactionBackdropIn 160ms var(--ease-out-quart) both; }
 .transaction-dialog { width: min(680px, 100%); max-height: min(820px, calc(100vh - 48px)); overflow: auto; padding: 28px; border: 1px solid var(--outline); border-radius: 20px; background: var(--surface-lowest); box-shadow: 0 30px 90px rgba(19,27,46,.24); animation: transactionDialogIn 280ms var(--ease-out-quart) both; }
 .transaction-dialog-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.transaction-dialog-head .label { color: color-mix(in srgb, var(--category-accent) 72%, var(--on-surface)); }
 .transaction-dialog-head h2 { margin-top: 4px; }
 .transaction-dialog-head p:last-child { margin-top: 6px; color: var(--on-variant); }
-.transaction-dialog-close { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--outline); border-radius: 999px; background: transparent; color: var(--on-surface); font-size: 24px; cursor: pointer; }
-.transaction-dialog-close:focus-visible, .transaction-dialog-state button:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+.transaction-dialog-close { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--outline); border-radius: 999px; background: transparent; color: var(--on-surface); font-size: 24px; cursor: pointer; transition: background .18s ease, border-color .18s ease, color .18s ease; }
+.transaction-dialog-close:hover { border-color: color-mix(in srgb, var(--category-accent) 40%, var(--outline)); background: color-mix(in srgb, var(--category-accent) 8%, var(--surface-lowest)); color: color-mix(in srgb, var(--category-accent) 70%, var(--on-surface)); }
+.transaction-dialog-close:focus-visible, .transaction-dialog-state button:focus-visible { outline: 2px solid var(--category-accent); outline-offset: 3px; }
 .transaction-dialog-state { min-height: 220px; display: grid; place-content: center; justify-items: center; gap: 14px; color: var(--on-variant); text-align: center; }
 .transaction-dialog-state button { padding: 10px 16px; border: 0; border-radius: 999px; background: var(--blue); color: white; font: inherit; font-weight: 800; cursor: pointer; }
 .transaction-detail-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 28px; }
-.transaction-detail-summary div { display: grid; gap: 8px; padding: 16px; border-radius: 14px; background: var(--surface-low); animation: transactionInsightIn 240ms var(--ease-out-quart) both; }
+.transaction-detail-summary div { display: grid; gap: 8px; padding: 16px; border: 1px solid color-mix(in srgb, var(--category-accent) 18%, var(--outline)); border-radius: 14px; background: color-mix(in srgb, var(--category-accent) 7%, var(--surface-lowest)); animation: transactionInsightIn 240ms var(--ease-out-quart) both; }
 .transaction-detail-summary div:nth-child(2) { animation-delay: 35ms; }
 .transaction-detail-summary div:nth-child(3) { animation-delay: 70ms; }
 .transaction-detail-summary div:nth-child(4) { animation-delay: 105ms; }
-.transaction-detail-summary span { color: var(--on-variant); font-size: 12px; }
+.transaction-detail-summary span { color: color-mix(in srgb, var(--category-accent) 42%, var(--on-surface)); font-size: 12px; }
 .transaction-detail-summary strong { font-family: "JetBrains Mono", monospace; }
 .category-month-chart,
-.category-month-expenses { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--outline); }
+.category-month-expenses { margin-top: 28px; padding-top: 24px; border-top: 1px solid color-mix(in srgb, var(--category-accent) 22%, var(--outline)); }
 .category-month-section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; }
-.category-month-section-head h3 { margin: 0; font-family: Manrope, sans-serif; font-size: 17px; }
+.category-month-section-head h3 { margin: 0; color: color-mix(in srgb, var(--category-accent) 52%, var(--on-surface)); font-family: Manrope, sans-serif; font-size: 17px; }
 .category-month-section-head > span { color: var(--on-variant); font-size: 13px; }
-.category-month-bars { height: 150px; display: flex; align-items: end; gap: 12px; margin-top: 18px; overflow-x: auto; padding: 0 2px 4px; }
-.category-month-day { flex: 1 0 42px; min-width: 42px; display: grid; justify-items: center; gap: 7px; color: var(--on-variant); }
-.category-month-day > strong { font-family: "JetBrains Mono", monospace; font-size: 11px; }
-.category-month-bar { width: 32px; height: 112px; display: flex; align-items: end; overflow: hidden; border-radius: 8px 8px 4px 4px; background: var(--surface-container); }
-.category-month-bar i { display: block; width: 100%; border-radius: inherit; background: color-mix(in srgb, var(--category-accent) 34%, white); transform-origin: bottom center; animation: transactionBarIn 380ms var(--ease-out-quart) 90ms both; }
-.category-month-day.is-selected { color: var(--on-surface); }
-.category-month-day.is-selected .category-month-bar { box-shadow: 0 0 0 2px color-mix(in srgb, var(--category-accent) 40%, transparent); }
-.category-month-day.is-selected .category-month-bar i { background: var(--category-accent); }
+.category-month-dither { height: 180px; margin-top: 12px; }
+.category-month-dither svg text { font-size: 10px; }
 .category-month-expense-list { display: grid; margin-top: 12px; }
 .category-month-expense { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 13px 12px; border-bottom: 1px solid var(--surface-container); border-radius: 10px; }
 .category-month-expense:last-child { border-bottom: 0; }
@@ -650,7 +646,7 @@ h2 { margin: 6px 0 0; font-family: Manrope; font-size: 28px; letter-spacing: -.0
 .category-month-expense strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .category-month-expense small { color: var(--on-variant); }
 .category-month-expense > b { font-family: "JetBrains Mono", monospace; white-space: nowrap; }
-.category-month-expense.is-selected { background: color-mix(in srgb, var(--category-accent) 8%, transparent); box-shadow: inset 3px 0 var(--category-accent); }
+.category-month-expense.is-selected { border: 1px solid color-mix(in srgb, var(--category-accent) 40%, var(--outline)); background: color-mix(in srgb, var(--category-accent) 9%, var(--surface-lowest)); }
 .row-enter { animation-duration: 520ms; }
 .ledger-foot { margin-top: 20px; color: var(--on-variant); font-family: "JetBrains Mono"; font-size: 12px; }
 .empty-state { display: grid; gap: 8px; padding: 28px; border-radius: 14px; background: var(--surface-low); color: var(--on-variant); }

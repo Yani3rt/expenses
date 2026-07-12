@@ -4,12 +4,51 @@ import { useEffect, useRef } from "react";
 import { money, monthLabel, shortDate } from "../lib/format.js";
 import { categoryTone } from "../lib/categories.js";
 import { createDialogBehaviorSession, isBackdropDismissal } from "../lib/dialog-behavior.js";
+import { BarChart } from "./dither-kit/bar-chart";
+import { Bar } from "./dither-kit/bar";
+import { Tooltip } from "./dither-kit/tooltip";
+import { XAxis } from "./dither-kit/x-axis";
+
+const DITHER_COLORS = {
+  emerald: "green",
+  violet: "purple",
+  amber: "orange",
+  blue: "blue",
+  cyan: "blue",
+  pink: "pink",
+  indigo: "purple",
+  coral: "red",
+  primary: "grey",
+  muted: "grey",
+};
 
 function monthChange(categoryMonth, currency) {
-  if (categoryMonth.isNewThisMonth) return "New this month";
+  if (categoryMonth.isNewThisMonth) return "New";
   const percent = Math.abs(Number(categoryMonth.deltaPercent || 0)).toFixed(1);
   const direction = categoryMonth.deltaAmount >= 0 ? "+" : "";
   return `${direction}${money(categoryMonth.deltaAmount, currency)} · ${percent}%`;
+}
+
+function buildMonthChartData(categoryMonth) {
+  if (!categoryMonth) return [];
+
+  const totalsByDate = new Map(categoryMonth.dailyTotals.map((day) => [day.date, day]));
+  const [year, month] = categoryMonth.month.split("-").map(Number);
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+
+  return Array.from({ length: daysInMonth }, (_, index) => {
+    const day = String(index + 1).padStart(2, "0");
+    const date = `${categoryMonth.month}-${day}`;
+    const total = totalsByDate.get(date);
+
+    return {
+      date,
+      day: date.slice(-2),
+      label: shortDate(date),
+      totalSpend: Number(total?.totalSpend ?? 0),
+      expenseCount: total?.expenseCount ?? 0,
+    };
+  });
 }
 
 export default function TransactionDetailDialog({ transaction, detail, status, error, onRetry, onClose }) {
@@ -20,6 +59,10 @@ export default function TransactionDetailDialog({ transaction, detail, status, e
   const selectedMonth = categoryMonth?.month ?? shownTransaction.date.slice(0, 7);
   const tone = categoryTone(categoryMonth?.categorySlug ?? shownTransaction.categorySlug);
   const categoryAccent = tone === "muted" ? "var(--on-variant)" : `var(--${tone})`;
+  const chartData = buildMonthChartData(categoryMonth);
+  const chartConfig = {
+    totalSpend: { label: "Daily total", color: DITHER_COLORS[tone] ?? "grey" },
+  };
   behaviorSessionRef.current?.update({ onClose, status });
 
   useEffect(() => {
@@ -30,8 +73,6 @@ export default function TransactionDetailDialog({ transaction, detail, status, e
       session.destroy();
     };
   }, []);
-
-  const maxDaily = Math.max(...(categoryMonth?.dailyTotals ?? []).map((day) => Number(day.totalSpend || 0)), 1);
 
   return (
     <div className="transaction-dialog-backdrop" onMouseDown={(event) => isBackdropDismissal(event) && onClose()}>
@@ -73,21 +114,19 @@ export default function TransactionDetailDialog({ transaction, detail, status, e
                 <h3 id="category-month-chart-title">Spending by day</h3>
                 <span>{categoryMonth.dailyTotals.length} active {categoryMonth.dailyTotals.length === 1 ? "day" : "days"}</span>
               </div>
-              <div className="category-month-bars" role="list" aria-label={`${categoryMonth.category} daily spending in ${monthLabel(categoryMonth.month)}`}>
-                {categoryMonth.dailyTotals.map((day) => (
-                  <div
-                    className={`category-month-day${day.date === categoryMonth.selectedDate ? " is-selected" : ""}`}
-                    key={day.date}
-                    role="listitem"
-                    aria-label={`${shortDate(day.date)}: ${money(day.totalSpend, shownTransaction.currency)}, ${day.expenseCount} ${day.expenseCount === 1 ? "transaction" : "transactions"}`}
-                  >
-                    <span className="category-month-bar" aria-hidden="true">
-                      <i style={{ height: `${Math.max((Number(day.totalSpend || 0) / maxDaily) * 100, 6)}%` }} />
-                    </span>
-                    <strong>{day.date.slice(-2)}</strong>
-                  </div>
-                ))}
-              </div>
+              <BarChart
+                data={chartData}
+                config={chartConfig}
+                bloom="low"
+                margins={{ top: 16, right: 12, bottom: 24, left: 8 }}
+                className="category-month-dither"
+                animationDuration={520}
+                tapToPinTooltip
+              >
+                <XAxis dataKey="day" />
+                <Tooltip labelKey="label" valueFormatter={(value) => money(value, shownTransaction.currency)} />
+                <Bar isClickable dataKey="totalSpend" variant="dotted" />
+              </BarChart>
             </section>
             <section className="category-month-expenses" aria-labelledby="category-month-expenses-title">
               <div className="category-month-section-head">
