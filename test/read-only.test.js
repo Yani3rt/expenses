@@ -18,15 +18,24 @@ test("database connection is read-only and rejects writes", () => {
   }
 });
 
-test("transaction detail route rejects invalid numeric IDs", async () => {
-  const response = await getTransactionDetail(
-    new Request("http://localhost/api/transactions/not-a-number"),
-    { params: Promise.resolve({ id: "not-a-number" }) },
-  );
+for (const [label, id] of [
+  ["zero", "0"],
+  ["negative", "-1"],
+  ["decimal", "1.5"],
+  ["empty", ""],
+  ["non-digit", "not-a-number"],
+  ["larger than Number.MAX_SAFE_INTEGER", "9007199254740992"],
+]) {
+  test(`transaction detail route rejects ${label} IDs`, async () => {
+    const response = await getTransactionDetail(
+      new Request(`http://localhost/api/transactions/${id}`),
+      { params: Promise.resolve({ id }) },
+    );
 
-  assert.equal(response.status, 400);
-  assert.deepEqual(await response.json(), { error: "Transaction ID must be a positive integer." });
-});
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), { error: "Transaction ID must be a positive integer." });
+  });
+}
 
 test("transaction detail route returns missing records as 404", async () => {
   const response = await getTransactionDetail(
@@ -57,6 +66,8 @@ test("transaction detail route only delegates data access to the read-only query
   );
 
   assert.match(source, /getTransactionDetailData/);
+  assert.match(source, /Number\.isSafeInteger/);
+  assert.match(source, /\^\\d\+\$/);
   assert.doesNotMatch(source, /(?:INSERT|UPDATE|DELETE|REPLACE|CREATE|DROP|ALTER|VACUUM|REINDEX)\b/i);
   assert.doesNotMatch(source, /(?:getDatabase|withDatabase|node:sqlite|\.prepare\s*\()/);
 });

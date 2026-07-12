@@ -37,8 +37,27 @@ test("fetchTransactionsPage rejects malformed payloads", async () => {
 
 test("fetchTransactionDetail returns validated transaction context and forwards an abort signal", async () => {
   const payload = {
-    transaction: { id: 4, description: "Technology expense" },
-    context: { rank: 1, resultCount: 2 },
+    transaction: {
+      id: 4,
+      date: "2026-06-10",
+      description: "Technology expense",
+      amount: 210,
+      currency: "USD",
+      category: "Technology",
+      categorySlug: "tecnologia",
+      paidBy: "Yani",
+      notes: null,
+    },
+    context: {
+      rank: 1,
+      resultCount: 2,
+      spendSharePercent: 75,
+      differenceFromAverage: 70,
+      filteredAverage: 140,
+      categoryAverage: 140,
+      categoryRank: 1,
+      categorySharePercent: 75,
+    },
   };
   const controller = new AbortController();
 
@@ -74,6 +93,85 @@ test("fetchTransactionDetail rejects malformed payloads", async () => {
       fetchImpl: async () => ({
         ok: true,
         json: async () => ({ transaction: null, context: [] }),
+      }),
+    }),
+    /unexpected response/i,
+  );
+});
+
+test("fetchTransactionDetail rejects object-shaped payloads with invalid field types", async () => {
+  await assert.rejects(
+    () => fetchTransactionDetail("/api/transactions/4", {
+      fetchImpl: async () => ({
+        ok: true,
+        json: async () => ({
+          transaction: {
+            id: "4",
+            date: "2026-06-10",
+            description: "Technology expense",
+            amount: 210,
+            currency: "USD",
+            category: "Technology",
+            categorySlug: "tecnologia",
+            paidBy: "Yani",
+            notes: null,
+          },
+          context: {
+            rank: 1,
+            resultCount: 2,
+            spendSharePercent: "75",
+            differenceFromAverage: 70,
+            filteredAverage: 140,
+            categoryAverage: 140,
+            categoryRank: 1,
+            categorySharePercent: 75,
+          },
+        }),
+      }),
+    }),
+    /unexpected response/i,
+  );
+});
+
+test("fetchTransactionDetail accepts nullable insight metrics", async () => {
+  const transaction = {
+    id: 4,
+    date: "2026-06-10",
+    description: "Technology expense",
+    amount: 0,
+    currency: "USD",
+    category: "Technology",
+    categorySlug: "tecnologia",
+    paidBy: "Yani",
+    notes: "",
+  };
+  const context = {
+    rank: 1,
+    resultCount: 1,
+    spendSharePercent: null,
+    differenceFromAverage: 0,
+    filteredAverage: 0,
+    categoryAverage: 0,
+    categoryRank: 1,
+    categorySharePercent: null,
+  };
+
+  const result = await fetchTransactionDetail("/api/transactions/4", {
+    fetchImpl: async () => ({
+      ok: true,
+      json: async () => ({ transaction, context }),
+    }),
+  });
+
+  assert.deepEqual(result, { transaction, context });
+});
+
+test("fetchTransactionDetail normalizes successful malformed JSON responses", async () => {
+  await assert.rejects(
+    () => fetchTransactionDetail("/api/transactions/4", {
+      fetchImpl: async () => ({
+        ok: true,
+        json: async () => { throw new SyntaxError("Unexpected token"); },
       }),
     }),
     /unexpected response/i,
