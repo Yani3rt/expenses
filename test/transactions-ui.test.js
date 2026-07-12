@@ -7,6 +7,7 @@ const transactionsFilters = readFileSync(new URL("../components/TransactionsFilt
 const dashboardPrimitives = readFileSync(new URL("../components/DashboardPrimitives.js", import.meta.url), "utf8");
 const transactionsLedger = readFileSync(new URL("../components/TransactionsLedger.js", import.meta.url), "utf8");
 const transactionsApiRoute = readFileSync(new URL("../app/api/transactions/route.js", import.meta.url), "utf8");
+const transactionDetailDialogUrl = new URL("../components/TransactionDetailDialog.js", import.meta.url);
 
 test("transactions page uses instant client filters and active chips", () => {
   assert.match(transactionsPage, /<TransactionsFilters/);
@@ -140,4 +141,39 @@ test("app includes route loading and recoverable database error states", () => {
   assert.match(error, /"use client"/);
   assert.match(error, /reset\(\)/);
   assert.match(error, /No expense data was changed/);
+});
+
+test("ledger rows are semantic buttons that open transaction details", () => {
+  assert.match(dashboardPrimitives, /const RowElement = onClick \? "button" : "article"/);
+  assert.match(dashboardPrimitives, /type=\{onClick \? "button" : undefined\}/);
+  assert.match(transactionsLedger, /onClick=\{\(event\) => openDetail\(expense, event\.currentTarget\)\}/);
+  assert.match(transactionsLedger, /<TransactionDetailDialog/);
+  assert.match(transactionsLedger, /fetchTransactionDetail/);
+});
+
+test("transaction detail dialog exposes accessible states, controls, and comparison semantics", () => {
+  assert.equal(existsSync(transactionDetailDialogUrl), true);
+  const dialog = readFileSync(transactionDetailDialogUrl, "utf8");
+  assert.match(dialog, /role="dialog"/);
+  assert.match(dialog, /aria-modal="true"/);
+  assert.match(dialog, /aria-labelledby="transaction-detail-title"/);
+  assert.match(dialog, /Loading transaction insights…/);
+  assert.match(dialog, /Try again/);
+  assert.match(dialog, /Overall rank/);
+  assert.match(dialog, /Share of filtered spend/);
+  assert.match(dialog, /Compared with average/);
+  assert.match(dialog, /aria-label="Amount comparison"/);
+  assert.match(dialog, /Transaction amount/);
+  assert.match(dialog, /Filtered average/);
+  assert.match(dialog, /Category average/);
+  assert.match(dialog, /aria-label="Close transaction details"/);
+  assert.match(dialog, /event\.key === "Escape"/);
+  assert.match(dialog, /event\.key === "Tab"/);
+});
+
+test("interactive hover belongs only to ledger row buttons", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.doesNotMatch(styles, /\.expense-row:hover \{[^}]*transform:/);
+  assert.match(styles, /\.ledger-row-button:hover/);
+  assert.match(styles, /\.ledger-row-button:focus-visible/);
 });

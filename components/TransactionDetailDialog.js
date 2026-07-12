@@ -1,0 +1,104 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { money, shortDate } from "../lib/format.js";
+
+function percent(value) {
+  return value === null ? "—" : `${Number(value).toFixed(1)}%`;
+}
+
+export default function TransactionDetailDialog({ transaction, detail, status, error, onRetry, onClose }) {
+  const dialogRef = useRef(null);
+  const shownTransaction = detail?.transaction ?? transaction;
+  const context = detail?.context;
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    dialog?.querySelector("button")?.focus();
+
+    function onKeyDown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key === "Tab" && dialog) {
+        const focusable = [...dialog.querySelectorAll('button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')];
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [onClose]);
+
+  const comparisons = context ? [
+    ["Transaction amount", shownTransaction.amount],
+    ["Filtered average", context.filteredAverage],
+    ["Category average", context.categoryAverage],
+  ] : [];
+  const maxComparison = Math.max(...comparisons.map(([, value]) => Number(value || 0)), 1);
+
+  return (
+    <div className="transaction-dialog-backdrop" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+      <section
+        className="transaction-dialog"
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="transaction-detail-title"
+        aria-describedby="transaction-detail-description"
+      >
+        <header className="transaction-dialog-head">
+          <div>
+            <p className="label">Transaction insight</p>
+            <h2 id="transaction-detail-title">{shownTransaction.description}</h2>
+            <p id="transaction-detail-description">{shortDate(shownTransaction.date)} · {shownTransaction.category} · {shownTransaction.paidBy}</p>
+          </div>
+          <button className="transaction-dialog-close" type="button" onClick={onClose} aria-label="Close transaction details">×</button>
+        </header>
+
+        {status === "loading" ? <div className="transaction-dialog-state" role="status">Loading transaction insights…</div> : null}
+        {status === "error" ? (
+          <div className="transaction-dialog-state" role="alert">
+            <p>{error}</p>
+            <button type="button" onClick={onRetry}>Try again</button>
+          </div>
+        ) : null}
+        {status === "success" && context ? (
+          <>
+            <div className="transaction-detail-summary">
+              <div><span>Overall rank</span><strong>#{context.rank} of {context.resultCount}</strong></div>
+              <div><span>Share of filtered spend</span><strong>{percent(context.spendSharePercent)}</strong></div>
+              <div><span>Compared with average</span><strong>{money(context.differenceFromAverage)}</strong></div>
+            </div>
+            <div className="transaction-comparison" role="img" aria-label="Amount comparison">
+              {comparisons.map(([label, value]) => (
+                <div className="transaction-comparison-row" key={label}>
+                  <div><span>{label}</span><strong>{value === null ? "—" : money(value, shownTransaction.currency)}</strong></div>
+                  <span className="transaction-comparison-track" aria-hidden="true">
+                    <i style={{ width: `${Math.max((Number(value || 0) / maxComparison) * 100, value ? 4 : 0)}%` }} />
+                  </span>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : null}
+      </section>
+    </div>
+  );
+}

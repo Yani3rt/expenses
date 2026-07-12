@@ -196,9 +196,14 @@ export function ExpenseList({ title, expenses, compact = false, className = "", 
   );
 }
 
-export function ExpenseRow({ expense, className = "", showCategory = true }) {
+export function ExpenseRow({ expense, className = "", showCategory = true, onClick }) {
+  const RowElement = onClick ? "button" : "article";
   return (
-    <article className={`expense-row${expense.notes ? " has-note" : ""} ${className}`.trim()}>
+    <RowElement
+      className={`expense-row${onClick ? " ledger-row-button" : ""}${expense.notes ? " has-note" : ""} ${className}`.trim()}
+      onClick={onClick}
+      type={onClick ? "button" : undefined}
+    >
       <div className={`expense-icon tone-${categoryTone(expense.categorySlug)}`}>
         <CategoryIcon slug={expense.categorySlug} />
       </div>
@@ -209,7 +214,7 @@ export function ExpenseRow({ expense, className = "", showCategory = true }) {
       </div>
       {showCategory ? <CategoryPill slug={expense.categorySlug}>{expense.category}</CategoryPill> : null}
       <b className="expense-amount">{money(expense.amount, expense.currency)}</b>
-    </article>
+    </RowElement>
   );
 }
 

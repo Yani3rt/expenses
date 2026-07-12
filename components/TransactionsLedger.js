@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ExpenseRow } from "./DashboardPrimitives.js";
 import { money, monthLabel } from "../lib/format.js";
 import { fetchTransactionsPage } from "../lib/transactions-client.js";
+import { fetchTransactionDetail } from "../lib/transactions-client.js";
+import TransactionDetailDialog from "./TransactionDetailDialog.js";
 
 function buildTransactionsApiUrl(meta, nextValues = {}) {
   const params = new URLSearchParams();
@@ -25,6 +27,12 @@ export default function TransactionsLedger({ initialTransactions, summary, meta 
   const [enteredIds, setEnteredIds] = useState([]);
   const [loadError, setLoadError] = useState("");
   const rowAnimationTimer = useRef(null);
+  const detailRequest = useRef(null);
+  const detailTrigger = useRef(null);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [detail, setDetail] = useState(null);
+  const [detailStatus, setDetailStatus] = useState("idle");
+  const [detailError, setDetailError] = useState("");
 
   useEffect(() => {
     setTransactions(initialTransactions);
@@ -36,7 +44,53 @@ export default function TransactionsLedger({ initialTransactions, summary, meta 
 
   useEffect(() => () => {
     if (rowAnimationTimer.current) window.clearTimeout(rowAnimationTimer.current);
+    detailRequest.current?.abort();
   }, []);
+
+  function detailApiUrl(transaction) {
+    const params = new URLSearchParams();
+    for (const key of ["q", "period", "month", "category"]) {
+      const value = state[key];
+      if (value && value !== "all") params.set(key, value);
+    }
+    const query = params.toString();
+    return `/api/transactions/${transaction.id}${query ? `?${query}` : ""}`;
+  }
+
+  async function requestDetail(transaction) {
+    detailRequest.current?.abort();
+    const controller = new AbortController();
+    detailRequest.current = controller;
+    setDetailStatus("loading");
+    setDetailError("");
+    try {
+      const payload = await fetchTransactionDetail(detailApiUrl(transaction), { signal: controller.signal });
+      if (!controller.signal.aborted) {
+        setDetail(payload);
+        setDetailStatus("success");
+      }
+    } catch (error) {
+      if (error?.name !== "AbortError" && !controller.signal.aborted) {
+        setDetailError(error instanceof Error ? error.message : "Transaction details are temporarily unavailable. Please try again.");
+        setDetailStatus("error");
+      }
+    }
+  }
+
+  function openDetail(transaction, trigger) {
+    detailTrigger.current = trigger;
+    setSelectedTransaction(transaction);
+    setDetail(null);
+    requestDetail(transaction);
+  }
+
+  function closeDetail() {
+    detailRequest.current?.abort();
+    setSelectedTransaction(null);
+    setDetail(null);
+    setDetailStatus("idle");
+    window.requestAnimationFrame(() => detailTrigger.current?.focus());
+  }
 
   const displayedCount = transactions.length;
   const periodBadge = state.month !== "all" ? monthLabel(state.month) : state.periodLabel;
@@ -82,6 +136,7 @@ export default function TransactionsLedger({ initialTransactions, summary, meta 
                 expense={expense}
                 key={expense.id}
                 className={enteredLookup.has(expense.id) ? "row-enter" : ""}
+                onClick={(event) => openDetail(expense, event.currentTarget)}
               />
             ))}
           </div>
@@ -110,6 +165,16 @@ export default function TransactionsLedger({ initialTransactions, summary, meta 
       <div className="ledger-foot">
         Showing {displayedCount} of {summary.expenseCount} rows · {money(summary.totalSpend)} total in this view
       </div>
+      {selectedTransaction ? (
+        <TransactionDetailDialog
+          transaction={selectedTransaction}
+          detail={detail}
+          status={detailStatus}
+          error={detailError}
+          onRetry={() => requestDetail(selectedTransaction)}
+          onClose={closeDetail}
+        />
+      ) : null}
     </section>
   );
 }
