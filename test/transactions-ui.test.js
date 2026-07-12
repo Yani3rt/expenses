@@ -194,6 +194,14 @@ test("transaction detail dialog exposes accessible states, controls, and compari
   assert.doesNotMatch(dialog, /<span>Category<\/span><strong>\{shownTransaction\.category\}/);
   assert.doesNotMatch(dialog, /<span>Paid by<\/span><strong>\{shownTransaction\.paidBy\}/);
   assert.match(globalStyles, /\.transaction-detail-summary\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(globalStyles, /@keyframes transactionBackdropIn/);
+  assert.match(globalStyles, /@keyframes transactionDialogIn/);
+  assert.match(globalStyles, /@keyframes transactionInsightIn/);
+  assert.match(globalStyles, /@keyframes transactionBarIn/);
+  assert.match(globalStyles, /\.transaction-dialog-backdrop\s*\{[^}]*animation:\s*transactionBackdropIn/);
+  assert.match(globalStyles, /\.transaction-dialog\s*\{[^}]*animation:\s*transactionDialogIn/);
+  assert.match(globalStyles, /\.transaction-detail-summary div\s*\{[^}]*animation:\s*transactionInsightIn/);
+  assert.match(globalStyles, /\.transaction-comparison-track i\s*\{[^}]*animation:\s*transactionBarIn/);
 });
 
 test("interactive hover belongs only to ledger row buttons", () => {
@@ -202,6 +210,13 @@ test("interactive hover belongs only to ledger row buttons", () => {
   assert.match(styles, /\.ledger-row-button:hover/);
   assert.match(styles, /\.ledger-row-button:focus-visible/);
   assert.doesNotMatch(styles, /\.ledger-card \.ledger-row-button:hover \.pill\s*\{/);
+  assert.match(dashboardPrimitives, /"--row-accent": rowAccent/);
+  assert.match(styles, /\.ledger-row-button::before/);
+  assert.match(styles, /\.dense-list \.ledger-row-button\s*\{[^}]*padding-left:\s*14px/);
+  assert.match(styles, /background:\s*var\(--row-accent\)/);
+  assert.match(styles, /color-mix\(in srgb, var\(--row-accent\) 6%, transparent\)/);
+  assert.match(styles, /\.ledger-row-button:active \.expense-icon/);
+  assert.doesNotMatch(styles, /\.ledger-card \.ledger-row-button:hover \.expense-(?:icon|copy|amount)/);
 });
 
 test("comparison values are exposed as a semantic list while visual tracks stay decorative", () => {

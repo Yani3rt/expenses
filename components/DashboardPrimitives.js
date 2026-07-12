@@ -198,13 +198,16 @@ export function ExpenseList({ title, expenses, compact = false, className = "", 
 
 export function ExpenseRow({ expense, className = "", showCategory = true, onClick }) {
   const RowElement = onClick ? "button" : "article";
+  const tone = categoryTone(expense.categorySlug);
+  const rowAccent = tone === "muted" ? "var(--on-variant)" : `var(--${tone})`;
   return (
     <RowElement
       className={`expense-row${onClick ? " ledger-row-button" : ""}${expense.notes ? " has-note" : ""} ${className}`.trim()}
       onClick={onClick}
+      style={onClick ? { "--row-accent": rowAccent } : undefined}
       type={onClick ? "button" : undefined}
     >
-      <span className={`expense-icon tone-${categoryTone(expense.categorySlug)}`}>
+      <span className={`expense-icon tone-${tone}`}>
         <CategoryIcon slug={expense.categorySlug} />
       </span>
       <span className="expense-copy">
