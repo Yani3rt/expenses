@@ -289,6 +289,11 @@ test("daily spending uses a responsive line chart and scrolls only on smaller sc
   assert.match(styles, /\.daily-spending-mobile-controls \{ display: flex;/);
   assert.match(styles, /touch-action: pan-x;/);
   assert.match(styles, /scrollbar-color: var\(--blue\) var\(--surface-low\);/);
+  assert.match(dailySpendingChart, /const hasScrollableDays = visibleTotals\.length > 8/);
+  assert.match(dailySpendingChart, /daily-spending-card\$\{hasScrollableDays \? " has-scrollable-days" : ""\}/);
+  assert.match(styles, /\.daily-spending-card\.has-scrollable-days \.daily-spending-mobile-controls \{ display: flex;/);
+  assert.match(styles, /\.daily-spending-card\.has-scrollable-days \.daily-spending-chart-rail \{[^}]*overflow-x: auto;/);
+  assert.match(styles, /\.daily-spending-card\.has-scrollable-days \.daily-line-chart \{ width: var\(--daily-line-width\); min-width: var\(--daily-line-width\); \}/);
 });
 
 test("daily spending switches between the current week and month", () => {

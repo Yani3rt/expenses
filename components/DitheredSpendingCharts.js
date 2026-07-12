@@ -19,16 +19,16 @@ const DAILY_RANGE_OPTIONS = [
 ];
 
 const cumulativeConfig = {
-  current: { label: "Current month", color: "blue" },
-  previous: { label: "Previous month", color: "grey" },
+  current: { label: "Current month", color: "blue" , interactive: true },
+  previous: { label: "Previous month", color: "purple" },
 };
 
 const monthlyConfig = {
-  totalSpend: { label: "Monthly spend", color: "purple" },
+  totalSpend: { label: "Amount", color: "blue" },
 };
 
 const dailyConfig = {
-  totalSpend: { label: "Daily spend", color: "green" },
+  totalSpend: { label: "Day Amount", color: "green" },
 };
 
 function dayNumber(date) {
@@ -120,7 +120,7 @@ export default function DitheredSpendingCharts({ monthlyTotals, dailyTotals, pre
             <YAxis tickFormatter={(value) => money(value)} />
             <Legend isClickable />
             <Tooltip labelKey="day" hideSeriesLabels valueFormatter={(value) => money(value)} />
-            <Area dataKey="previous" variant="hatched" />
+            <Area dataKey="previous" variant="dotted" />
             <Area dataKey="current" variant="gradient" />
           </AreaChart>
         </ChartCard>
@@ -148,7 +148,7 @@ export default function DitheredSpendingCharts({ monthlyTotals, dailyTotals, pre
             />
           )}
         >
-          <AreaChart data={visibleDailyData} config={dailyConfig} bloom="high" margins={{ left: 68 }} tapToPinTooltip>
+          <AreaChart data={visibleDailyData} config={dailyConfig} bloom="aura" margins={{ left: 68 }} tapToPinTooltip>
             <XAxis dataKey="day" />
             <YAxis tickFormatter={(value) => money(value)} />
             <Tooltip labelKey="date" valueFormatter={(value) => money(value)} />

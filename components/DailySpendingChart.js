@@ -22,6 +22,7 @@ export default function DailySpendingChart({ dailyTotals = [], className = "span
       : dailyTotals,
     [dailyTotals, range, weekBounds.end, weekBounds.start]
   );
+  const hasScrollableDays = visibleTotals.length > 8;
   const totalSpend = visibleTotals.reduce((sum, day) => sum + Number(day.totalSpend || 0), 0);
   const maxSpend = Math.max(...visibleTotals.map((day) => Number(day.totalSpend || 0)), 1);
   const averagePerDay = visibleTotals.length ? totalSpend / visibleTotals.length : 0;
@@ -63,7 +64,7 @@ export default function DailySpendingChart({ dailyTotals = [], className = "span
   }
 
   return (
-    <section className={`card daily-spending-card ${className}`.trim()}>
+    <section className={`card daily-spending-card${hasScrollableDays ? " has-scrollable-days" : ""} ${className}`.trim()}>
       <div className="section-head">
         <div>
           <p className="label">Daily spending</p>
