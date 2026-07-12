@@ -621,7 +621,7 @@ h2 { margin: 6px 0 0; font-family: Manrope; font-size: 28px; letter-spacing: -.0
 .transaction-detail-summary div { display: grid; gap: 8px; padding: 16px; border-radius: 14px; background: var(--surface-low); }
 .transaction-detail-summary span { color: var(--on-variant); font-size: 12px; }
 .transaction-detail-summary strong { font-family: "JetBrains Mono", monospace; }
-.transaction-comparison { display: grid; gap: 18px; margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--outline); }
+.transaction-comparison { display: grid; gap: 18px; margin: 28px 0 0; padding: 24px 0 0; border-top: 1px solid var(--outline); list-style: none; }
 .transaction-comparison-row { display: grid; gap: 8px; }
 .transaction-comparison-row > div { display: flex; justify-content: space-between; gap: 18px; font-size: 14px; }
 .transaction-comparison-row strong { font-family: "JetBrains Mono", monospace; }

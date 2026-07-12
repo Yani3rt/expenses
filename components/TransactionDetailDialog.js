@@ -86,16 +86,19 @@ export default function TransactionDetailDialog({ transaction, detail, status, e
               <div><span>Share of filtered spend</span><strong>{percent(context.spendSharePercent)}</strong></div>
               <div><span>Compared with average</span><strong>{money(context.differenceFromAverage)}</strong></div>
             </div>
-            <div className="transaction-comparison" role="img" aria-label="Amount comparison">
-              {comparisons.map(([label, value]) => (
-                <div className="transaction-comparison-row" key={label}>
-                  <div><span>{label}</span><strong>{value === null ? "—" : money(value, shownTransaction.currency)}</strong></div>
+            <ul className="transaction-comparison" aria-label="Amount comparison">
+              {comparisons.map(([label, value]) => {
+                const formattedValue = value === null ? "—" : money(value, shownTransaction.currency);
+                return (
+                <li className="transaction-comparison-row" key={label}>
+                  <div><span>{label}</span><strong>{formattedValue}</strong></div>
                   <span className="transaction-comparison-track" aria-hidden="true">
                     <i style={{ width: `${Math.max((Number(value || 0) / maxComparison) * 100, value ? 4 : 0)}%` }} />
                   </span>
-                </div>
-              ))}
-            </div>
+                </li>
+                );
+              })}
+            </ul>
           </>
         ) : null}
       </section>

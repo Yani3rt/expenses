@@ -204,14 +204,14 @@ export function ExpenseRow({ expense, className = "", showCategory = true, onCli
       onClick={onClick}
       type={onClick ? "button" : undefined}
     >
-      <div className={`expense-icon tone-${categoryTone(expense.categorySlug)}`}>
+      <span className={`expense-icon tone-${categoryTone(expense.categorySlug)}`}>
         <CategoryIcon slug={expense.categorySlug} />
-      </div>
-      <div className="expense-copy">
+      </span>
+      <span className="expense-copy">
         <strong>{expense.description}</strong>
         <span className="expense-meta">{shortDate(expense.date)} · {expense.paidBy}</span>
         {expense.notes ? <small className="expense-note">{expense.notes}</small> : null}
-      </div>
+      </span>
       {showCategory ? <CategoryPill slug={expense.categorySlug}>{expense.category}</CategoryPill> : null}
       <b className="expense-amount">{money(expense.amount, expense.currency)}</b>
     </RowElement>

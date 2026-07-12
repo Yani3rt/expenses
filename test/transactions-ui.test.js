@@ -177,3 +177,19 @@ test("interactive hover belongs only to ledger row buttons", () => {
   assert.match(styles, /\.ledger-row-button:hover/);
   assert.match(styles, /\.ledger-row-button:focus-visible/);
 });
+
+test("comparison values are exposed as a semantic list while visual tracks stay decorative", () => {
+  const dialog = readFileSync(transactionDetailDialogUrl, "utf8");
+  assert.match(dialog, /<ul className="transaction-comparison" aria-label="Amount comparison">/);
+  assert.match(dialog, /<li className="transaction-comparison-row"/);
+  assert.match(dialog, /<span>\{label\}<\/span><strong>\{formattedValue\}<\/strong>/);
+  assert.match(dialog, /className="transaction-comparison-track" aria-hidden="true"/);
+  assert.doesNotMatch(dialog, /role="img"/);
+});
+
+test("interactive expense rows keep native button content phrasing-only", () => {
+  assert.match(dashboardPrimitives, /<span className=\{`expense-icon/);
+  assert.match(dashboardPrimitives, /<span className="expense-copy">/);
+  assert.doesNotMatch(dashboardPrimitives, /<div className=\{`expense-icon/);
+  assert.doesNotMatch(dashboardPrimitives, /<div className="expense-copy">/);
+});
