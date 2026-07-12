@@ -232,6 +232,11 @@ test("monthly trend card keeps the data readable without decorative choreography
   assert.doesNotMatch(styles, /\.month-col \{[^}]*animation:/);
 });
 
+test("monthly trend fills use dither texture", () => {
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(styles, /\.month-track > div::after \{[^}]*radial-gradient[^}]*background-size: 8px 8px;[^}]*mask-image: linear-gradient\(to top,/);
+});
+
 test("monthly trend shows six desktop, four tablet, and three mobile months before expanding", () => {
   const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(interactiveMonthlyTrend, /Array\.from\(\{ length: 12 \}/);
