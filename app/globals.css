@@ -141,7 +141,22 @@ button { font-family: inherit; }
 }
 .side-nav a:hover { background: var(--surface-low); color: var(--on-surface); transform: translateX(4px); }
 .side-nav a:active { transform: translateX(2px) scale(.985); }
-.side-nav a.active { background: var(--primary); color: white; box-shadow: 0 16px 34px rgba(19,27,46,.18); }
+.side-nav a.active { position: relative; isolation: isolate; overflow: hidden; background: var(--primary); color: white; box-shadow: 0 16px 34px rgba(19,27,46,.18); }
+.side-nav a.active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--surface-lowest) 28%, transparent) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--surface-lowest) 16%, transparent) 0 .8px, transparent 1px);
+  background-position: 0 0, 5px 5px;
+  background-size: 10px 10px;
+  -webkit-mask-image: linear-gradient(to left, #000 0%, rgba(0, 0, 0, .76) 38%, transparent 82%);
+  mask-image: linear-gradient(to left, #000 0%, rgba(0, 0, 0, .76) 38%, transparent 82%);
+  pointer-events: none;
+}
+.side-nav a.active .nav-item-main { position: relative; z-index: 1; }
 .nav-item-main { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .nav-icon-wrap {
   width: 36px;

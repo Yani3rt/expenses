@@ -45,6 +45,12 @@ test("desktop sidebar can be collapsed and restored without replacing mobile nav
   assert.match(styles, /@media \(max-width: 1080px\)[\s\S]*body\.sidebar-collapsed \.app-shell \{ grid-template-columns: minmax\(0, 1fr\); \}/);
 });
 
+test("active sidebar item uses a subtle particle accent", () => {
+  assert.match(styles, /\.side-nav a\.active \{[^}]*position: relative;[^}]*isolation: isolate;[^}]*overflow: hidden;/);
+  assert.match(styles, /\.side-nav a\.active::after \{[^}]*radial-gradient[^}]*background-size: 10px 10px;[^}]*mask-image: linear-gradient\(to left,/);
+  assert.match(styles, /\.side-nav a\.active \.nav-item-main \{ position: relative; z-index: 1; \}/);
+});
+
 
 test("functional motion respects reduced motion", () => {
   assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
