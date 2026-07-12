@@ -1,5 +1,5 @@
 "use client";
-import { Children, isValidElement } from "react";
+import { Children, isValidElement, useState } from "react";
 import { ChartContext, useChartController } from "./chart-context";
 import { CommonChartContext } from "./common-context"
 import { cn } from "./lib"
@@ -47,10 +47,12 @@ export function CartesianRoot(
     bloomOnHover = false,
     onHoverChange,
     defaultSelectedDataKey = null,
-    onSelectionChange
+    onSelectionChange,
+    tapToPinTooltip = false
   }
 ) {
   const { ref, size } = useChartDimensions()
+  const [pinnedIndex, setPinnedIndex] = useState(null)
   const margins = { ...DEFAULT_MARGINS, ...marginsProp }
 
   const ctx = useChartController({
@@ -92,6 +94,20 @@ export function CartesianRoot(
     onHoverChange?.(index)
   }
 
+  const pinTooltip = (event) => {
+    if (event.pointerType === "mouse") return
+    const el = ref.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const px = event.clientX - rect.left - margins.left
+    const index = ctx.indexAtX(px)
+    const nextIndex = pinnedIndex === index ? null : index
+    setPinnedIndex(nextIndex)
+    ctx.setHoverIndex(nextIndex)
+    ctx.setCursorX(event.clientX - rect.left)
+    onHoverChange?.(nextIndex)
+  }
+
   return (
     <ChartContext value={ctx}>
       <CommonChartContext value={ctx.common}>
@@ -100,10 +116,15 @@ export function CartesianRoot(
           className={cn("relative h-full w-full", className)}
           onPointerEnter={() => ctx.setMouseInChart(true)}
           onPointerMove={interactive ? (e) => onMove(e.clientX) : undefined}
+          onPointerDown={tapToPinTooltip ? pinTooltip : undefined}
           onPointerLeave={() => {
             ctx.setMouseInChart(false)
-            ctx.setHoverIndex(null)
-            onHoverChange?.(null)
+            if (pinnedIndex == null) {
+              ctx.setHoverIndex(null)
+              onHoverChange?.(null)
+            } else {
+              ctx.setHoverIndex(pinnedIndex)
+            }
           }}>
           {ctx.ready && backChildren.length > 0 && (
             <svg

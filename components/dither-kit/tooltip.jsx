@@ -18,7 +18,8 @@ const VARIANT = {
 export function Tooltip({
   labelKey,
   valueFormatter,
-  variant = "default"
+  variant = "default",
+  hideSeriesLabels = false
 }) {
   const chart = useCommonChart()
   const show = chart.ready && chart.hoverIndex != null
@@ -62,7 +63,8 @@ export function Tooltip({
           }}
           className={cn(
             "pointer-events-none absolute z-10 rounded-md border px-2 py-1 shadow-sm",
-            VARIANT[variant]
+            VARIANT[variant],
+            hideSeriesLabels && "dither-tooltip-compact"
           )}>
           {heading && (
             <div className="mb-0.5 font-mono text-[10px] text-muted-foreground">
@@ -78,8 +80,8 @@ export function Tooltip({
                 <span
                   className="size-2 rounded-[1px]"
                   style={{ backgroundColor: rgb(item.seed.fill) }} />
-                <span className="text-muted-foreground">{item.label}</span>
-                <span className="ml-auto pl-2 text-foreground">
+                {!hideSeriesLabels && <span className="text-muted-foreground">{item.label}</span>}
+                <span className={cn("text-foreground", !hideSeriesLabels && "ml-auto pl-2")}>
                   {valueFormatter
                     ? valueFormatter(item.value, item.name)
                     : item.value.toLocaleString()}

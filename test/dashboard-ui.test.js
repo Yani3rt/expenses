@@ -11,6 +11,8 @@ const interactiveLargestExpenses = readFileSync(new URL("../components/Interacti
 const rangeTabs = readFileSync(new URL("../components/RangeTabs.js", import.meta.url), "utf8");
 const ditheredSpendingCharts = readFileSync(new URL("../components/DitheredSpendingCharts.js", import.meta.url), "utf8");
 const ditherChartContext = readFileSync(new URL("../components/dither-kit/chart-context.jsx", import.meta.url), "utf8");
+const ditherTooltip = readFileSync(new URL("../components/dither-kit/tooltip.jsx", import.meta.url), "utf8");
+const ditherCartesianRoot = readFileSync(new URL("../components/dither-kit/cartesian-root.jsx", import.meta.url), "utf8");
 const animatedText = readFileSync(new URL("../components/AnimatedText.js", import.meta.url), "utf8");
 const queries = readFileSync(new URL("../lib/queries.js", import.meta.url), "utf8");
 const nextConfig = readFileSync(new URL("../next.config.mjs", import.meta.url), "utf8");
@@ -30,7 +32,7 @@ test("dashboard adds three dithered area views after the existing charts", () =>
   assert.match(ditheredSpendingCharts, /Daily spending/);
   assert.equal((ditheredSpendingCharts.match(/<AreaChart/g) || []).length, 2);
   assert.equal((ditheredSpendingCharts.match(/<BarChart/g) || []).length, 1);
-  assert.match(ditheredSpendingCharts, /<Bar dataKey="totalSpend" variant="dotted" \/>/);
+  assert.match(ditheredSpendingCharts, /<Bar isClickable dataKey="totalSpend" variant="dotted" \/>/);
   assert.match(ditheredSpendingCharts, /<BarChart[\s\S]*?<XAxis dataKey="label" \/>[\s\S]*?<Legend isClickable \/>/);
   assert.doesNotMatch(ditheredSpendingCharts, /<BarChart[\s\S]*?<YAxis[\s\S]*?<\/BarChart>/);
   assert.match(ditheredSpendingCharts, /bloom="aura"/);
@@ -44,6 +46,32 @@ test("dashboard adds three dithered area views after the existing charts", () =>
   assert.match(ditheredSpendingCharts, /replayToken/);
   assert.match(ditheredSpendingCharts, /animationDuration: 1000/);
   assert.match(ditheredSpendingCharts, /key: hasEntered \? id : `\$\{id\}-idle`/);
+});
+
+test("cumulative dither tooltip hides series labels while retaining values", () => {
+  assert.match(ditheredSpendingCharts, /<Tooltip labelKey="day" hideSeriesLabels valueFormatter=/);
+  assert.match(ditherTooltip, /hideSeriesLabels = false/);
+  assert.match(ditherTooltip, /\{!hideSeriesLabels && <span className="text-muted-foreground">\{item\.label\}<\/span>\}/);
+  assert.match(ditherTooltip, /className=\{cn\("text-foreground", !hideSeriesLabels && "ml-auto pl-2"\)\}/);
+  assert.match(ditherTooltip, /hideSeriesLabels && "dither-tooltip-compact"/);
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(styles, /\.dither-chart-stage > div > div\.dither-tooltip-compact \{ min-width: 0 !important; width: max-content !important; \}/);
+});
+
+test("dithered daily spending switches between week and month", () => {
+  assert.match(ditheredSpendingCharts, /import RangeTabs from "@\/components\/RangeTabs"/);
+  assert.match(ditheredSpendingCharts, /const \[dailyRange, setDailyRange\] = useState\("month"\)/);
+  assert.match(ditheredSpendingCharts, /dailyRange === "week"[\s\S]*weekBounds\.start[\s\S]*weekBounds\.end/);
+  assert.match(ditheredSpendingCharts, /<RangeTabs[\s\S]*value=\{dailyRange\}[\s\S]*onChange=\{setDailyRange\}[\s\S]*className="spending-range-tabs"/);
+  assert.match(ditheredSpendingCharts, /data=\{visibleDailyData\}/);
+  const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.dither-chart-card \.section-head \{ flex-direction: row; align-items: flex-start; \}/);
+  assert.match(ditheredSpendingCharts, /<AreaChart data=\{visibleDailyData\}[^>]*tapToPinTooltip/);
+  assert.equal((ditheredSpendingCharts.match(/tapToPinTooltip/g) || []).length, 3);
+  assert.match(ditherCartesianRoot, /tapToPinTooltip = false/);
+  assert.match(ditherCartesianRoot, /const \[pinnedIndex, setPinnedIndex\] = useState\(null\)/);
+  assert.match(ditherCartesianRoot, /onPointerDown=\{tapToPinTooltip \? pinTooltip : undefined\}/);
+  assert.match(ditherCartesianRoot, /pinnedIndex == null[\s\S]*ctx\.setHoverIndex\(null\)/);
 });
 
 test("dither chart series registration callbacks stay stable between renders", () => {
