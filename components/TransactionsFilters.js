@@ -212,6 +212,8 @@ export default function TransactionsFilters({ meta, months, categories }) {
           </span>
         ) : null}
 
+        <TransactionsPresets meta={meta} onSelect={navigate} className="transactions-presets-desktop" />
+
         <div className={`advanced-filters-panel${isExpanded ? " is-open" : ""}`} id="transactions-advanced-filters">
           <TransactionsPresets meta={meta} onSelect={navigate} className="transactions-presets-mobile" />
 

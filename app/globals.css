@@ -340,7 +340,8 @@ h2 { margin: 6px 0 0; font-family: Manrope; font-size: 28px; letter-spacing: -.0
 .mobile-filter-toggle.is-open .filter-count { background: rgba(255,255,255,.18); }
 .advanced-filters-panel { display: none; gap: 14px; }
 .advanced-filters-panel.is-open { display: grid; }
-.preset-row.transactions-presets-mobile { display: flex; }
+.preset-row.transactions-presets-desktop { display: flex; }
+.preset-row.transactions-presets-mobile { display: none; }
 .preset-row { display: flex; flex-wrap: wrap; gap: 10px; }
 .preset-chip {
   display: inline-flex;
@@ -1127,6 +1128,7 @@ footer { display: flex; flex-wrap: wrap; gap: 18px; margin: 28px 0 0; color: var
   .mobile-filter-toggle { display: inline-flex; align-items: center; justify-content: center; }
   .desktop-filter-label { display: none; }
   .mobile-filter-label { display: inline; }
+  .preset-row.transactions-presets-desktop { display: none; }
   .preset-row.transactions-presets-mobile { display: flex; }
   .transactions-filter-shell { margin-top: 12px; padding-top: 0; }
   .sticky-search-bar {

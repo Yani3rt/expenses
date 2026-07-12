@@ -107,3 +107,9 @@ test("advanced transaction filters use one responsive disclosure", () => {
   assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.desktop-filter-label \{ display: none; \}[\s\S]*\.mobile-filter-label \{ display: inline; \}/);
   assert.match(styles, /\.preset-chip\.is-active \{[^}]*box-shadow: 0 4px 12px/);
 });
+
+test("quick presets stay visible on desktop without duplicating mobile controls", () => {
+  assert.match(styles, /\.preset-row\.transactions-presets-desktop \{ display: flex; \}/);
+  assert.match(styles, /\.preset-row\.transactions-presets-mobile \{ display: none; \}/);
+  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.preset-row\.transactions-presets-desktop \{ display: none; \}[\s\S]*\.preset-row\.transactions-presets-mobile \{ display: flex; \}/);
+});

@@ -76,6 +76,16 @@ test("transactions filters disclose advanced controls and count non-default valu
   assert.match(transactionsFilters, /aria-expanded=\{isExpanded\}/);
 });
 
+test("desktop quick presets stay outside the disclosed select panel", () => {
+  const desktopPresetsIndex = transactionsFilters.indexOf('className="transactions-presets-desktop"');
+  const advancedPanelIndex = transactionsFilters.indexOf('className={`advanced-filters-panel');
+  const mobilePresetsIndex = transactionsFilters.indexOf('className="transactions-presets-mobile"');
+
+  assert.notEqual(desktopPresetsIndex, -1);
+  assert.ok(desktopPresetsIndex < advancedPanelIndex);
+  assert.ok(mobilePresetsIndex > advancedPanelIndex);
+});
+
 
 test("transactions ledger reserves motion for newly loaded rows", () => {
   const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
