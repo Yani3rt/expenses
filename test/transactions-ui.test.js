@@ -240,6 +240,13 @@ test("category-month dither chart and expense list expose useful data", () => {
   assert.match(dialog, /aria-current=\{expense\.id === shownTransaction\.id \? "true" : undefined\}/);
 });
 
+test("category month chart shows only active days on tablet and mobile", () => {
+  const dialog = readFileSync(transactionDetailDialogUrl, "utf8");
+  assert.match(dialog, /window\.matchMedia\("\(max-width: 1080px\)"\)/);
+  assert.match(dialog, /const activeChartData = fullChartData\.filter\(\(day\) => day\.totalSpend > 0\)/);
+  assert.match(dialog, /const chartData = compactChart \? activeChartData : fullChartData/);
+});
+
 test("category-month modal uses restrained category-aware color", () => {
   const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
   const categories = readFileSync(new URL("../lib/categories.js", import.meta.url), "utf8");

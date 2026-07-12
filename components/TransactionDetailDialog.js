@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { money, monthLabel, shortDate } from "../lib/format.js";
 import { categoryTone } from "../lib/categories.js";
 import { createDialogBehaviorSession, isBackdropDismissal } from "../lib/dialog-behavior.js";
@@ -51,15 +51,32 @@ function buildMonthChartData(categoryMonth) {
   });
 }
 
+function useCompactMonthChart() {
+  const [compactChart, setCompactChart] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 1080px)");
+    const update = () => setCompactChart(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  return compactChart;
+}
+
 export default function TransactionDetailDialog({ transaction, detail, status, error, onRetry, onClose }) {
   const dialogRef = useRef(null);
   const behaviorSessionRef = useRef(null);
+  const compactChart = useCompactMonthChart();
   const shownTransaction = detail?.transaction ?? transaction;
   const categoryMonth = detail?.categoryMonth;
   const selectedMonth = categoryMonth?.month ?? shownTransaction.date.slice(0, 7);
   const tone = categoryTone(categoryMonth?.categorySlug ?? shownTransaction.categorySlug);
   const categoryAccent = tone === "muted" ? "var(--on-variant)" : `var(--${tone})`;
-  const chartData = buildMonthChartData(categoryMonth);
+  const fullChartData = buildMonthChartData(categoryMonth);
+  const activeChartData = fullChartData.filter((day) => day.totalSpend > 0);
+  const chartData = compactChart ? activeChartData : fullChartData;
   const chartConfig = {
     totalSpend: { label: "Daily total", color: DITHER_COLORS[tone] ?? "grey" },
   };
