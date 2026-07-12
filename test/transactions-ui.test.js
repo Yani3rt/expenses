@@ -8,6 +8,7 @@ const dashboardPrimitives = readFileSync(new URL("../components/DashboardPrimiti
 const transactionsLedger = readFileSync(new URL("../components/TransactionsLedger.js", import.meta.url), "utf8");
 const transactionsApiRoute = readFileSync(new URL("../app/api/transactions/route.js", import.meta.url), "utf8");
 const transactionDetailDialogUrl = new URL("../components/TransactionDetailDialog.js", import.meta.url);
+const dialogBehavior = readFileSync(new URL("../lib/dialog-behavior.js", import.meta.url), "utf8");
 
 test("transactions page uses instant client filters and active chips", () => {
   assert.match(transactionsPage, /<TransactionsFilters/);
@@ -167,8 +168,11 @@ test("transaction detail dialog exposes accessible states, controls, and compari
   assert.match(dialog, /Filtered average/);
   assert.match(dialog, /Category average/);
   assert.match(dialog, /aria-label="Close transaction details"/);
-  assert.match(dialog, /event\.key === "Escape"/);
-  assert.match(dialog, /event\.key === "Tab"/);
+  assert.match(dialog, /installDialogBehavior/);
+  assert.match(dialogBehavior, /event\.key === "Escape"/);
+  assert.match(dialogBehavior, /event\.key !== "Tab"/);
+  assert.match(dialog, /Category rank/);
+  assert.match(dialog, /Share of category spend/);
 });
 
 test("interactive hover belongs only to ledger row buttons", () => {

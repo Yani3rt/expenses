@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { money, shortDate } from "../lib/format.js";
+import { installDialogBehavior, isBackdropDismissal } from "../lib/dialog-behavior.js";
 
 function percent(value) {
   return value === null ? "—" : `${Number(value).toFixed(1)}%`;
@@ -13,37 +14,7 @@ export default function TransactionDetailDialog({ transaction, detail, status, e
   const context = detail?.context;
 
   useEffect(() => {
-    const dialog = dialogRef.current;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    dialog?.querySelector("button")?.focus();
-
-    function onKeyDown(event) {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        onClose();
-        return;
-      }
-      if (event.key === "Tab" && dialog) {
-        const focusable = [...dialog.querySelectorAll('button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')];
-        if (!focusable.length) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (event.shiftKey && document.activeElement === first) {
-          event.preventDefault();
-          last.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-          event.preventDefault();
-          first.focus();
-        }
-      }
-    }
-
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = previousOverflow;
-    };
+    return installDialogBehavior({ dialog: dialogRef.current, document, onClose });
   }, [onClose]);
 
   const comparisons = context ? [
@@ -54,7 +25,7 @@ export default function TransactionDetailDialog({ transaction, detail, status, e
   const maxComparison = Math.max(...comparisons.map(([, value]) => Number(value || 0)), 1);
 
   return (
-    <div className="transaction-dialog-backdrop" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+    <div className="transaction-dialog-backdrop" onMouseDown={(event) => isBackdropDismissal(event) && onClose()}>
       <section
         className="transaction-dialog"
         ref={dialogRef}
@@ -72,6 +43,13 @@ export default function TransactionDetailDialog({ transaction, detail, status, e
           <button className="transaction-dialog-close" type="button" onClick={onClose} aria-label="Close transaction details">×</button>
         </header>
 
+        <div className="transaction-detail-summary" aria-label="Transaction summary">
+          <div><span>Amount</span><strong>{money(shownTransaction.amount, shownTransaction.currency)}</strong></div>
+          <div><span>Date</span><strong>{shortDate(shownTransaction.date)}</strong></div>
+          <div><span>Category</span><strong>{shownTransaction.category}</strong></div>
+          <div><span>Paid by</span><strong>{shownTransaction.paidBy}</strong></div>
+        </div>
+
         {status === "loading" ? <div className="transaction-dialog-state" role="status">Loading transaction insights…</div> : null}
         {status === "error" ? (
           <div className="transaction-dialog-state" role="alert">
@@ -85,6 +63,8 @@ export default function TransactionDetailDialog({ transaction, detail, status, e
               <div><span>Overall rank</span><strong>#{context.rank} of {context.resultCount}</strong></div>
               <div><span>Share of filtered spend</span><strong>{percent(context.spendSharePercent)}</strong></div>
               <div><span>Compared with average</span><strong>{money(context.differenceFromAverage)}</strong></div>
+              <div><span>Category rank</span><strong>#{context.categoryRank}</strong></div>
+              <div><span>Share of category spend</span><strong>{percent(context.categorySharePercent)}</strong></div>
             </div>
             <ul className="transaction-comparison" aria-label="Amount comparison">
               {comparisons.map(([label, value]) => {

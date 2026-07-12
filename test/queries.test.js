@@ -82,3 +82,22 @@ test("transaction detail insights honor period constraints and missing ids", () 
   assert.equal(data.context.differenceFromAverage, 112.63);
   assert.equal(getTransactionDetailData({ id: 999999, period: "last_month" }), null);
 });
+
+test("transaction detail keeps category metrics scoped when several categories are filtered", () => {
+  const data = getTransactionDetailData({ id: 4, month: "2026-06" });
+
+  assert.notEqual(data.context.filteredAverage, data.context.categoryAverage);
+  assert.notEqual(data.context.spendSharePercent, data.context.categorySharePercent);
+  assert.ok(data.context.rank > 0);
+  assert.equal(data.context.categoryRank, 1);
+});
+
+test("transaction detail ranking breaks equal amount and date ties by descending id", () => {
+  const higherId = getTransactionDetailData({ id: 3, month: "2026-06" });
+  const lowerId = getTransactionDetailData({ id: 2, month: "2026-06" });
+
+  assert.equal(higherId.transaction.amount, lowerId.transaction.amount);
+  assert.equal(higherId.transaction.date, lowerId.transaction.date);
+  assert.equal(higherId.context.rank + 1, lowerId.context.rank);
+  assert.equal(higherId.context.categoryRank + 1, lowerId.context.categoryRank);
+});
