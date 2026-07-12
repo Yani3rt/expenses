@@ -286,8 +286,6 @@ h2 { margin: 6px 0 0; font-family: Manrope; font-size: 28px; letter-spacing: -.0
 .wide-filter label:not(.search-field) { min-width: 150px; }
 .transactions-filter-shell { position: relative; z-index: 12; margin-top: 18px; }
 .transactions-filter-stack { display: grid; gap: 10px; }
-.filter-pending-status { min-height: 18px; color: var(--on-variant); font-size: 13px; opacity: 0; transition: opacity .18s var(--ease-out-quart); }
-.filter-pending-status.is-visible { opacity: 1; }
 .sticky-search-bar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -564,7 +562,7 @@ h2 { margin: 6px 0 0; font-family: Manrope; font-size: 28px; letter-spacing: -.0
 .expense-row:last-child { border-bottom: 0; }
 .expense-copy { min-width: 0; display: grid; gap: 4px; transition: transform .2s var(--ease-out-quart); }
 .expense-row strong { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.expense-row span { color: var(--on-variant); font-size: 14px; overflow-wrap: anywhere; }
+.expense-copy > span { color: var(--on-variant); font-size: 14px; overflow-wrap: anywhere; }
 .expense-meta { font-size: 14px; }
 .expense-note {
   display: inline-block;
@@ -591,11 +589,6 @@ h2 { margin: 6px 0 0; font-family: Manrope; font-size: 28px; letter-spacing: -.0
 .ledger-card .ledger-row-button:hover .expense-copy {
   transform: translateX(2px);
 }
-.ledger-card .ledger-row-button:hover .pill {
-  transform: translateX(2px);
-  background: white;
-  box-shadow: 0 10px 24px rgba(19,27,46,.08);
-}
 .ledger-card .ledger-row-button:hover .expense-amount {
   transform: translateX(2px);
 }
@@ -617,7 +610,7 @@ h2 { margin: 6px 0 0; font-family: Manrope; font-size: 28px; letter-spacing: -.0
 .transaction-dialog-close:focus-visible, .transaction-dialog-state button:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
 .transaction-dialog-state { min-height: 220px; display: grid; place-content: center; justify-items: center; gap: 14px; color: var(--on-variant); text-align: center; }
 .transaction-dialog-state button { padding: 10px 16px; border: 0; border-radius: 999px; background: var(--blue); color: white; font: inherit; font-weight: 800; cursor: pointer; }
-.transaction-detail-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 28px; }
+.transaction-detail-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 28px; }
 .transaction-detail-summary div { display: grid; gap: 8px; padding: 16px; border-radius: 14px; background: var(--surface-low); }
 .transaction-detail-summary span { color: var(--on-variant); font-size: 12px; }
 .transaction-detail-summary strong { font-family: "JetBrains Mono", monospace; }

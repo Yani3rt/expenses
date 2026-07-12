@@ -10,7 +10,7 @@ export default async function TransactionsPage({ searchParams }) {
   const params = await searchParams;
   const data = getTransactionsData({
     q: params?.q || "",
-    period: params?.period || "all",
+    period: params?.period || "this_month",
     month: params?.month || "all",
     category: params?.category || "all",
     sort: params?.sort || "newest",

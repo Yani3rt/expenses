@@ -20,7 +20,7 @@ const SORT_OPTIONS = [
 ];
 
 function shouldSkipParam(key, value) {
-  return !value || value === "all" || value === 0 || (key === "sort" && value === "newest") || (key === "limit" && Number(value) === 10);
+  return !value || (key !== "period" && value === "all") || value === 0 || (key === "sort" && value === "newest") || (key === "limit" && Number(value) === 10);
 }
 
 function routeParams(meta, nextValues = {}) {
@@ -206,12 +206,6 @@ export default function TransactionsFilters({ meta, months, categories }) {
             {activeAdvancedFilterCount > 0 ? <span className="filter-count">{activeAdvancedFilterCount}</span> : null}
           </button>
         </div>
-        {isPending ? (
-          <span className="filter-pending-status is-visible" role="status" aria-live="polite">
-            Updating results…
-          </span>
-        ) : null}
-
         <TransactionsPresets meta={meta} onSelect={navigate} className="transactions-presets-desktop" />
 
         <div className={`advanced-filters-panel${isExpanded ? " is-open" : ""}`} id="transactions-advanced-filters">

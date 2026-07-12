@@ -9,12 +9,22 @@ const transactionsLedger = readFileSync(new URL("../components/TransactionsLedge
 const transactionsApiRoute = readFileSync(new URL("../app/api/transactions/route.js", import.meta.url), "utf8");
 const transactionDetailDialogUrl = new URL("../components/TransactionDetailDialog.js", import.meta.url);
 const dialogBehavior = readFileSync(new URL("../lib/dialog-behavior.js", import.meta.url), "utf8");
+const globalStyles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 
 test("transactions page uses instant client filters and active chips", () => {
   assert.match(transactionsPage, /<TransactionsFilters/);
   assert.match(transactionsPage, /<ActiveFilterChips/);
   assert.match(transactionsPage, /<TransactionsLedger/);
   assert.doesNotMatch(transactionsPage, />Filter</);
+});
+
+test("transactions page defaults to this month when no period is supplied", () => {
+  assert.match(transactionsPage, /period: params\?\.period \|\| "this_month"/);
+});
+
+test("transaction category icons retain their category tone", () => {
+  assert.doesNotMatch(globalStyles, /\.expense-row span\s*\{\s*color:\s*var\(--on-variant\)/);
+  assert.match(globalStyles, /\.expense-copy > span\s*\{\s*color:\s*var\(--on-variant\)/);
 });
 
 test("transactions filters include presets, sorting, and debounced search navigation", () => {
@@ -26,6 +36,7 @@ test("transactions filters include presets, sorting, and debounced search naviga
   assert.match(transactionsFilters, /router\.replace/);
   assert.doesNotMatch(transactionsFilters, /aria-label="Date range"/);
   assert.match(transactionsFilters, /params\.delete\("offset"\)/);
+  assert.match(transactionsFilters, /\(key !== "period" && value === "all"\)/);
 });
 
 test("transactions ledger appends rows and animates new entries", () => {
@@ -37,6 +48,9 @@ test("transactions ledger appends rows and animates new entries", () => {
   assert.match(transactionsLedger, /className=\{enteredLookup\.has\(expense\.id\) \? "row-enter" : ""\}/);
   assert.match(transactionsLedger, /Loading…/);
   assert.doesNotMatch(transactionsLedger, /Number\(value\) === 50/);
+  assert.match(transactionsLedger, /<h2>Operations<\/h2>/);
+  assert.doesNotMatch(transactionsLedger, /matching transactions<\/h2>/);
+  assert.doesNotMatch(transactionsLedger, /<p className="label">Ledger<\/p>/);
 });
 
 test("transactions api route exposes paginated ledger data", () => {
@@ -115,12 +129,13 @@ test("transactions header copy explains the page purpose", () => {
   assert.match(transactionsFilters, /filter-results-summary/);
 });
 
-test("transactions filtering exposes a visible pending state", () => {
+test("transactions filtering avoids transient pending copy and layout shift", () => {
   assert.match(transactionsFilters, /useTransition/);
   assert.match(transactionsFilters, /aria-busy=\{isPending\}/);
-  assert.match(transactionsFilters, /Updating results…/);
+  assert.doesNotMatch(transactionsFilters, /Updating results…/);
   assert.match(transactionsFilters, /startTransition/);
-  assert.match(transactionsFilters, /\{isPending \? \([\s\S]*filter-pending-status[\s\S]*\) : null\}/);
+  assert.doesNotMatch(transactionsFilters, /filter-pending-status/);
+  assert.doesNotMatch(globalStyles, /\.filter-pending-status/);
 });
 
 test("transactions pagination preserves rows and offers retry after failure", () => {
@@ -160,7 +175,7 @@ test("transaction detail dialog exposes accessible states, controls, and compari
   assert.match(dialog, /aria-labelledby="transaction-detail-title"/);
   assert.match(dialog, /Loading transaction insights…/);
   assert.match(dialog, /Try again/);
-  assert.match(dialog, /Overall rank/);
+  assert.doesNotMatch(dialog, /Overall rank/);
   assert.match(dialog, /Share of filtered spend/);
   assert.match(dialog, /Compared with average/);
   assert.match(dialog, /aria-label="Amount comparison"/);
@@ -173,6 +188,12 @@ test("transaction detail dialog exposes accessible states, controls, and compari
   assert.match(dialogBehavior, /event\.key !== "Tab"/);
   assert.match(dialog, /Category rank/);
   assert.match(dialog, /Share of category spend/);
+  assert.doesNotMatch(dialog, /aria-label="Transaction summary"/);
+  assert.doesNotMatch(dialog, /<span>Amount<\/span><strong>\{money\(shownTransaction\.amount/);
+  assert.doesNotMatch(dialog, /<span>Date<\/span><strong>\{shortDate\(shownTransaction\.date\)/);
+  assert.doesNotMatch(dialog, /<span>Category<\/span><strong>\{shownTransaction\.category\}/);
+  assert.doesNotMatch(dialog, /<span>Paid by<\/span><strong>\{shownTransaction\.paidBy\}/);
+  assert.match(globalStyles, /\.transaction-detail-summary\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
 });
 
 test("interactive hover belongs only to ledger row buttons", () => {
@@ -180,6 +201,7 @@ test("interactive hover belongs only to ledger row buttons", () => {
   assert.doesNotMatch(styles, /\.expense-row:hover \{[^}]*transform:/);
   assert.match(styles, /\.ledger-row-button:hover/);
   assert.match(styles, /\.ledger-row-button:focus-visible/);
+  assert.doesNotMatch(styles, /\.ledger-card \.ledger-row-button:hover \.pill\s*\{/);
 });
 
 test("comparison values are exposed as a semantic list while visual tracks stay decorative", () => {

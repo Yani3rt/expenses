@@ -114,8 +114,7 @@ export default function TransactionsLedger({ initialTransactions, summary, meta 
     <section className="card ledger-card">
       <div className="section-head">
         <div>
-          <p className="label">Ledger</p>
-          <h2>{summary.expenseCount} matching transactions</h2>
+          <h2>Operations</h2>
         </div>
         <span className="readonly-chip">{periodBadge}</span>
       </div>

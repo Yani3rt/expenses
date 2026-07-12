@@ -50,13 +50,6 @@ export default function TransactionDetailDialog({ transaction, detail, status, e
           <button className="transaction-dialog-close" type="button" onClick={onClose} aria-label="Close transaction details">×</button>
         </header>
 
-        <div className="transaction-detail-summary" aria-label="Transaction summary">
-          <div><span>Amount</span><strong>{money(shownTransaction.amount, shownTransaction.currency)}</strong></div>
-          <div><span>Date</span><strong>{shortDate(shownTransaction.date)}</strong></div>
-          <div><span>Category</span><strong>{shownTransaction.category}</strong></div>
-          <div><span>Paid by</span><strong>{shownTransaction.paidBy}</strong></div>
-        </div>
-
         {status === "loading" ? <div className="transaction-dialog-state" role="status">Loading transaction insights…</div> : null}
         {status === "error" ? (
           <div className="transaction-dialog-state" role="alert">
@@ -67,7 +60,6 @@ export default function TransactionDetailDialog({ transaction, detail, status, e
         {status === "success" && context ? (
           <>
             <div className="transaction-detail-summary">
-              <div><span>Overall rank</span><strong>#{context.rank} of {context.resultCount}</strong></div>
               <div><span>Share of filtered spend</span><strong>{percent(context.spendSharePercent)}</strong></div>
               <div><span>Compared with average</span><strong>{money(context.differenceFromAverage)}</strong></div>
               <div><span>Category rank</span><strong>#{context.categoryRank}</strong></div>
