@@ -48,15 +48,21 @@ test("fetchTransactionDetail returns validated transaction context and forwards 
       paidBy: "Yani",
       notes: null,
     },
-    context: {
-      rank: 1,
-      resultCount: 2,
-      spendSharePercent: 75,
-      differenceFromAverage: 70,
-      filteredAverage: 140,
-      categoryAverage: 140,
-      categoryRank: 1,
-      categorySharePercent: 75,
+    categoryMonth: {
+      month: "2026-06",
+      previousMonth: "2026-05",
+      category: "Technology",
+      categorySlug: "tecnologia",
+      totalSpend: 280,
+      expenseCount: 2,
+      averageExpense: 140,
+      previousTotalSpend: 0,
+      deltaAmount: 280,
+      deltaPercent: null,
+      isNewThisMonth: true,
+      selectedDate: "2026-06-10",
+      dailyTotals: [{ date: "2026-06-10", totalSpend: 280, expenseCount: 2 }],
+      expenses: [],
     },
   };
   const controller = new AbortController();
@@ -116,15 +122,21 @@ test("fetchTransactionDetail rejects object-shaped payloads with invalid field t
             paidBy: "Yani",
             notes: null,
           },
-          context: {
-            rank: 1,
-            resultCount: 2,
-            spendSharePercent: "75",
-            differenceFromAverage: 70,
-            filteredAverage: 140,
-            categoryAverage: 140,
-            categoryRank: 1,
-            categorySharePercent: 75,
+          categoryMonth: {
+            month: "June",
+            previousMonth: "2026-05",
+            category: "Technology",
+            categorySlug: "tecnologia",
+            totalSpend: "280",
+            expenseCount: 2,
+            averageExpense: 140,
+            previousTotalSpend: 0,
+            deltaAmount: 280,
+            deltaPercent: null,
+            isNewThisMonth: true,
+            selectedDate: "2026-06-10",
+            dailyTotals: "invalid",
+            expenses: [],
           },
         }),
       }),
@@ -133,7 +145,7 @@ test("fetchTransactionDetail rejects object-shaped payloads with invalid field t
   );
 });
 
-test("fetchTransactionDetail accepts nullable insight metrics", async () => {
+test("fetchTransactionDetail accepts a new-category month payload", async () => {
   const transaction = {
     id: 4,
     date: "2026-06-10",
@@ -145,25 +157,31 @@ test("fetchTransactionDetail accepts nullable insight metrics", async () => {
     paidBy: "Yani",
     notes: "",
   };
-  const context = {
-    rank: 1,
-    resultCount: 1,
-    spendSharePercent: null,
-    differenceFromAverage: 0,
-    filteredAverage: 0,
-    categoryAverage: 0,
-    categoryRank: 1,
-    categorySharePercent: null,
+  const categoryMonth = {
+    month: "2026-06",
+    previousMonth: "2026-05",
+    category: "Technology",
+    categorySlug: "tecnologia",
+    totalSpend: 0,
+    expenseCount: 1,
+    averageExpense: 0,
+    previousTotalSpend: 0,
+    deltaAmount: 0,
+    deltaPercent: null,
+    isNewThisMonth: true,
+    selectedDate: "2026-06-10",
+    dailyTotals: [{ date: "2026-06-10", totalSpend: 0, expenseCount: 1 }],
+    expenses: [transaction],
   };
 
   const result = await fetchTransactionDetail("/api/transactions/4", {
     fetchImpl: async () => ({
       ok: true,
-      json: async () => ({ transaction, context }),
+      json: async () => ({ transaction, categoryMonth }),
     }),
   });
 
-  assert.deepEqual(result, { transaction, context });
+  assert.deepEqual(result, { transaction, categoryMonth });
 });
 
 test("fetchTransactionDetail normalizes successful malformed JSON responses", async () => {

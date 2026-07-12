@@ -45,13 +45,7 @@ export default function TransactionsLedger({ initialTransactions, summary, meta 
   }, []);
 
   function detailApiUrl(transaction) {
-    const params = new URLSearchParams();
-    for (const key of ["q", "period", "month", "category"]) {
-      const value = state[key];
-      if (value && value !== "all") params.set(key, value);
-    }
-    const query = params.toString();
-    return `/api/transactions/${transaction.id}${query ? `?${query}` : ""}`;
+    return `/api/transactions/${transaction.id}`;
   }
 
   async function requestDetail(transaction) {

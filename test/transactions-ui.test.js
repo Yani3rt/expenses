@@ -165,9 +165,11 @@ test("ledger rows are semantic buttons that open transaction details", () => {
   assert.match(transactionsLedger, /onClick=\{\(event\) => openDetail\(expense, event\.currentTarget\)\}/);
   assert.match(transactionsLedger, /<TransactionDetailDialog/);
   assert.match(transactionsLedger, /fetchTransactionDetail/);
+  assert.match(transactionsLedger, /return `\/api\/transactions\/\$\{transaction\.id\}`/);
+  assert.doesNotMatch(transactionsLedger, /for \(const key of \["q", "period", "month", "category"\]\)/);
 });
 
-test("transaction detail dialog exposes accessible states, controls, and comparison semantics", () => {
+test("transaction detail dialog exposes category-month cards, chart, and expense list", () => {
   assert.equal(existsSync(transactionDetailDialogUrl), true);
   const dialog = readFileSync(transactionDetailDialogUrl, "utf8");
   assert.match(dialog, /role="dialog"/);
@@ -175,24 +177,26 @@ test("transaction detail dialog exposes accessible states, controls, and compari
   assert.match(dialog, /aria-labelledby="transaction-detail-title"/);
   assert.match(dialog, /Loading transaction insights…/);
   assert.match(dialog, /Try again/);
-  assert.doesNotMatch(dialog, /Overall rank/);
-  assert.match(dialog, /Share of filtered spend/);
-  assert.match(dialog, /Compared with average/);
-  assert.match(dialog, /aria-label="Amount comparison"/);
-  assert.match(dialog, /Transaction amount/);
-  assert.match(dialog, /Filtered average/);
-  assert.match(dialog, /Category average/);
+  assert.match(dialog, /Category total/);
+  assert.match(dialog, /Transactions/);
+  assert.match(dialog, /Average expense/);
+  assert.match(dialog, /Change from/);
+  assert.match(dialog, /New this month/);
+  assert.match(dialog, /Spending by day/);
+  assert.match(dialog, /category-month-chart/);
+  assert.match(dialog, /category-month-expenses/);
+  assert.match(dialog, /is-selected/);
+  assert.match(dialog, /categoryMonth\.dailyTotals\.map/);
+  assert.match(dialog, /categoryMonth\.expenses\.map/);
   assert.match(dialog, /aria-label="Close transaction details"/);
   assert.match(dialog, /createDialogBehaviorSession/);
   assert.match(dialogBehavior, /event\.key === "Escape"/);
   assert.match(dialogBehavior, /event\.key !== "Tab"/);
-  assert.match(dialog, /Category rank/);
-  assert.match(dialog, /Share of category spend/);
-  assert.doesNotMatch(dialog, /aria-label="Transaction summary"/);
-  assert.doesNotMatch(dialog, /<span>Amount<\/span><strong>\{money\(shownTransaction\.amount/);
-  assert.doesNotMatch(dialog, /<span>Date<\/span><strong>\{shortDate\(shownTransaction\.date\)/);
-  assert.doesNotMatch(dialog, /<span>Category<\/span><strong>\{shownTransaction\.category\}/);
-  assert.doesNotMatch(dialog, /<span>Paid by<\/span><strong>\{shownTransaction\.paidBy\}/);
+  assert.doesNotMatch(dialog, /Share of filtered spend/);
+  assert.doesNotMatch(dialog, /Compared with average/);
+  assert.doesNotMatch(dialog, /Category rank/);
+  assert.doesNotMatch(dialog, /Share of category spend/);
+  assert.doesNotMatch(dialog, /Amount comparison/);
   assert.match(globalStyles, /\.transaction-detail-summary\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
   assert.match(globalStyles, /@keyframes transactionBackdropIn/);
   assert.match(globalStyles, /@keyframes transactionDialogIn/);
@@ -201,7 +205,7 @@ test("transaction detail dialog exposes accessible states, controls, and compari
   assert.match(globalStyles, /\.transaction-dialog-backdrop\s*\{[^}]*animation:\s*transactionBackdropIn/);
   assert.match(globalStyles, /\.transaction-dialog\s*\{[^}]*animation:\s*transactionDialogIn/);
   assert.match(globalStyles, /\.transaction-detail-summary div\s*\{[^}]*animation:\s*transactionInsightIn/);
-  assert.match(globalStyles, /\.transaction-comparison-track i\s*\{[^}]*animation:\s*transactionBarIn/);
+  assert.match(globalStyles, /\.category-month-bar i\s*\{[^}]*animation:\s*transactionBarIn/);
 });
 
 test("interactive hover belongs only to ledger row buttons", () => {
@@ -219,13 +223,13 @@ test("interactive hover belongs only to ledger row buttons", () => {
   assert.doesNotMatch(styles, /\.ledger-card \.ledger-row-button:hover \.expense-(?:icon|copy|amount)/);
 });
 
-test("comparison values are exposed as a semantic list while visual tracks stay decorative", () => {
+test("category-month chart and expense list expose semantic data", () => {
   const dialog = readFileSync(transactionDetailDialogUrl, "utf8");
-  assert.match(dialog, /<ul className="transaction-comparison" aria-label="Amount comparison">/);
-  assert.match(dialog, /<li className="transaction-comparison-row"/);
-  assert.match(dialog, /<span>\{label\}<\/span><strong>\{formattedValue\}<\/strong>/);
-  assert.match(dialog, /className="transaction-comparison-track" aria-hidden="true"/);
-  assert.doesNotMatch(dialog, /role="img"/);
+  assert.match(dialog, /role="list" aria-label=/);
+  assert.match(dialog, /role="listitem"/);
+  assert.match(dialog, /aria-label=\{`\$\{shortDate\(day\.date\)\}:/);
+  assert.match(dialog, /aria-current=\{expense\.id === shownTransaction\.id \? "true" : undefined\}/);
+  assert.match(dialog, /className="category-month-bar" aria-hidden="true"/);
 });
 
 test("interactive expense rows keep native button content phrasing-only", () => {

@@ -38,66 +38,46 @@ test("transactions load more animation styles are present", () => {
   assert.match(globalsCss, /@keyframes rowEnter/);
 });
 
-test("transaction detail insights use the complete filtered search population", () => {
-  const data = getTransactionDetailData({ id: 4, q: "tech" });
+test("transaction detail derives category-month data from the selected transaction", () => {
+  const data = getTransactionDetailData({ id: 4, q: "ignored", month: "2026-07", category: "comida" });
 
   assert.equal(data.transaction.description, "Technology expense");
-  assert.deepEqual(data.context, {
-    rank: 1,
-    resultCount: 2,
-    spendSharePercent: 75,
-    differenceFromAverage: 70,
-    filteredAverage: 140,
-    categoryAverage: 140,
-    categoryRank: 1,
-    categorySharePercent: 75,
-  });
-});
-
-test("transaction detail insights honor month and category constraints", () => {
-  const data = getTransactionDetailData({
-    id: 11,
+  assert.deepEqual(data.categoryMonth, {
     month: "2026-06",
-    category: "tecnologia",
+    previousMonth: "2026-05",
+    category: "Technology",
+    categorySlug: "tecnologia",
+    totalSpend: 280,
+    expenseCount: 2,
+    averageExpense: 140,
+    previousTotalSpend: 0,
+    deltaAmount: 280,
+    deltaPercent: null,
+    isNewThisMonth: true,
+    selectedDate: "2026-06-13",
+    dailyTotals: [
+      { date: "2026-06-13", totalSpend: 210, expenseCount: 1 },
+      { date: "2026-06-26", totalSpend: 70, expenseCount: 1 },
+    ],
+    expenses: [
+      { id: 11, date: "2026-06-26", description: "Tech expense", amount: 70, currency: "USD", category: "Technology", categorySlug: "tecnologia", paidBy: "Yani", notes: null },
+      { id: 4, date: "2026-06-13", description: "Technology expense", amount: 210, currency: "USD", category: "Technology", categorySlug: "tecnologia", paidBy: "Yani", notes: null },
+    ],
   });
-
-  assert.deepEqual(data.context, {
-    rank: 2,
-    resultCount: 2,
-    spendSharePercent: 25,
-    differenceFromAverage: -70,
-    filteredAverage: 140,
-    categoryAverage: 140,
-    categoryRank: 2,
-    categorySharePercent: 25,
-  });
 });
 
-test("transaction detail insights honor period constraints and missing ids", () => {
-  const data = getTransactionDetailData({ id: 4, period: "last_month" });
+test("transaction detail compares the selected category with its previous month", () => {
+  const data = getTransactionDetailData({ id: 24 });
 
-  assert.equal(data.context.resultCount, 12);
-  assert.equal(data.context.rank, 1);
-  assert.equal(data.context.filteredAverage, 97.37);
-  assert.equal(data.context.differenceFromAverage, 112.63);
-  assert.equal(getTransactionDetailData({ id: 999999, period: "last_month" }), null);
+  assert.equal(data.categoryMonth.month, "2026-07");
+  assert.equal(data.categoryMonth.previousMonth, "2026-06");
+  assert.equal(data.categoryMonth.totalSpend, 12.99);
+  assert.equal(data.categoryMonth.previousTotalSpend, 280);
+  assert.equal(data.categoryMonth.deltaAmount, -267.01);
+  assert.equal(data.categoryMonth.deltaPercent, -95.36);
+  assert.equal(data.categoryMonth.isNewThisMonth, false);
 });
 
-test("transaction detail keeps category metrics scoped when several categories are filtered", () => {
-  const data = getTransactionDetailData({ id: 4, month: "2026-06" });
-
-  assert.notEqual(data.context.filteredAverage, data.context.categoryAverage);
-  assert.notEqual(data.context.spendSharePercent, data.context.categorySharePercent);
-  assert.ok(data.context.rank > 0);
-  assert.equal(data.context.categoryRank, 1);
-});
-
-test("transaction detail ranking breaks equal amount and date ties by descending id", () => {
-  const higherId = getTransactionDetailData({ id: 3, month: "2026-06" });
-  const lowerId = getTransactionDetailData({ id: 2, month: "2026-06" });
-
-  assert.equal(higherId.transaction.amount, lowerId.transaction.amount);
-  assert.equal(higherId.transaction.date, lowerId.transaction.date);
-  assert.equal(higherId.context.rank + 1, lowerId.context.rank);
-  assert.equal(higherId.context.categoryRank + 1, lowerId.context.categoryRank);
+test("transaction detail returns null for a missing transaction", () => {
+  assert.equal(getTransactionDetailData({ id: 999999 }), null);
 });

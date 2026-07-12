@@ -4,7 +4,7 @@ import { getTransactionDetailData } from "../../../../lib/queries.js";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET(request, { params }) {
+export async function GET(_request, { params }) {
   const { id: rawId } = await params;
   const id = Number(rawId);
 
@@ -15,14 +15,7 @@ export async function GET(request, { params }) {
     );
   }
 
-  const { searchParams } = new URL(request.url);
-  const detail = getTransactionDetailData({
-    id,
-    q: searchParams.get("q") || "",
-    period: searchParams.get("period") || "all",
-    month: searchParams.get("month") || "all",
-    category: searchParams.get("category") || "all",
-  });
+  const detail = getTransactionDetailData({ id });
 
   if (!detail) {
     return NextResponse.json(

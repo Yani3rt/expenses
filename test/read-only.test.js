@@ -56,7 +56,9 @@ test("transaction detail route returns detail from read-only queries", async () 
 
   assert.equal(response.status, 200);
   assert.equal(payload.transaction.id, 4);
-  assert.equal(payload.context.resultCount, 2);
+  assert.equal(payload.categoryMonth.month, "2026-06");
+  assert.equal(payload.categoryMonth.categorySlug, "tecnologia");
+  assert.equal(payload.categoryMonth.expenseCount, 2);
 });
 
 test("transaction detail route only delegates data access to the read-only query layer", () => {
@@ -68,6 +70,7 @@ test("transaction detail route only delegates data access to the read-only query
   assert.match(source, /getTransactionDetailData/);
   assert.match(source, /Number\.isSafeInteger/);
   assert.match(source, /\^\\d\+\$/);
+  assert.doesNotMatch(source, /searchParams/);
   assert.doesNotMatch(source, /(?:INSERT|UPDATE|DELETE|REPLACE|CREATE|DROP|ALTER|VACUUM|REINDEX)\b/i);
   assert.doesNotMatch(source, /(?:getDatabase|withDatabase|node:sqlite|\.prepare\s*\()/);
 });
