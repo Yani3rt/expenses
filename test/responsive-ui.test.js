@@ -97,3 +97,13 @@ test("tablet dashboard limits recent spending and stacks category share", () => 
   assert.match(styles, /@media \(max-width: 980px\)[\s\S]*\.dashboard-recent-spending \.expense-row:nth-child\(n \+ 4\) \{ display: none; \}/);
   assert.match(styles, /@media \(max-width: 980px\)[\s\S]*\.dashboard-category-row > \.card \{ grid-column: 1 \/ -1; width: 100%; \}/);
 });
+
+test("advanced transaction filters use one responsive disclosure", () => {
+  assert.match(styles, /\.sticky-search-bar \{[\s\S]*grid-template-columns: minmax\(0, 1fr\) auto;/);
+  assert.match(styles, /\.mobile-filter-toggle \{ display: inline-flex;/);
+  assert.match(styles, /\.advanced-filters-panel \{[\s\S]*display: none;/);
+  assert.match(styles, /\.advanced-filters-panel\.is-open \{[\s\S]*display: grid;/);
+  assert.match(styles, /\.mobile-filter-label \{ display: none; \}/);
+  assert.match(styles, /@media \(max-width: 760px\)[\s\S]*\.desktop-filter-label \{ display: none; \}[\s\S]*\.mobile-filter-label \{ display: inline; \}/);
+  assert.match(styles, /\.preset-chip\.is-active \{[^}]*box-shadow: 0 4px 12px/);
+});

@@ -65,6 +65,17 @@ test("transactions filters support a sticky mobile search bar with collapsible a
   assert.match(transactionsFilters, /aria-label="Search transactions"/);
 });
 
+test("transactions filters disclose advanced controls and count non-default values", () => {
+  assert.match(transactionsFilters, /const activeAdvancedFilterCount = \[/);
+  assert.match(transactionsFilters, /meta\.month !== "all"/);
+  assert.match(transactionsFilters, /meta\.category !== "all"/);
+  assert.match(transactionsFilters, /meta\.sort !== "newest"/);
+  assert.match(transactionsFilters, /desktop-filter-label">More filters/);
+  assert.match(transactionsFilters, /mobile-filter-label">Filters/);
+  assert.match(transactionsFilters, /activeAdvancedFilterCount > 0/);
+  assert.match(transactionsFilters, /aria-expanded=\{isExpanded\}/);
+});
+
 
 test("transactions ledger reserves motion for newly loaded rows", () => {
   const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
@@ -97,6 +108,7 @@ test("transactions filtering exposes a visible pending state", () => {
   assert.match(transactionsFilters, /aria-busy=\{isPending\}/);
   assert.match(transactionsFilters, /Updating results…/);
   assert.match(transactionsFilters, /startTransition/);
+  assert.match(transactionsFilters, /\{isPending \? \([\s\S]*filter-pending-status[\s\S]*\) : null\}/);
 });
 
 test("transactions pagination preserves rows and offers retry after failure", () => {

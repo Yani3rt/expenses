@@ -290,7 +290,7 @@ h2 { margin: 6px 0 0; font-family: Manrope; font-size: 28px; letter-spacing: -.0
 .filter-pending-status.is-visible { opacity: 1; }
 .sticky-search-bar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   align-items: end;
   position: sticky;
@@ -329,10 +329,17 @@ h2 { margin: 6px 0 0; font-family: Manrope; font-size: 28px; letter-spacing: -.0
   padding: 0 16px;
   font-weight: 800;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
 }
-.mobile-filter-toggle { display: none; }
 .mobile-filter-toggle.is-open { background: var(--primary); color: white; border-color: var(--primary); }
-.advanced-filters-panel { display: grid; gap: 14px; }
+.mobile-filter-label { display: none; }
+.filter-count { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--surface-container); font-size: 11px; }
+.mobile-filter-toggle.is-open .filter-count { background: rgba(255,255,255,.18); }
+.advanced-filters-panel { display: none; gap: 14px; }
+.advanced-filters-panel.is-open { display: grid; }
 .preset-row.transactions-presets-mobile { display: flex; }
 .preset-row { display: flex; flex-wrap: wrap; gap: 10px; }
 .preset-chip {
@@ -348,7 +355,7 @@ h2 { margin: 6px 0 0; font-family: Manrope; font-size: 28px; letter-spacing: -.0
   font-weight: 800;
   cursor: pointer;
 }
-.preset-chip.is-active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 10px 24px rgba(19,27,46,.12); }
+.preset-chip.is-active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(19,27,46,.1); }
 .instant-filter-card {
   margin-top: 0;
   display: grid;
@@ -1118,6 +1125,8 @@ footer { display: flex; flex-wrap: wrap; gap: 18px; margin: 28px 0 0; color: var
   .wide-filter label:not(.search-field),
   .search-field { width: 100%; }
   .mobile-filter-toggle { display: inline-flex; align-items: center; justify-content: center; }
+  .desktop-filter-label { display: none; }
+  .mobile-filter-label { display: inline; }
   .preset-row.transactions-presets-mobile { display: flex; }
   .transactions-filter-shell { margin-top: 12px; padding-top: 0; }
   .sticky-search-bar {

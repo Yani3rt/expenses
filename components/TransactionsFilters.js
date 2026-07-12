@@ -135,6 +135,11 @@ export default function TransactionsFilters({ meta, months, categories }) {
   const [query, setQuery] = useState(meta.q);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const activeAdvancedFilterCount = [
+    meta.month !== "all",
+    meta.category !== "all",
+    meta.sort !== "newest",
+  ].filter(Boolean).length;
 
   useEffect(() => {
     setQuery(meta.q);
@@ -196,12 +201,16 @@ export default function TransactionsFilters({ meta, months, categories }) {
             aria-controls="transactions-advanced-filters"
             onClick={() => setIsExpanded((open) => !open)}
           >
-            Filters
+            <span className="desktop-filter-label">More filters</span>
+            <span className="mobile-filter-label">Filters</span>
+            {activeAdvancedFilterCount > 0 ? <span className="filter-count">{activeAdvancedFilterCount}</span> : null}
           </button>
         </div>
-        <span className={`filter-pending-status${isPending ? " is-visible" : ""}`} role="status" aria-live="polite">
-          {isPending ? "Updating results…" : ""}
-        </span>
+        {isPending ? (
+          <span className="filter-pending-status is-visible" role="status" aria-live="polite">
+            Updating results…
+          </span>
+        ) : null}
 
         <div className={`advanced-filters-panel${isExpanded ? " is-open" : ""}`} id="transactions-advanced-filters">
           <TransactionsPresets meta={meta} onSelect={navigate} className="transactions-presets-mobile" />
