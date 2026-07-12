@@ -4,7 +4,7 @@ import {
   createInitialTransactionDetailState,
   transactionDetailReducer,
 } from "../lib/transaction-detail-state.js";
-import { installDialogBehavior, isBackdropDismissal } from "../lib/dialog-behavior.js";
+import { createDialogBehaviorSession, installDialogBehavior, isBackdropDismissal } from "../lib/dialog-behavior.js";
 
 function fakeButton(name) {
   return { name, focus() { this.owner.activeElement = this; } };
@@ -58,6 +58,29 @@ test("dialog behavior closes on Escape", () => {
   installDialogBehavior({ dialog: harness.dialog, document: harness.document, onClose() { closes += 1; } });
   assert.equal(harness.dispatchKey("Escape"), true);
   assert.equal(closes, 1);
+});
+
+test("dialog behavior session keeps focus stable across loading, success, error, and retry rerenders", () => {
+  const harness = dialogHarness();
+  let firstCloses = 0;
+  let latestCloses = 0;
+  const session = createDialogBehaviorSession({
+    dialog: harness.dialog,
+    document: harness.document,
+    onClose() { firstCloses += 1; },
+  });
+  const userFocusedControl = { name: "retry", owner: harness.document, focus() { this.owner.activeElement = this; } };
+  userFocusedControl.focus();
+
+  for (const status of ["success", "error", "loading"]) {
+    session.update({ onClose() { latestCloses += 1; }, status });
+    assert.equal(harness.document.activeElement, userFocusedControl);
+  }
+
+  harness.dispatchKey("Escape");
+  assert.equal(firstCloses, 0);
+  assert.equal(latestCloses, 1);
+  session.destroy();
 });
 
 test("transaction detail state opens immediately, retains summary through failure and retry, and restores trigger focus on close", () => {

@@ -168,7 +168,7 @@ test("transaction detail dialog exposes accessible states, controls, and compari
   assert.match(dialog, /Filtered average/);
   assert.match(dialog, /Category average/);
   assert.match(dialog, /aria-label="Close transaction details"/);
-  assert.match(dialog, /installDialogBehavior/);
+  assert.match(dialog, /createDialogBehaviorSession/);
   assert.match(dialogBehavior, /event\.key === "Escape"/);
   assert.match(dialogBehavior, /event\.key !== "Tab"/);
   assert.match(dialog, /Category rank/);

@@ -48,3 +48,22 @@ Result: blocked by the managed sandbox, not by a compile diagnostic. Turbopack f
 
 - Production build could not be completed in this sandbox; rerun the build in an environment where Turbopack may bind its internal localhost port.
 - Tests use the repository's ignored disposable/local database copy through an explicit path. The application opens it read-only (`DatabaseSync(..., { readOnly: true })` plus `PRAGMA query_only = ON`); no canonical database writes were performed.
+
+## Final re-review: stable focus across rerenders
+
+### RED
+
+```bash
+EXPENSE_DB_PATH=/Users/yani/Dev/expenses/expenses.db pnpm test -- test/transaction-dialog-behavior.test.js
+```
+
+Failed as expected because `createDialogBehaviorSession` did not exist. The new runtime test models loading → success → error → retry rerenders, asserts the user's focused control is retained, and verifies Escape invokes the latest close callback.
+
+### GREEN
+
+```bash
+EXPENSE_DB_PATH=/Users/yani/Dev/expenses/expenses.db pnpm test -- test/transaction-dialog-behavior.test.js test/transactions-ui.test.js
+EXPENSE_DB_PATH=/Users/yani/Dev/expenses/expenses.db pnpm test
+```
+
+Results: focused 25/25 passed; full suite 140/140 passed. The dialog now installs focus behavior once per mount and updates the current close callback through a stable behavior session without refocusing on async state renders.

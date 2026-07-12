@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { money, shortDate } from "../lib/format.js";
-import { installDialogBehavior, isBackdropDismissal } from "../lib/dialog-behavior.js";
+import { createDialogBehaviorSession, isBackdropDismissal } from "../lib/dialog-behavior.js";
 
 function percent(value) {
   return value === null ? "—" : `${Number(value).toFixed(1)}%`;
@@ -10,12 +10,19 @@ function percent(value) {
 
 export default function TransactionDetailDialog({ transaction, detail, status, error, onRetry, onClose }) {
   const dialogRef = useRef(null);
+  const behaviorSessionRef = useRef(null);
   const shownTransaction = detail?.transaction ?? transaction;
   const context = detail?.context;
+  behaviorSessionRef.current?.update({ onClose, status });
 
   useEffect(() => {
-    return installDialogBehavior({ dialog: dialogRef.current, document, onClose });
-  }, [onClose]);
+    const session = createDialogBehaviorSession({ dialog: dialogRef.current, document, onClose });
+    behaviorSessionRef.current = session;
+    return () => {
+      behaviorSessionRef.current = null;
+      session.destroy();
+    };
+  }, []);
 
   const comparisons = context ? [
     ["Transaction amount", shownTransaction.amount],
