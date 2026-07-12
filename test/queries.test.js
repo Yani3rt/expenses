@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { getDashboardData } from "../lib/queries.js";
+import { getDashboardData, getTransactionDetailData } from "../lib/queries.js";
 import { readFileSync } from "node:fs";
 import { currentWeekBounds } from "../lib/date-range.js";
 
@@ -36,4 +36,49 @@ test("dashboard query returns V1 sections", () => {
 test("transactions load more animation styles are present", () => {
   assert.match(globalsCss, /\.row-enter/);
   assert.match(globalsCss, /@keyframes rowEnter/);
+});
+
+test("transaction detail insights use the complete filtered search population", () => {
+  const data = getTransactionDetailData({ id: 4, q: "tech" });
+
+  assert.equal(data.transaction.description, "Technology expense");
+  assert.deepEqual(data.context, {
+    rank: 1,
+    resultCount: 2,
+    spendSharePercent: 75,
+    differenceFromAverage: 70,
+    filteredAverage: 140,
+    categoryAverage: 140,
+    categoryRank: 1,
+    categorySharePercent: 75,
+  });
+});
+
+test("transaction detail insights honor month and category constraints", () => {
+  const data = getTransactionDetailData({
+    id: 11,
+    month: "2026-06",
+    category: "tecnologia",
+  });
+
+  assert.deepEqual(data.context, {
+    rank: 2,
+    resultCount: 2,
+    spendSharePercent: 25,
+    differenceFromAverage: -70,
+    filteredAverage: 140,
+    categoryAverage: 140,
+    categoryRank: 2,
+    categorySharePercent: 25,
+  });
+});
+
+test("transaction detail insights honor period constraints and missing ids", () => {
+  const data = getTransactionDetailData({ id: 4, period: "last_month" });
+
+  assert.equal(data.context.resultCount, 12);
+  assert.equal(data.context.rank, 1);
+  assert.equal(data.context.filteredAverage, 97.37);
+  assert.equal(data.context.differenceFromAverage, 112.63);
+  assert.equal(getTransactionDetailData({ id: 999999, period: "last_month" }), null);
 });
