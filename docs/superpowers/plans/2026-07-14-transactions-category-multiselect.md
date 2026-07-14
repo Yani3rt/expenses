@@ -190,3 +190,35 @@ Run: `git diff --check && git status --short`
 
 Expected: no whitespace errors and only intended source, test, CSS, and documentation changes.
 
+### Task 5: Filter-aware category availability
+
+**Files:**
+- Modify: `lib/queries.js`
+- Modify: `components/TransactionsFilters.js`
+- Modify: `app/globals.css`
+- Test: `test/filters.test.js`
+- Test: `test/transactions-ui.test.js`
+
+**Interfaces:**
+- Produces: category catalog entries with `expenseCount` and `disabled` presentation derived from active search/date/month filters, excluding category selections.
+- Produces: `All categories` selection that clears categories and closes the dropdown.
+
+- [ ] **Step 1: Write failing availability and UI tests**
+
+Assert that `getTransactionsData({ period: "this_month" }).categories` assigns zero to categories without matching period expenses and positive counts to available categories. Add UI source assertions for disabled zero-count options, selected-option override, and `setIsOpen(false)` in the All categories handler.
+
+- [ ] **Step 2: Run focused tests and verify RED**
+
+Run: `EXPENSE_DB_PATH=/tmp/expense-viewer-multiselect-test.db node --test test/filters.test.js test/transactions-ui.test.js`
+
+Expected: FAIL because category catalog entries do not expose filtered expense counts and All categories does not close the panel.
+
+- [ ] **Step 3: Implement one category availability aggregate**
+
+Build search/date predicates independently from the category predicate, aggregate expense counts by category with those predicates, and merge counts into the stable category catalog. Disable only unselected zero-count options in the component. Add an All categories handler that clears selection and closes the panel.
+
+- [ ] **Step 4: Run focused and full verification**
+
+Run: `EXPENSE_DB_PATH=/tmp/expense-viewer-multiselect-test.db pnpm test`
+
+Expected: all tests pass with zero failures, followed by a successful `pnpm run build` and browser verification of enabled, disabled, selected, and auto-close states.
