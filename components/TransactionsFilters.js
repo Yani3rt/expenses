@@ -1,8 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { compactNumber, money } from "../lib/format.js";
+import {
+  categorySelectionLabel,
+  replaceCategoryParams,
+  toggleCategoryValue,
+} from "../lib/transaction-filters.js";
 
 const PERIOD_OPTIONS = [
   { value: "all", label: "All time" },
@@ -24,18 +29,25 @@ function shouldSkipParam(key, value) {
 }
 
 function routeParams(meta, nextValues = {}) {
-  const { q, period, month, category, sort, offset, limit } = { ...meta, ...nextValues };
-  return { q, period, month, category, sort, offset, limit };
+  const { q, period, month, categories, sort, offset, limit } = { ...meta, ...nextValues };
+  return { q, period, month, categories, sort, offset, limit };
+}
+
+function applyRouteValues(params, values) {
+  const { categories, ...singleValues } = values;
+  for (const [key, value] of Object.entries(singleValues)) {
+    if (shouldSkipParam(key, value)) continue;
+    params.set(key, value);
+  }
+  replaceCategoryParams(params, categories);
+  return params;
 }
 
 export function TransactionsPresets({ meta, onSelect, className = "", pathname = "/transactions" }) {
   function buildHref(nextValues = {}) {
     const params = new URLSearchParams();
     const values = routeParams(meta, nextValues);
-    for (const [key, value] of Object.entries(values)) {
-      if (shouldSkipParam(key, value)) continue;
-      params.set(key, value);
-    }
+    applyRouteValues(params, values);
     const query = params.toString();
     return query ? `${pathname}?${query}` : pathname;
   }
@@ -67,8 +79,9 @@ export function TransactionsPresets({ meta, onSelect, className = "", pathname =
 }
 
 export function ActiveFilterChips({ meta, categoryOptions, summary }) {
+  const router = useRouter();
+  const [, startTransition] = useTransition();
   const chips = [];
-  const categoryLabel = categoryOptions.find((category) => category.slug === meta.category)?.name;
 
   if (meta.q) {
     chips.push({ key: "q", label: `Search: ${meta.q}`, next: { q: "" } });
@@ -83,9 +96,12 @@ export function ActiveFilterChips({ meta, categoryOptions, summary }) {
     chips.push({ key: "month", label: meta.month, next: { month: "all" } });
   }
 
-  if (meta.category && meta.category !== "all") {
-    chips.push({ key: "category", label: categoryLabel || meta.category, next: { category: "all" } });
-  }
+  const categoryChips = meta.categories.map((slug) => ({
+    key: `category-${slug}`,
+    label: categoryOptions.find((category) => category.slug === slug)?.name || slug,
+    next: { categories: meta.categories.filter((value) => value !== slug) },
+  }));
+  chips.push(...categoryChips);
 
   if (meta.sort && meta.sort !== "newest") {
     const sortLabel = SORT_OPTIONS.find((option) => option.value === meta.sort)?.label || meta.sort;
@@ -99,12 +115,16 @@ export function ActiveFilterChips({ meta, categoryOptions, summary }) {
   function buildHref(nextValues = {}) {
     const params = new URLSearchParams();
     const values = routeParams(meta, nextValues);
-    for (const [key, value] of Object.entries(values)) {
-      if (shouldSkipParam(key, value)) continue;
-      params.set(key, value);
-    }
+    applyRouteValues(params, values);
     const query = params.toString();
     return query ? `${pathname}?${query}` : pathname;
+  }
+
+  function navigate(href) {
+    startTransition(() => {
+      router.push(href);
+      router.refresh();
+    });
   }
 
   return (
@@ -117,13 +137,148 @@ export function ActiveFilterChips({ meta, categoryOptions, summary }) {
       ) : null}
       <div className="active-filter-chips">
         {chips.map((chip) => (
-          <a className="filter-chip" href={buildHref(chip.next)} key={chip.key}>
+          <button
+            className="filter-chip"
+            key={chip.key}
+            onClick={() => navigate(buildHref(chip.next))}
+            type="button"
+          >
             <span>{chip.label}</span>
             <b>×</b>
-          </a>
+          </button>
         ))}
       </div>
-      {chips.length ? <a className="clear-filters-link" href="/transactions">Clear all</a> : null}
+      {chips.length ? (
+        <button
+          className="clear-filters-link"
+          onClick={() => navigate("/transactions")}
+          type="button"
+        >
+          Clear all
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+function CategoryMultiselect({ categories, selectedCategories, onChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const rootRef = useRef(null);
+  const triggerRef = useRef(null);
+  const panelRef = useRef(null);
+  const panelId = "transactions-category-options";
+  const selected = new Set(selectedCategories);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    function handlePointerDown(event) {
+      if (!rootRef.current?.contains(event.target)) setIsOpen(false);
+    }
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        triggerRef.current?.focus();
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
+
+  function focusFirstOption() {
+    window.requestAnimationFrame(() => panelRef.current?.querySelector("button")?.focus());
+  }
+
+  function handleTriggerKeyDown(event) {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setIsOpen(true);
+      focusFirstOption();
+    }
+  }
+
+  function handlePanelKeyDown(event) {
+    if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+    const options = [...event.currentTarget.querySelectorAll('button[role="checkbox"]:not(:disabled)')];
+    const currentIndex = options.indexOf(document.activeElement);
+    let nextIndex = currentIndex;
+    if (event.key === "ArrowDown") nextIndex = (currentIndex + 1) % options.length;
+    if (event.key === "ArrowUp") nextIndex = (currentIndex - 1 + options.length) % options.length;
+    if (event.key === "Home") nextIndex = 0;
+    if (event.key === "End") nextIndex = options.length - 1;
+    event.preventDefault();
+    options[nextIndex]?.focus();
+  }
+
+  function clearCategories() {
+    onChange([]);
+    setIsOpen(false);
+    triggerRef.current?.focus();
+  }
+
+  return (
+    <div className="category-multiselect" ref={rootRef}>
+      <span className="sr-only" id="transactions-category-label">Category</span>
+      <button
+        aria-controls={panelId}
+        aria-expanded={isOpen}
+        aria-haspopup="true"
+        aria-labelledby="transactions-category-label transactions-category-value"
+        className="category-multiselect-trigger"
+        onClick={() => setIsOpen((open) => !open)}
+        onKeyDown={handleTriggerKeyDown}
+        ref={triggerRef}
+        type="button"
+      >
+        <span id="transactions-category-value">{categorySelectionLabel(selectedCategories, categories)}</span>
+        <span className="category-multiselect-chevron" aria-hidden="true">⌄</span>
+      </button>
+
+      {isOpen ? (
+        <div
+          aria-label="Categories"
+          className="category-multiselect-panel"
+          id={panelId}
+          onKeyDown={handlePanelKeyDown}
+          ref={panelRef}
+          role="group"
+        >
+          <button
+            aria-checked={selected.size === 0}
+            className="category-multiselect-option"
+            onClick={clearCategories}
+            role="checkbox"
+            type="button"
+          >
+            <span className="category-option-check" aria-hidden="true">{selected.size === 0 ? "✓" : ""}</span>
+            <span>All categories</span>
+          </button>
+          {categories.map((category) => {
+            const isSelected = selected.has(category.slug);
+            const isUnavailable = category.expenseCount === 0 && !isSelected;
+            return (
+              <button
+                aria-checked={isSelected}
+                className="category-multiselect-option"
+                disabled={isUnavailable}
+                key={category.slug}
+                onClick={() => onChange(toggleCategoryValue(selectedCategories, category.slug))}
+                role="checkbox"
+                type="button"
+              >
+                <span className="category-option-check" aria-hidden="true">{isSelected ? "✓" : ""}</span>
+                <span>{category.name}</span>
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -137,7 +292,7 @@ export default function TransactionsFilters({ meta, months, categories }) {
   const [isPending, startTransition] = useTransition();
   const activeAdvancedFilterCount = [
     meta.month !== "all",
-    meta.category !== "all",
+    meta.categories.length > 0,
     meta.sort !== "newest",
   ].filter(Boolean).length;
 
@@ -149,15 +304,17 @@ export default function TransactionsFilters({ meta, months, categories }) {
 
   function navigate(nextValues, mode = "push") {
     const params = new URLSearchParams(paramsString);
-    const shouldResetOffset = ["q", "period", "month", "category", "sort"].some((key) => key in nextValues);
+    const shouldResetOffset = ["q", "period", "month", "categories", "sort"].some((key) => key in nextValues);
+    const { categories: nextCategories, ...singleValues } = nextValues;
 
-    for (const [key, value] of Object.entries(nextValues)) {
+    for (const [key, value] of Object.entries(singleValues)) {
       if (shouldSkipParam(key, value)) {
         params.delete(key);
       } else {
         params.set(key, value);
       }
     }
+    if ("categories" in nextValues) replaceCategoryParams(params, nextCategories);
 
     if (shouldResetOffset) params.delete("offset");
 
@@ -223,13 +380,11 @@ export default function TransactionsFilters({ meta, months, categories }) {
                 {months.map((month) => <option value={month.value} key={month.value}>{month.label}</option>)}
               </select>
             </label>
-            <label>
-              <span className="sr-only">Category</span>
-              <select name="category" value={meta.category} onChange={(event) => navigate({ category: event.target.value })} aria-label="Category">
-                <option value="all">All categories</option>
-                {categories.map((category) => <option value={category.slug} key={category.slug}>{category.name}</option>)}
-              </select>
-            </label>
+            <CategoryMultiselect
+              categories={categories}
+              selectedCategories={meta.categories}
+              onChange={(nextCategories) => navigate({ categories: nextCategories })}
+            />
             <label>
               <span className="sr-only">Sort</span>
               <select name="sort" value={meta.sort} onChange={(event) => navigate({ sort: event.target.value })} aria-label="Sort">

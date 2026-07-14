@@ -7,6 +7,7 @@ const transactionsFilters = readFileSync(new URL("../components/TransactionsFilt
 const dashboardPrimitives = readFileSync(new URL("../components/DashboardPrimitives.js", import.meta.url), "utf8");
 const transactionsLedger = readFileSync(new URL("../components/TransactionsLedger.js", import.meta.url), "utf8");
 const transactionsApiRoute = readFileSync(new URL("../app/api/transactions/route.js", import.meta.url), "utf8");
+const expensesApiRoute = readFileSync(new URL("../app/api/expenses/route.js", import.meta.url), "utf8");
 const transactionDetailDialogUrl = new URL("../components/TransactionDetailDialog.js", import.meta.url);
 const dialogBehavior = readFileSync(new URL("../lib/dialog-behavior.js", import.meta.url), "utf8");
 const globalStyles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
@@ -60,6 +61,13 @@ test("transactions api route exposes paginated ledger data", () => {
   assert.match(transactionsApiRoute, /NextResponse\.json/);
 });
 
+test("transaction category params remain repeated across page, APIs, and pagination", () => {
+  assert.match(transactionsPage, /normalizeCategoryValues\(params\?\.category\)/);
+  assert.match(transactionsApiRoute, /searchParams\.getAll\("category"\)/);
+  assert.match(expensesApiRoute, /params\.getAll\("category"\)/);
+  assert.match(transactionsLedger, /replaceCategoryParams\(params, categories\)/);
+});
+
 test("expense rows support stronger metadata hierarchy and optional notes", () => {
   assert.match(dashboardPrimitives, /expense-note/);
   assert.match(dashboardPrimitives, /expense-amount/);
@@ -84,12 +92,52 @@ test("transactions filters support a sticky mobile search bar with collapsible a
 test("transactions filters disclose advanced controls and count non-default values", () => {
   assert.match(transactionsFilters, /const activeAdvancedFilterCount = \[/);
   assert.match(transactionsFilters, /meta\.month !== "all"/);
-  assert.match(transactionsFilters, /meta\.category !== "all"/);
+  assert.match(transactionsFilters, /meta\.categories\.length > 0/);
   assert.match(transactionsFilters, /meta\.sort !== "newest"/);
   assert.match(transactionsFilters, /desktop-filter-label">More filters/);
   assert.match(transactionsFilters, /mobile-filter-label">Filters/);
   assert.match(transactionsFilters, /activeAdvancedFilterCount > 0/);
   assert.match(transactionsFilters, /aria-expanded=\{isExpanded\}/);
+});
+
+test("category filter is an accessible non-native checkbox dropdown", () => {
+  assert.match(transactionsFilters, /category-multiselect-trigger/);
+  assert.match(transactionsFilters, />All categories</);
+  assert.match(transactionsFilters, /role="checkbox"/);
+  assert.match(transactionsFilters, /aria-checked=/);
+  assert.match(transactionsFilters, /aria-expanded=\{isOpen\}/);
+  assert.match(transactionsFilters, /event\.key === "Escape"/);
+  assert.match(transactionsFilters, /event\.key === "ArrowDown"/);
+  assert.doesNotMatch(transactionsFilters, /<select name="category"/);
+});
+
+test("active category chips remove one selected category at a time", () => {
+  assert.match(transactionsFilters, /meta\.categories\.map/);
+  assert.match(transactionsFilters, /meta\.categories\.filter\(\(value\) => value !== slug\)/);
+});
+
+test("active filter chips use the App Router without hard document reloads", () => {
+  assert.match(transactionsFilters, /export function ActiveFilterChips[\s\S]*const router = useRouter\(\)/);
+  assert.match(transactionsFilters, /export function ActiveFilterChips[\s\S]*const \[, startTransition\] = useTransition\(\)/);
+  assert.match(transactionsFilters, /function navigate\(href\)[\s\S]*router\.push\(href\)[\s\S]*router\.refresh\(\)/);
+  assert.match(transactionsFilters, /<button[\s\S]*className="filter-chip"[\s\S]*onClick=\{\(\) => navigate\(buildHref\(chip\.next\)\)\}/);
+  assert.match(transactionsFilters, /<button[\s\S]*className="clear-filters-link"[\s\S]*onClick=\{\(\) => navigate\("\/transactions"\)\}/);
+  assert.doesNotMatch(transactionsFilters, /<a className="filter-chip"/);
+  assert.match(globalStyles, /\.filter-chip, \.clear-filters-link\s*\{[^}]*border:\s*0/);
+});
+
+test("category options disable zero-match choices while keeping selections removable", () => {
+  assert.match(transactionsFilters, /const isUnavailable = category\.expenseCount === 0 && !isSelected/);
+  assert.match(transactionsFilters, /disabled=\{isUnavailable\}/);
+  assert.match(transactionsFilters, /button\[role="checkbox"\]:not\(:disabled\)/);
+  assert.match(globalStyles, /\.category-multiselect-option:disabled/);
+});
+
+test("choosing all categories clears the selection and closes the dropdown", () => {
+  assert.match(transactionsFilters, /function clearCategories\(\)/);
+  assert.match(transactionsFilters, /onChange\(\[\]\)/);
+  assert.match(transactionsFilters, /setIsOpen\(false\)/);
+  assert.match(transactionsFilters, /onClick=\{clearCategories\}/);
 });
 
 test("desktop quick presets stay outside the disclosed select panel", () => {

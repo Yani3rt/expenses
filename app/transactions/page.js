@@ -2,6 +2,7 @@ import { PageHeader } from "../../components/DashboardPrimitives.js";
 import TransactionsLedger from "../../components/TransactionsLedger.js";
 import TransactionsFilters, { ActiveFilterChips } from "../../components/TransactionsFilters.js";
 import { getTransactionsData } from "../../lib/queries.js";
+import { normalizeCategoryValues } from "../../lib/transaction-filters.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,7 +13,7 @@ export default async function TransactionsPage({ searchParams }) {
     q: params?.q || "",
     period: params?.period || "this_month",
     month: params?.month || "all",
-    category: params?.category || "all",
+    categories: normalizeCategoryValues(params?.category),
     sort: params?.sort || "newest",
     offset: params?.offset || 0,
     limit: params?.limit || 10,

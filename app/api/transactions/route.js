@@ -10,7 +10,7 @@ export async function GET(request) {
     q: searchParams.get("q") || "",
     period: searchParams.get("period") || "all",
     month: searchParams.get("month") || "all",
-    category: searchParams.get("category") || "all",
+    categories: searchParams.getAll("category"),
     sort: searchParams.get("sort") || "newest",
     offset: searchParams.get("offset") || 0,
     limit: searchParams.get("limit") || 50,

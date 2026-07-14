@@ -7,15 +7,17 @@ import { fetchTransactionsPage } from "../lib/transactions-client.js";
 import { fetchTransactionDetail } from "../lib/transactions-client.js";
 import TransactionDetailDialog from "./TransactionDetailDialog.js";
 import { createInitialTransactionDetailState, transactionDetailReducer } from "../lib/transaction-detail-state.js";
+import { replaceCategoryParams } from "../lib/transaction-filters.js";
 
 function buildTransactionsApiUrl(meta, nextValues = {}) {
   const params = new URLSearchParams();
-  const { q, period, month, category, sort, offset, limit } = { ...meta, ...nextValues };
-  const values = { q, period, month, category, sort, offset, limit };
+  const { q, period, month, categories, sort, offset, limit } = { ...meta, ...nextValues };
+  const values = { q, period, month, sort, offset, limit };
   for (const [key, value] of Object.entries(values)) {
     if (!value || value === "all" || value === 0 || (key === "sort" && value === "newest") || (key === "limit" && Number(value) === 10)) continue;
     params.set(key, value);
   }
+  replaceCategoryParams(params, categories);
   const href = params.toString() ? `/transactions?${params.toString()}` : "/transactions";
   const query = href.split("?")[1];
   return query ? `/api/transactions?${query}` : "/api/transactions";

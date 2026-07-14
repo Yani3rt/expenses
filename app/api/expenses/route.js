@@ -10,7 +10,7 @@ export function GET(request) {
     q: params.get("q") || "",
     period: params.get("period") || "all",
     month: params.get("month") || "all",
-    category: params.get("category") || "all",
+    categories: params.getAll("category"),
   });
   return NextResponse.json(data, {
     headers: { "Cache-Control": "no-store" },
