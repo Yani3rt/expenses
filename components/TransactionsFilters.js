@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { compactNumber, money } from "../lib/format.js";
+import { createDialogBehaviorSession, isBackdropDismissal } from "../lib/dialog-behavior.js";
 import {
   categorySelectionLabel,
   replaceCategoryParams,
@@ -128,7 +129,7 @@ export function ActiveFilterChips({ meta, categoryOptions, summary }) {
   }
 
   return (
-    <div className="active-filter-row">
+    <div className="active-filter-row" aria-label="Active transaction filters">
       {summary ? (
         <div className="filter-results-summary" aria-label="Current ledger summary">
           <strong>{compactNumber(summary.expenseCount)} matches</strong>
@@ -161,7 +162,7 @@ export function ActiveFilterChips({ meta, categoryOptions, summary }) {
   );
 }
 
-function CategoryMultiselect({ categories, selectedCategories, onChange }) {
+function CategoryMultiselect({ categories, selectedCategories, onChange, onClearAll }) {
   const [isOpen, setIsOpen] = useState(false);
   const rootRef = useRef(null);
   const triggerRef = useRef(null);
@@ -222,74 +223,107 @@ function CategoryMultiselect({ categories, selectedCategories, onChange }) {
     triggerRef.current?.focus();
   }
 
+  function clearCategoriesFromSheet() {
+    onChange([]);
+    setIsOpen(false);
+    onClearAll?.();
+  }
+
+  function categoryOptions(onClear) {
+    return (
+      <>
+        <button
+          aria-checked={selected.size === 0}
+          className="category-multiselect-option"
+          onClick={onClear}
+          role="checkbox"
+          type="button"
+        >
+          <span className="category-option-check" aria-hidden="true">{selected.size === 0 ? "✓" : ""}</span>
+          <span>All categories</span>
+        </button>
+        {categories.map((category) => {
+          const isSelected = selected.has(category.slug);
+          const isUnavailable = category.expenseCount === 0 && !isSelected;
+          return (
+            <button
+              aria-checked={isSelected}
+              className="category-multiselect-option"
+              disabled={isUnavailable}
+              key={category.slug}
+              onClick={() => onChange(toggleCategoryValue(selectedCategories, category.slug))}
+              role="checkbox"
+              type="button"
+            >
+              <span className="category-option-check" aria-hidden="true">{isSelected ? "✓" : ""}</span>
+              <span>{category.name}</span>
+            </button>
+          );
+        })}
+      </>
+    );
+  }
+
   return (
     <div className="category-multiselect" ref={rootRef}>
-      <span className="sr-only" id="transactions-category-label">Category</span>
-      <button
-        aria-controls={panelId}
-        aria-expanded={isOpen}
-        aria-haspopup="true"
-        aria-labelledby="transactions-category-label transactions-category-value"
-        className="category-multiselect-trigger"
-        onClick={() => setIsOpen((open) => !open)}
-        onKeyDown={handleTriggerKeyDown}
-        ref={triggerRef}
-        type="button"
-      >
-        <span id="transactions-category-value">{categorySelectionLabel(selectedCategories, categories)}</span>
-        <span className="category-multiselect-chevron" aria-hidden="true">⌄</span>
-      </button>
+      <div className="category-multiselect-desktop-control">
+        <span className="sr-only" id="transactions-category-label">Category</span>
+        <button
+          aria-controls={panelId}
+          aria-expanded={isOpen}
+          aria-haspopup="true"
+          aria-labelledby="transactions-category-label transactions-category-value"
+          className="category-multiselect-trigger"
+          onClick={() => setIsOpen((open) => !open)}
+          onKeyDown={handleTriggerKeyDown}
+          ref={triggerRef}
+          type="button"
+        >
+          <span id="transactions-category-value">{categorySelectionLabel(selectedCategories, categories)}</span>
+          <span className="category-multiselect-chevron" aria-hidden="true">⌄</span>
+        </button>
 
-      {isOpen ? (
+        {isOpen ? (
+          <div
+            aria-label="Categories"
+            className="category-multiselect-panel"
+            id={panelId}
+            onKeyDown={handlePanelKeyDown}
+            ref={panelRef}
+            role="group"
+          >
+            {categoryOptions(clearCategories)}
+          </div>
+        ) : null}
+      </div>
+
+      <div className="category-multiselect-mobile-list">
+        <div className="mobile-filter-field-head">
+          <strong>Categories</strong>
+          <span>{categorySelectionLabel(selectedCategories, categories)}</span>
+        </div>
         <div
           aria-label="Categories"
-          className="category-multiselect-panel"
-          id={panelId}
+          className="category-multiselect-mobile-options"
           onKeyDown={handlePanelKeyDown}
-          ref={panelRef}
           role="group"
         >
-          <button
-            aria-checked={selected.size === 0}
-            className="category-multiselect-option"
-            onClick={clearCategories}
-            role="checkbox"
-            type="button"
-          >
-            <span className="category-option-check" aria-hidden="true">{selected.size === 0 ? "✓" : ""}</span>
-            <span>All categories</span>
-          </button>
-          {categories.map((category) => {
-            const isSelected = selected.has(category.slug);
-            const isUnavailable = category.expenseCount === 0 && !isSelected;
-            return (
-              <button
-                aria-checked={isSelected}
-                className="category-multiselect-option"
-                disabled={isUnavailable}
-                key={category.slug}
-                onClick={() => onChange(toggleCategoryValue(selectedCategories, category.slug))}
-                role="checkbox"
-                type="button"
-              >
-                <span className="category-option-check" aria-hidden="true">{isSelected ? "✓" : ""}</span>
-                <span>{category.name}</span>
-              </button>
-            );
-          })}
+          {categoryOptions(clearCategoriesFromSheet)}
         </div>
-      ) : null}
+      </div>
     </div>
   );
 }
 
-export default function TransactionsFilters({ meta, months, categories }) {
+export default function TransactionsFilters({ meta, months, categories, summary }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(meta.q);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const filterToggleRef = useRef(null);
+  const filterSheetRef = useRef(null);
   const activeAdvancedFilterCount = [
     meta.month !== "all",
     meta.categories.length > 0,
@@ -299,6 +333,17 @@ export default function TransactionsFilters({ meta, months, categories }) {
   useEffect(() => {
     setQuery(meta.q);
   }, [meta.q]);
+
+  function closeFilters() {
+    setIsExpanded(false);
+    window.requestAnimationFrame(() => filterToggleRef.current?.focus());
+  }
+
+  useEffect(() => {
+    if (!isExpanded || !window.matchMedia("(max-width: 760px)").matches) return undefined;
+    const session = createDialogBehaviorSession({ dialog: filterSheetRef.current, document, onClose: closeFilters });
+    return () => session.destroy();
+  }, [isExpanded]);
 
   const paramsString = useMemo(() => searchParams.toString(), [searchParams]);
 
@@ -357,6 +402,7 @@ export default function TransactionsFilters({ meta, months, categories }) {
             aria-expanded={isExpanded}
             aria-controls="transactions-advanced-filters"
             onClick={() => setIsExpanded((open) => !open)}
+            ref={filterToggleRef}
           >
             <span className="desktop-filter-label">More filters</span>
             <span className="mobile-filter-label">Filters</span>
@@ -365,33 +411,65 @@ export default function TransactionsFilters({ meta, months, categories }) {
         </div>
         <TransactionsPresets meta={meta} onSelect={navigate} className="transactions-presets-desktop" />
 
-        <div className={`advanced-filters-panel${isExpanded ? " is-open" : ""}`} id="transactions-advanced-filters">
-          <TransactionsPresets meta={meta} onSelect={navigate} className="transactions-presets-mobile" />
+        <div
+          className={`mobile-filter-sheet-backdrop${isExpanded ? " is-open" : ""}`}
+          onMouseDown={(event) => isBackdropDismissal(event) && closeFilters()}
+        >
+          <section
+            aria-hidden={!isExpanded}
+            aria-labelledby="mobile-filter-sheet-title"
+            aria-modal="true"
+            className={`advanced-filters-panel mobile-filter-sheet${isExpanded ? " is-open" : ""}`}
+            id="transactions-advanced-filters"
+            ref={filterSheetRef}
+            role="dialog"
+          >
+            <header className="mobile-filter-sheet-head">
+              <div>
+                <h2 id="mobile-filter-sheet-title">Filters</h2>
+                <span>{activeAdvancedFilterCount ? `${activeAdvancedFilterCount} active` : "Narrow the ledger"}</span>
+              </div>
+              <button className="mobile-filter-sheet-close" type="button" onClick={closeFilters} aria-label="Close filters">×</button>
+            </header>
 
-          <form className="filter-card wide-filter instant-filter-card" onSubmit={(event) => event.preventDefault()}>
-            <label>
-              <span className="sr-only">Month</span>
-              <select
-                name="month"
-                value={meta.month}
-                onChange={(event) => navigate({ month: event.target.value, period: "all" })}
-                aria-label="Month"
-              >
-                {months.map((month) => <option value={month.value} key={month.value}>{month.label}</option>)}
-              </select>
-            </label>
-            <CategoryMultiselect
-              categories={categories}
-              selectedCategories={meta.categories}
-              onChange={(nextCategories) => navigate({ categories: nextCategories })}
-            />
-            <label>
-              <span className="sr-only">Sort</span>
-              <select name="sort" value={meta.sort} onChange={(event) => navigate({ sort: event.target.value })} aria-label="Sort">
-                {SORT_OPTIONS.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}
-              </select>
-            </label>
-          </form>
+            <div className="mobile-filter-sheet-body">
+              <TransactionsPresets meta={meta} onSelect={navigate} className="transactions-presets-mobile" />
+
+              <form className="filter-card wide-filter instant-filter-card" onSubmit={(event) => event.preventDefault()}>
+                <label>
+                  <span className="mobile-filter-field-label" aria-hidden="true">Month</span>
+                  <span className="sr-only">Month</span>
+                  <select
+                    name="month"
+                    value={meta.month}
+                    onChange={(event) => navigate({ month: event.target.value, period: "all" })}
+                    aria-label="Month"
+                  >
+                    {months.map((month) => <option value={month.value} key={month.value}>{month.label}</option>)}
+                  </select>
+                </label>
+                <CategoryMultiselect
+                  categories={categories}
+                  selectedCategories={meta.categories}
+                  onChange={(nextCategories) => navigate({ categories: nextCategories })}
+                  onClearAll={closeFilters}
+                />
+                <label>
+                  <span className="mobile-filter-field-label" aria-hidden="true">Sort</span>
+                  <span className="sr-only">Sort</span>
+                  <select name="sort" value={meta.sort} onChange={(event) => navigate({ sort: event.target.value })} aria-label="Sort">
+                    {SORT_OPTIONS.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}
+                  </select>
+                </label>
+              </form>
+            </div>
+
+            <footer className="mobile-filter-sheet-footer">
+              <button className="mobile-filter-sheet-result" type="button" onClick={closeFilters}>
+                View {compactNumber(summary.expenseCount)} results
+              </button>
+            </footer>
+          </section>
         </div>
       </div>
     </div>

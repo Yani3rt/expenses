@@ -30,7 +30,7 @@ export default async function TransactionsPage({ searchParams }) {
         Search and narrow down the expenses you need.
       </PageHeader>
 
-      <TransactionsFilters meta={data.meta} months={data.months} categories={data.categories} />
+      <TransactionsFilters meta={data.meta} months={data.months} categories={data.categories} summary={data.summary} />
       <ActiveFilterChips meta={data.meta} categoryOptions={data.categories} summary={data.summary} />
       <TransactionsLedger initialTransactions={data.transactions} meta={data.meta} summary={data.summary} />
     </>

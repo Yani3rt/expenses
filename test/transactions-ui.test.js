@@ -89,6 +89,30 @@ test("transactions filters support a sticky mobile search bar with collapsible a
   assert.match(transactionsFilters, /aria-label="Search transactions"/);
 });
 
+test("mobile advanced filters use a dismissible bottom sheet with inline categories", () => {
+  assert.match(transactionsPage, /<TransactionsFilters[^>]*summary=\{data\.summary\}/);
+  assert.match(transactionsFilters, /mobile-filter-sheet-backdrop/);
+  assert.match(transactionsFilters, /className=\{`advanced-filters-panel mobile-filter-sheet/);
+  assert.match(transactionsFilters, /role="dialog"/);
+  assert.match(transactionsFilters, /aria-modal="true"/);
+  assert.match(transactionsFilters, /aria-label="Close filters"/);
+  assert.match(transactionsFilters, /View \{compactNumber\(summary\.expenseCount\)\} results/);
+  assert.match(transactionsFilters, /category-multiselect-mobile-list/);
+  assert.match(globalStyles, /@media \(max-width: 760px\)[\s\S]*\.mobile-filter-sheet-backdrop\s*\{[\s\S]*position:\s*fixed;[\s\S]*align-items:\s*flex-end;/);
+  assert.match(globalStyles, /@media \(max-width: 760px\)[\s\S]*\.category-multiselect-mobile-list\s*\{[\s\S]*display:\s*grid;/);
+});
+
+test("mobile active filter summary stays in one horizontal rail", () => {
+  assert.match(transactionsFilters, /aria-label="Active transaction filters"/);
+  assert.match(globalStyles, /@media \(max-width: 760px\)[\s\S]*\.active-filter-row\s*\{[\s\S]*flex-wrap:\s*nowrap;[\s\S]*overflow-x:\s*auto;/);
+  assert.match(globalStyles, /@media \(max-width: 760px\)[\s\S]*\.active-filter-chips\s*\{[\s\S]*flex-wrap:\s*nowrap;/);
+});
+
+test("coarse pointers receive 44 pixel transaction filter targets", () => {
+  assert.match(globalStyles, /@media \(pointer: coarse\)[\s\S]*\.preset-chip[\s\S]*\.filter-chip[\s\S]*\.clear-filters-link[\s\S]*\.category-multiselect-option[\s\S]*min-height:\s*44px;/);
+  assert.match(globalStyles, /@media \(pointer: coarse\)[\s\S]*\.mobile-filter-sheet-close\s*\{[\s\S]*width:\s*44px;[\s\S]*height:\s*44px;/);
+});
+
 test("transactions filters disclose advanced controls and count non-default values", () => {
   assert.match(transactionsFilters, /const activeAdvancedFilterCount = \[/);
   assert.match(transactionsFilters, /meta\.month !== "all"/);
@@ -137,7 +161,9 @@ test("choosing all categories clears the selection and closes the dropdown", () 
   assert.match(transactionsFilters, /function clearCategories\(\)/);
   assert.match(transactionsFilters, /onChange\(\[\]\)/);
   assert.match(transactionsFilters, /setIsOpen\(false\)/);
-  assert.match(transactionsFilters, /onClick=\{clearCategories\}/);
+  assert.match(transactionsFilters, /categoryOptions\(clearCategories\)/);
+  assert.match(transactionsFilters, /function clearCategoriesFromSheet\(\)[\s\S]*onClearAll\?\.\(\)/);
+  assert.match(transactionsFilters, /onClearAll=\{closeFilters\}/);
 });
 
 test("desktop quick presets stay outside the disclosed select panel", () => {
