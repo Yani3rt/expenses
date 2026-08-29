@@ -7,7 +7,7 @@ Prepare the current tracked repository for public visibility by removing user-sp
 ## Approach
 
 - Replace the private Tailnet hostname with localhost-based examples.
-- Replace tracked `/home/zero/...` and `/Users/yani/...` paths with portable examples.
+- Replace tracked Linux and macOS user-specific paths with portable examples.
 - Derive the application's default database path from the current user's home directory so the existing zero-configuration behavior remains useful across machines.
 - Keep `EXPENSE_DB_PATH` as the explicit override.
 - Rewrite the README around the relationship with [Hermes Expense Tracker](https://github.com/Canopix/hermes-expense-tracker), installation, configuration, development, and the read-only guarantee.

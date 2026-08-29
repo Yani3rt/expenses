@@ -6,11 +6,14 @@
 
 ## Database
 
-Use this database path exactly:
+By default, the viewer reads the Hermes Expense Tracker database from the
+current user's home directory:
 
 ```bash
-EXPENSE_DB_PATH=/home/zero/.hermes/expense-tracker/expenses.db
+$HOME/.hermes/expense-tracker/expenses.db
 ```
+
+Set `EXPENSE_DB_PATH` when the database lives somewhere else.
 
 The database is external to this project and must be treated as canonical source data owned by the expense-tracker system.
 
@@ -40,15 +43,18 @@ When using Python `sqlite3`, open the database with a read-only URI:
 ```python
 import os
 import sqlite3
+from pathlib import Path
 
-DB_PATH = os.environ.get("EXPENSE_DB_PATH", "/home/zero/.hermes/expense-tracker/expenses.db")
+DEFAULT_DB_PATH = Path.home() / ".hermes" / "expense-tracker" / "expenses.db"
+DB_PATH = Path(os.environ.get("EXPENSE_DB_PATH", DEFAULT_DB_PATH))
 conn = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True)
 ```
 
 When using the SQLite CLI, use read-only mode:
 
 ```bash
-sqlite3 -readonly "$EXPENSE_DB_PATH"
+DB_PATH="${EXPENSE_DB_PATH:-$HOME/.hermes/expense-tracker/expenses.db}"
+sqlite3 -readonly "$DB_PATH"
 ```
 
 Do not use plain `sqlite3.connect(DB_PATH)` for this project because SQLite may open the file in read-write mode by default.

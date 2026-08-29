@@ -1,36 +1,68 @@
-# expense-viewer
+# Expense Viewer
 
-Read-only expense dashboard served over the Tailnet.
+A polished, read-only dashboard for exploring household expense data collected by [Hermes Expense Tracker](https://github.com/Canopix/hermes-expense-tracker).
 
-## URL
+Expense Viewer does not create or own expense data. Hermes Expense Tracker remains the source of truth; this web app opens its SQLite database in read-only mode and turns the records into searchable transactions, spending summaries, comparisons, and charts.
 
-```text
-http://fedora.tailebea04.ts.net:8788
-```
+## Features
 
-## Run
+- Spending dashboard with monthly and daily trends
+- Searchable, filterable transaction ledger
+- Category comparisons and transaction details
+- Household payer and allocation summaries
+- Database freshness and status view
+- Responsive desktop and mobile layouts
+
+## Requirements
+
+- A database created by [Hermes Expense Tracker](https://github.com/Canopix/hermes-expense-tracker)
+- Node.js and [pnpm](https://pnpm.io/)
+
+## Quick start
 
 ```bash
-EXPENSE_DB_PATH=/home/zero/.hermes/expense-tracker/expenses.db npm start
+pnpm install
+pnpm dev
 ```
 
-The app binds to `0.0.0.0:8788` so it is reachable from Tailscale.
+Open [http://localhost:8788](http://localhost:8788).
+
+By default, the viewer looks for the database at:
+
+```text
+~/.hermes/expense-tracker/expenses.db
+```
+
+If your Hermes profile stores it elsewhere, copy the example environment file and set an absolute path:
+
+```bash
+cp .env.example .env.local
+```
+
+```dotenv
+EXPENSE_DB_PATH=/path/to/.hermes/expense-tracker/expenses.db
+```
+
+## Production
+
+```bash
+pnpm build
+pnpm start
+```
+
+The server listens on `0.0.0.0:8788`. Keep it behind a trusted private network, authenticated proxy, or another access-control layer when using real household data.
+
+## Read-only guarantee
+
+The application opens SQLite with Node's `DatabaseSync` using `{ readOnly: true }` and then enables `PRAGMA query_only = ON`. Application routes expose reads only; there are no expense editing or database migration workflows in this project.
+
+The database remains owned by Hermes Expense Tracker and must never be migrated, repaired, replaced, or otherwise modified by Expense Viewer.
 
 ## Development
 
 ```bash
-npm install
-npm test
-npm run build
-npm run dev
+pnpm test
+pnpm run build
 ```
 
-## Read-only database rule
-
-The dashboard opens the SQLite database with Node's `DatabaseSync` using `{ readOnly: true }` and also sets `PRAGMA query_only = ON` for the connection. API routes expose only `GET`; `POST` requests return `405`.
-
-The canonical DB path is:
-
-```bash
-/home/zero/.hermes/expense-tracker/expenses.db
-```
+Local databases, environment files, build output, and logs are excluded from version control.

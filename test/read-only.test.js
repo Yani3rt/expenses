@@ -1,8 +1,22 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { getDatabase } from "../lib/db.js";
+import { DEFAULT_DB_PATH, getDatabase } from "../lib/db.js";
 import { readFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
 import { GET as getTransactionDetail } from "../app/api/transactions/[id]/route.js";
+
+test("default database path follows the current user's home directory", () => {
+  assert.equal(
+    DEFAULT_DB_PATH,
+    join(homedir(), ".hermes", "expense-tracker", "expenses.db"),
+  );
+});
+
+test("database path construction avoids broad build-time filesystem tracing", () => {
+  const source = readFileSync(new URL("../lib/db.js", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /from "node:path"/);
+});
 
 test("database connection is read-only and rejects writes", () => {
   const db = getDatabase();
