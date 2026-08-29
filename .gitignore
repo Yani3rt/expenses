@@ -37,6 +37,7 @@ Thumbs.db
 .cache/
 .turbo/
 .worktrees/
+.impeccable.md
 .impeccable/critique/
 .impeccable/live/
 .playwright-cli/
