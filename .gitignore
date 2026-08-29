@@ -38,8 +38,13 @@ Thumbs.db
 .turbo/
 .worktrees/
 .impeccable/critique/
+.impeccable/live/
 .playwright-cli/
 .pnpm-store/
+
+# Local planning and agent artifacts
+docs/
+.superpowers/
 
 # SQLite/local data files if someone drops one in this project
 *.db
