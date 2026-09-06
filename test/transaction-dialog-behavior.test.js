@@ -83,7 +83,7 @@ test("dialog behavior session keeps focus stable across loading, success, error,
   session.destroy();
 });
 
-test("transaction detail state opens immediately, retains summary through failure and retry, and restores trigger focus on close", () => {
+test("transaction detail state opens immediately, retains summary through failure and retry, and resets on close", () => {
   const transaction = { id: 7, amount: 42, date: "2026-07-01", category: "Food", paidBy: "Sam" };
   const trigger = { focused: false, focus() { this.focused = true; } };
   let state = createInitialTransactionDetailState();
@@ -98,9 +98,8 @@ test("transaction detail state opens immediately, retains summary through failur
   assert.equal(state.status, "loading");
 
   const closing = transactionDetailReducer(state, { type: "close" });
-  closing.restoreFocus();
-  assert.equal(trigger.focused, true);
-  assert.equal(closing.transaction, null);
+  assert.deepEqual(closing, createInitialTransactionDetailState());
+  assert.equal(trigger.focused, false);
 });
 
 test("backdrop and close-button paths invoke the same close callback", () => {

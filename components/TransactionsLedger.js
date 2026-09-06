@@ -1,27 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from "react";
 import { ExpenseRow } from "./DashboardPrimitives.js";
 import { money, monthLabel } from "../lib/format.js";
-import { fetchTransactionsPage } from "../lib/transactions-client.js";
-import { fetchTransactionDetail } from "../lib/transactions-client.js";
+import {
+  createTransactionsPageRequester,
+  fetchTransactionDetail,
+  getTransactionsContinuationOffset,
+} from "../lib/transactions-client.js";
 import TransactionDetailDialog from "./TransactionDetailDialog.js";
 import { createInitialTransactionDetailState, transactionDetailReducer } from "../lib/transaction-detail-state.js";
-import { replaceCategoryParams } from "../lib/transaction-filters.js";
-
-function buildTransactionsApiUrl(meta, nextValues = {}) {
-  const params = new URLSearchParams();
-  const { q, period, month, categories, sort, offset, limit } = { ...meta, ...nextValues };
-  const values = { q, period, month, sort, offset, limit };
-  for (const [key, value] of Object.entries(values)) {
-    if (!value || value === "all" || value === 0 || (key === "sort" && value === "newest") || (key === "limit" && Number(value) === 10)) continue;
-    params.set(key, value);
-  }
-  replaceCategoryParams(params, categories);
-  const href = params.toString() ? `/transactions?${params.toString()}` : "/transactions";
-  const query = href.split("?")[1];
-  return query ? `/api/transactions?${query}` : "/api/transactions";
-}
+import { buildTransactionsUrl } from "../lib/transaction-filters.js";
 
 export default function TransactionsLedger({ initialTransactions, summary, meta }) {
   const [transactions, setTransactions] = useState(initialTransactions);
@@ -29,13 +18,19 @@ export default function TransactionsLedger({ initialTransactions, summary, meta 
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [enteredIds, setEnteredIds] = useState([]);
   const [loadError, setLoadError] = useState("");
+  const [nextOffset, setNextOffset] = useState(getTransactionsContinuationOffset(meta, initialTransactions.length));
   const rowAnimationTimer = useRef(null);
   const detailRequest = useRef(null);
+  const pageRequester = useRef(null);
+  if (!pageRequester.current) pageRequester.current = createTransactionsPageRequester();
   const [detailState, dispatchDetail] = useReducer(transactionDetailReducer, undefined, createInitialTransactionDetailState);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    pageRequester.current.cancel();
+    if (rowAnimationTimer.current) window.clearTimeout(rowAnimationTimer.current);
     setTransactions(initialTransactions);
     setState(meta);
+    setNextOffset(getTransactionsContinuationOffset(meta, initialTransactions.length));
     setEnteredIds([]);
     setIsLoadingMore(false);
     setLoadError("");
@@ -43,12 +38,9 @@ export default function TransactionsLedger({ initialTransactions, summary, meta 
 
   useEffect(() => () => {
     if (rowAnimationTimer.current) window.clearTimeout(rowAnimationTimer.current);
+    pageRequester.current.cancel();
     detailRequest.current?.abort();
   }, []);
-
-  function detailApiUrl(transaction) {
-    return `/api/transactions/${transaction.id}`;
-  }
 
   async function requestDetail(transaction) {
     detailRequest.current?.abort();
@@ -56,7 +48,7 @@ export default function TransactionsLedger({ initialTransactions, summary, meta 
     detailRequest.current = controller;
     dispatchDetail({ type: "retry" });
     try {
-      const payload = await fetchTransactionDetail(detailApiUrl(transaction), { signal: controller.signal });
+      const payload = await fetchTransactionDetail(`/api/transactions/${transaction.id}`, { signal: controller.signal });
       if (!controller.signal.aborted) {
         dispatchDetail({ type: "success", detail: payload });
       }
@@ -74,9 +66,9 @@ export default function TransactionsLedger({ initialTransactions, summary, meta 
 
   function closeDetail() {
     detailRequest.current?.abort();
-    const closedState = transactionDetailReducer(detailState, { type: "close" });
+    const trigger = detailState.trigger;
     dispatchDetail({ type: "close" });
-    window.requestAnimationFrame(closedState.restoreFocus);
+    window.requestAnimationFrame(() => trigger?.focus());
   }
 
   const displayedCount = transactions.length;
@@ -84,24 +76,30 @@ export default function TransactionsLedger({ initialTransactions, summary, meta 
 
   async function loadMore() {
     if (isLoadingMore || !state.hasMore) return;
-    setIsLoadingMore(true);
-    setLoadError("");
+    await pageRequester.current.request(
+      buildTransactionsUrl(state, { offset: nextOffset, limit: state.limit }, "/api/transactions"),
+      {
+        onStart: () => {
+          setIsLoadingMore(true);
+          setLoadError("");
+        },
+        onSuccess: (payload) => {
+          const nextItems = payload.transactions;
+          const newIds = nextItems.map((expense) => expense.id);
 
-    try {
-      const payload = await fetchTransactionsPage(buildTransactionsApiUrl(state, { offset: displayedCount, limit: state.limit }));
-      const nextItems = payload.transactions;
-      const newIds = nextItems.map((expense) => expense.id);
-
-      setTransactions((current) => [...current, ...nextItems]);
-      setState(payload.meta);
-      setEnteredIds(newIds);
-      if (rowAnimationTimer.current) window.clearTimeout(rowAnimationTimer.current);
-      rowAnimationTimer.current = window.setTimeout(() => setEnteredIds([]), 650);
-    } catch (error) {
-      setLoadError(error instanceof Error ? error.message : "More transactions are temporarily unavailable. Please try again.");
-    } finally {
-      setIsLoadingMore(false);
-    }
+          setTransactions((current) => [...current, ...nextItems]);
+          setState({ ...payload.meta, hasMore: nextItems.length > 0 && payload.meta.hasMore });
+          setNextOffset(getTransactionsContinuationOffset(payload.meta, nextItems.length));
+          setEnteredIds(newIds);
+          if (rowAnimationTimer.current) window.clearTimeout(rowAnimationTimer.current);
+          rowAnimationTimer.current = window.setTimeout(() => setEnteredIds([]), 650);
+        },
+        onError: (error) => {
+          setLoadError(error instanceof Error ? error.message : "More transactions are temporarily unavailable. Please try again.");
+        },
+        onSettled: () => setIsLoadingMore(false),
+      },
+    );
   }
 
   const enteredLookup = useMemo(() => new Set(enteredIds), [enteredIds]);
@@ -145,7 +143,7 @@ export default function TransactionsLedger({ initialTransactions, summary, meta 
         <div className="empty-state">
           <strong>No expenses match those filters.</strong>
           <span>Try a broader date range, remove a chip, or clear all filters. The DB remains untouched, as promised.</span>
-          <a className="clear-filters-link" href="/transactions">Reset filters</a>
+          <a className="clear-filters-link" href={buildTransactionsUrl({}, { period: "all" })}>Reset filters</a>
         </div>
       )}
       <div className="ledger-foot">

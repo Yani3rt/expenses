@@ -1,5 +1,5 @@
 "use client";
-import { createContext, use, useCallback, useState } from "react"
+import { createContext, use, useCallback, useMemo, useState } from "react"
 import { seedOfColor } from "./palette"
 import {
   buildBandScale,
@@ -57,20 +57,6 @@ export function useChartPart(part, kind) {
 
 export { ChartContext }
 
-/** A counter that advances whenever `data` changes identity or `token` advances
- * — drives entrance replays without remounting. Uses the adjust-state-during-
- * render pattern (https://react.dev/reference/react/useState) instead of refs,
- * so React Compiler can reason about it. */
-export function useRevision(data, token) {
-  const [prev, setPrev] = useState({ data, token, revision: 0 })
-  if (prev.data !== data || prev.token !== token) {
-    const next = { data, token, revision: prev.revision + 1 }
-    setPrev(next)
-    return next.revision
-  }
-  return prev.revision
-}
-
 /**
  * Builds the shared context value: resolves the plot rect from the measured
  * size minus margins, computes the x/y scales and the per-series stack bands,
@@ -84,9 +70,6 @@ export function useChartController(
     stackType,
     dimensions,
     margins,
-    animate = true,
-    animationDuration = 900,
-    replayToken = 0,
     markerIndex = null,
     hovered = false,
     bloom = "off",
@@ -95,10 +78,7 @@ export function useChartController(
     onSelectionChange
   }
 ) {
-  // React Compiler memoizes every render-scope value below — no manual
-  // useMemo/useCallback wrappers needed.
-  const configKeys = Object.keys(config)
-  const revision = useRevision(data, replayToken)
+  const configKeys = useMemo(() => Object.keys(config), [config])
 
   const [selectedDataKey, setSelectedDataKey] = useState(defaultSelectedDataKey)
   const [focusDataKey, setFocusDataKey] = useState(null)
@@ -127,40 +107,29 @@ export function useChartController(
     })
   }, [])
 
-  const selectDataKey = (key) => {
+  const selectDataKey = useCallback((key) => {
     setSelectedDataKey(key)
     onSelectionChange?.(key)
-  }
+  }, [onSelectionChange])
 
   const plotWidth = Math.max(0, dimensions.width - margins.left - margins.right)
   const plotHeight = Math.max(0, dimensions.height - margins.top - margins.bottom)
   const ready = plotWidth > 0 && plotHeight > 0
 
-  // The entrance gate flips true when the canvas reveal completes (via
-  // `markEntranceDone`) so DOM markers fade in with the fill, and re-arms on
-  // each replay. Adjust-state-during-render instead of an effect, so the reset
-  // lands in the same render as the revision bump.
-  const [entrance, setEntrance] = useState({ revision, done: !animate })
-  if (entrance.revision !== revision) {
-    setEntrance({ revision, done: !animate })
-  }
-  const entranceDone = entrance.revision === revision ? entrance.done : !animate
-  const markEntranceDone = () => setEntrance({ revision, done: true })
-
-  const { bands, max } = computeBands(data, configKeys, stackType)
+  const { bands, max } = useMemo(() => computeBands(data, configKeys, stackType), [data, configKeys, stackType])
 
   const isBar = chartType === "bar"
-  const xPoint = buildXScale(data.length, plotWidth)
-  const xBand = buildBandScale(data.length, plotWidth)
+  const xPoint = useMemo(() => buildXScale(data.length, plotWidth), [data.length, plotWidth])
+  const xBand = useMemo(() => buildBandScale(data.length, plotWidth), [data.length, plotWidth])
   const bandwidth = isBar ? xBand.bandwidth() : 0
-  const xCenter = (i) =>
-    isBar ? (xBand(i) ?? 0) + xBand.bandwidth() / 2 : (xPoint(i) ?? 0)
-  const indexAtX = (px) =>
+  const xCenter = useCallback((i) =>
+    isBar ? (xBand(i) ?? 0) + xBand.bandwidth() / 2 : (xPoint(i) ?? 0), [isBar, xBand, xPoint])
+  const indexAtX = useCallback((px) =>
     isBar
       ? indexAtBand(px, data.length, plotWidth)
-      : nearestIndex(px, data.length, plotWidth)
+      : nearestIndex(px, data.length, plotWidth), [isBar, data.length, plotWidth])
   const stacked = stackType === "stacked" || stackType === "percent"
-  const barSlot = (i, si, n) => {
+  const barSlot = useCallback((i, si, n) => {
     const center = xCenter(i)
     if (stacked) {
       const w = bandwidth * 0.9
@@ -171,10 +140,10 @@ export function useChartController(
       x: center - bandwidth / 2 + si * slot + slot * 0.08,
       width: slot * 0.84,
     }
-  }
-  const y = buildYScale(max, plotHeight)
+  }, [xCenter, stacked, bandwidth])
+  const y = useMemo(() => buildYScale(max, plotHeight), [max, plotHeight])
 
-  const seedOf = (key) => seedOfColor(config[key]?.color ?? "grey")
+  const seedOf = useCallback((key) => seedOfColor(config[key]?.color ?? "grey"), [config])
 
   const common = {
     names: configKeys,
@@ -252,11 +221,7 @@ export function useChartController(
     seriesSpecs,
     registerSeries,
     unregisterSeries,
-    animate,
-    animationDuration,
-    revision,
-    entranceDone,
-    markEntranceDone,
+    entranceDone: ready,
     seedOf,
     common,
   }

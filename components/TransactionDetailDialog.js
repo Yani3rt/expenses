@@ -137,7 +137,6 @@ export default function TransactionDetailDialog({ transaction, detail, status, e
                 bloom="low"
                 margins={{ top: 16, right: 12, bottom: 24, left: 8 }}
                 className="category-month-dither"
-                animationDuration={520}
                 tapToPinTooltip
               >
                 <XAxis dataKey="day" />

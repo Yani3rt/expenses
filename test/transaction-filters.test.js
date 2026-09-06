@@ -1,11 +1,68 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  buildTransactionsUrl,
   categorySelectionLabel,
   normalizeCategoryValues,
   replaceCategoryParams,
   toggleCategoryValue,
+  transactionsRouteIdentity,
 } from "../lib/transaction-filters.js";
+
+test("transaction URLs preserve explicit limits and repeated categories", () => {
+  const url = buildTransactionsUrl({
+    q: "cloud",
+    period: "all",
+    month: "all",
+    categories: ["tecnologia", "viajes"],
+    sort: "newest",
+    offset: 0,
+    limit: 2,
+  });
+
+  assert.equal(url, "/transactions?q=cloud&period=all&category=tecnologia&category=viajes&limit=2");
+});
+
+test("transaction URLs reset offset when clearing a filter", () => {
+  assert.equal(
+    buildTransactionsUrl({
+      q: "cloud",
+      period: "all",
+      month: "all",
+      categories: [],
+      sort: "newest",
+      offset: 20,
+      limit: 10,
+    }, { q: "" }),
+    "/transactions?period=all",
+  );
+});
+
+test("transaction URLs retain an explicit pagination offset alongside filter values", () => {
+  assert.equal(
+    buildTransactionsUrl({
+      q: "",
+      period: "all",
+      month: "all",
+      categories: ["viajes"],
+      sort: "newest",
+      offset: 20,
+      limit: 10,
+    }, { categories: ["tecnologia", "viajes"], offset: 30 }, "/api/transactions"),
+    "/api/transactions?period=all&category=tecnologia&category=viajes&offset=30",
+  );
+});
+
+test("transaction reset URL keeps the all-time period explicit", () => {
+  assert.equal(buildTransactionsUrl({}, { period: "all" }), "/transactions?period=all");
+});
+
+test("raw route identity preserves request values independently of server normalization", () => {
+  assert.equal(
+    transactionsRouteIdentity({ month: "2026-06", category: ["missing"], limit: "300" }),
+    "/transactions?period=this_month&month=2026-06&category=missing&limit=300",
+  );
+});
 
 test("normalizes repeated category values", () => {
   assert.deepEqual(

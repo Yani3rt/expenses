@@ -1,18 +1,16 @@
 import Link from "next/link";
-import InteractiveDonut from "./InteractiveDonut.js";
-import InteractiveMonthlyTrend from "./InteractiveMonthlyTrend.js";
 import AnimatedText from "./AnimatedText.js";
 import { AppIcon, CategoryIcon } from "./Icons.js";
 import { categoryTone } from "../lib/categories.js";
 import { compactNumber, money, monthLabel, shortDate } from "../lib/format.js";
 
-export function PageHeader({ kicker, title, children, action, className = "", titleClassName = "", ledeClassName = "", animateTitleOnChange = true, titleAnimationKey }) {
+export function PageHeader({ kicker, title, children, action, className = "", animateTitleOnChange = true, titleAnimationKey }) {
   return (
     <header className={`page-header ${className}`.trim()}>
       <div>
         <p className="label">{kicker}</p>
-        <h1 className={`${titleClassName}${animateTitleOnChange ? " title-animates-on-change" : ""}`.trim()}>{animateTitleOnChange ? <span className="page-title-copy" key={titleAnimationKey ?? title}>{title}</span> : title}</h1>
-        {children ? <p className={`lede ${ledeClassName}`.trim()}>{children}</p> : null}
+        <h1 className={animateTitleOnChange ? "title-animates-on-change" : undefined}>{animateTitleOnChange ? <span className="page-title-copy" key={titleAnimationKey ?? title}>{title}</span> : title}</h1>
+        {children ? <p className="lede">{children}</p> : null}
       </div>
       {action ? <div className="page-action">{action}</div> : null}
     </header>
@@ -139,46 +137,6 @@ export function CategoryPill({ slug, children }) {
   );
 }
 
-export function CategoryBars({ categories, title = "Category totals", label = "Spending breakdown" }) {
-  const max = Math.max(...categories.map((c) => c.totalSpend), 1);
-  return (
-    <section className="card span-7">
-      <div className="section-head">
-        <div>
-          <p className="label">{label}</p>
-          <h2>{title}</h2>
-        </div>
-      </div>
-      <div className="bars">
-        {categories.map((category) => {
-          const tone = categoryTone(category.categorySlug);
-          const width = Math.max((category.totalSpend / max) * 100, 4);
-          return (
-            <div className="bar-row" key={category.categorySlug}>
-              <div className="bar-meta">
-                <CategoryPill slug={category.categorySlug}>{category.category}</CategoryPill>
-                <strong>{money(category.totalSpend)}</strong>
-              </div>
-              <div className="bar-track">
-                <div className={`bar-fill tone-${tone}`} style={{ width: `${width}%` }} />
-              </div>
-              <small>{category.expenseCount} expenses</small>
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-export function Donut({ categories }) {
-  return <InteractiveDonut categories={categories} />;
-}
-
-export function MonthlyTrend({ months, className = "span-5" }) {
-  return <InteractiveMonthlyTrend months={months} className={className} />;
-}
-
 export function ExpenseList({ title, expenses, compact = false, className = "", showCategory = true }) {
   return (
     <section className={`card ${className || (compact ? "span-5" : "span-7")}`.trim()}>
@@ -218,16 +176,5 @@ export function ExpenseRow({ expense, className = "", showCategory = true, onCli
       {showCategory ? <CategoryPill slug={expense.categorySlug}>{expense.category}</CategoryPill> : null}
       <b className="expense-amount">{money(expense.amount, expense.currency)}</b>
     </RowElement>
-  );
-}
-
-export function SummaryMetrics({ summary, totalLabel = "Total spend", className = "" }) {
-  return (
-    <section className={`metrics-grid compact-metrics ${className}`.trim()}>
-      <MetricCard label={totalLabel} value={money(summary.totalSpend)} detail={`${compactNumber(summary.expenseCount)} expenses`} tone="blue" icon="money" />
-      <MetricCard label="Average expense" value={money(summary.averageExpense)} detail="Typical expense size" tone="primary" icon="chart" />
-      <MetricCard label="First expense" value={shortDate(summary.firstExpenseDate)} detail="Earliest matching expense" tone="indigo" icon="calendar" />
-      <MetricCard label="Latest expense" value={shortDate(summary.latestExpenseDate)} detail="Most recent matching expense" tone="emerald" icon="clock" />
-    </section>
   );
 }

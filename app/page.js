@@ -1,5 +1,5 @@
-import { ChangeSummary, Donut, ExpenseList, MetricCard, MonthlyTrend, PageHeader } from "../components/DashboardPrimitives.js";
-import DailySpendingChart from "../components/DailySpendingChart.js";
+import { ChangeSummary, ExpenseList, MetricCard, PageHeader } from "../components/DashboardPrimitives.js";
+import InteractiveDonut from "../components/InteractiveDonut.js";
 import InteractiveLargestExpenses from "../components/InteractiveLargestExpenses.js";
 import DitheredSpendingCharts from "../components/DitheredSpendingCharts.js";
 import { getDashboardData } from "../lib/queries.js";
@@ -15,11 +15,8 @@ export default function Home() {
       <PageHeader
         kicker={monthLabel(data.month.activeMonth)}
         title="Dashboard"
-        ledeClassName="dashboard-header-lede"
         action={<span className="readonly-chip"><span className="status-dot" />Read only</span>}
-      >
-        See this month's spending, biggest categories, recent purchases, and whether the data is up to date.
-      </PageHeader>
+      />
 
       <section className="metrics-grid dashboard-summary-metrics">
         <MetricCard label="Month spend" value={money(data.month.totalSpend)} detail={`${compactNumber(data.month.expenseCount)} expenses · avg ${money(data.month.averageExpense)}`} tone="blue" icon="money" sparklineData={data.dailyTotals} animateValue />
@@ -41,11 +38,9 @@ export default function Home() {
       <section className="content-grid">
         <section className="dashboard-category-row">
           <ExpenseList title="Recent spending" expenses={data.recentExpenses} className="span-7 dashboard-recent-spending" showCategory={false} />
-          <Donut categories={data.categories} />
+          <InteractiveDonut categories={data.categories} />
         </section>
-        <MonthlyTrend months={data.monthlyTotals} className="span-12" />
-        <DailySpendingChart dailyTotals={data.dailyTotals} className="span-7" />
-        <InteractiveLargestExpenses expensesByRange={data.largestExpensesByRange} className="span-5 dashboard-expense-list" />
+        <InteractiveLargestExpenses expensesByRange={data.largestExpensesByRange} className="span-12 dashboard-expense-list" />
         <DitheredSpendingCharts
           monthlyTotals={data.monthlyTotals}
           dailyTotals={data.dailyTotals}

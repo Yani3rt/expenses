@@ -1,6 +1,6 @@
 "use client";
 
-import { cloneElement, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import RangeTabs from "@/components/RangeTabs";
 import { AreaChart } from "@/components/dither-kit/area-chart";
 import { Area } from "@/components/dither-kit/area";
@@ -12,6 +12,7 @@ import { XAxis } from "@/components/dither-kit/x-axis";
 import { YAxis } from "@/components/dither-kit/y-axis";
 import { money } from "@/lib/format";
 import { currentWeekBounds } from "@/lib/date-range";
+import { buildCumulativeData, buildMonthlyData, buildDailyData } from "@/lib/spending-chart-data";
 
 const DAILY_RANGE_OPTIONS = [
   { value: "week", label: "Week" },
@@ -31,65 +32,14 @@ const dailyConfig = {
   totalSpend: { label: "Day Amount", color: "green" },
 };
 
-function dayNumber(date) {
-  return Number.parseInt(date.slice(-2), 10);
-}
-
-function buildCumulativeData(currentRows, previousRows) {
-  const currentByDay = new Map(currentRows.map((row) => [dayNumber(row.date), row.totalSpend]));
-  const previousByDay = new Map(previousRows.map((row) => [dayNumber(row.date), row.totalSpend]));
-  const lastDay = Math.max(1, ...currentByDay.keys(), ...previousByDay.keys());
-  let current = 0;
-  let previous = 0;
-
-  return Array.from({ length: lastDay }, (_, index) => {
-    const day = index + 1;
-    current += currentByDay.get(day) || 0;
-    previous += previousByDay.get(day) || 0;
-    return { day: `${day}`, current, previous };
-  });
-}
-
-function ChartCard({ id, title, description, action = null, children }) {
-  const cardRef = useRef(null);
-  const wasVisibleRef = useRef(false);
-  const [hasEntered, setHasEntered] = useState(false);
-  const [replayToken, setReplayToken] = useState(0);
-
-  useEffect(() => {
-    const card = cardRef.current;
-    if (!card) return undefined;
-
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !wasVisibleRef.current) {
-        setHasEntered(true);
-        setReplayToken((token) => token + 1);
-      }
-      wasVisibleRef.current = entry.isIntersecting;
-    }, { threshold: 0.25 });
-
-    observer.observe(card);
-    return () => observer.disconnect();
-  }, []);
-
+function ChartCard({ id, title, action = null, children }) {
   return (
-    <article ref={cardRef} className="card span-12 dither-chart-card" aria-labelledby={id}>
+    <article className="card span-12 dither-chart-card" aria-labelledby={id}>
       <header className="section-head">
-        <div>
-          <p className="label">Dithered view</p>
-          <h2 id={id}>{title}</h2>
-          <p className="dither-chart-lede">{description}</p>
-        </div>
+        <h2 id={id}>{title}</h2>
         {action}
       </header>
-      <div className="dither-chart-stage">
-        {cloneElement(children, {
-          animate: hasEntered,
-          animationDuration: 1000,
-          replayToken,
-          key: hasEntered ? id : `${id}-idle`,
-        })}
-      </div>
+      <div className="dither-chart-stage">{children}</div>
     </article>
   );
 }
@@ -98,23 +48,16 @@ export default function DitheredSpendingCharts({ monthlyTotals, dailyTotals, pre
   const [dailyRange, setDailyRange] = useState("month");
   const [today] = useState(() => new Date());
   const weekBounds = useMemo(() => currentWeekBounds(today), [today]);
-  const cumulativeData = buildCumulativeData(dailyTotals, previousDailyTotals);
-  const monthlyData = monthlyTotals.slice(-12).map((row) => ({
-    ...row,
-    label: row.month.slice(5),
-  }));
+  const cumulativeData = useMemo(() => buildCumulativeData(dailyTotals, previousDailyTotals), [dailyTotals, previousDailyTotals]);
+  const monthlyData = useMemo(() => buildMonthlyData(monthlyTotals), [monthlyTotals]);
   const visibleDailyData = useMemo(
-    () => dailyTotals
-      .filter((row) => dailyRange === "week"
-        ? row.date >= weekBounds.start && row.date <= weekBounds.end
-        : true)
-      .map((row) => ({ ...row, day: `${dayNumber(row.date)}` })),
-    [dailyRange, dailyTotals, weekBounds.end, weekBounds.start]
+    () => buildDailyData(dailyTotals, dailyRange, weekBounds),
+    [dailyRange, dailyTotals, weekBounds]
   );
 
   return (
     <>
-        <ChartCard id="cumulative-spend-title" title="Cumulative daily spend" description="Current month compared with the previous month.">
+        <ChartCard id="cumulative-spend-title" title="Cumulative daily spend">
           <AreaChart data={cumulativeData} config={cumulativeConfig} bloom="aura" margins={{ top: 42, left: 68 }} tapToPinTooltip>
             <XAxis dataKey="day" />
             <YAxis tickFormatter={(value) => money(value)} />
@@ -125,7 +68,7 @@ export default function DitheredSpendingCharts({ monthlyTotals, dailyTotals, pre
           </AreaChart>
         </ChartCard>
 
-        <ChartCard id="monthly-spend-title" title="Monthly spending history" description="The latest twelve months in one view.">
+        <ChartCard id="monthly-spend-title" title="Monthly spending history">
           <BarChart data={monthlyData} config={monthlyConfig} bloom="aura" margins={{ top: 42, left: 16 }} tapToPinTooltip>
             <XAxis dataKey="label" />
             <Legend isClickable />
@@ -137,13 +80,12 @@ export default function DitheredSpendingCharts({ monthlyTotals, dailyTotals, pre
         <ChartCard
           id="daily-spend-title"
           title="Daily spending"
-          description={`Each active day in the latest ${dailyRange}.`}
           action={(
             <RangeTabs
               options={DAILY_RANGE_OPTIONS}
               value={dailyRange}
               onChange={setDailyRange}
-              label="Dithered spending period"
+              label="Daily spending period"
               className="spending-range-tabs"
             />
           )}

@@ -1,5 +1,5 @@
 "use client";
-import { Children, isValidElement, useState } from "react";
+import { Children, isValidElement, useEffect, useMemo, useState } from "react";
 import { ChartContext, useChartController } from "./chart-context";
 import { CommonChartContext } from "./common-context"
 import { cn } from "./lib"
@@ -22,7 +22,7 @@ function layerOf(node) {
  * Shared root for the cartesian dither charts (area, line, bar). Owns the
  * measured size, the shared context, and pointer interaction; every visual is
  * composed as children. Back chrome (grid) sits behind the dither canvas; the
- * canvas paints the fill/line/bars + stars; front chrome (axes, dots) and DOM
+ * canvas paints the fill/line/bars and active markers; front chrome (axes, dots) and DOM
  * legend/tooltip layer on top. `chartType` drives the scales/interaction and the
  * `Canvas` prop supplies the family's painter (continuous for area/line, bars for
  * bar) — so each chart ships only its own canvas.
@@ -37,9 +37,6 @@ export function CartesianRoot(
     stackType = "default",
     margins: marginsProp,
     className,
-    animate = true,
-    animationDuration = 900,
-    replayToken = 0,
     interactive = true,
     markerIndex = null,
     hovered = false,
@@ -53,7 +50,8 @@ export function CartesianRoot(
 ) {
   const { ref, size } = useChartDimensions()
   const [pinnedIndex, setPinnedIndex] = useState(null)
-  const margins = { ...DEFAULT_MARGINS, ...marginsProp }
+  const margins = useMemo(() => ({ ...DEFAULT_MARGINS, ...marginsProp }),
+    [marginsProp?.top, marginsProp?.right, marginsProp?.bottom, marginsProp?.left])
 
   const ctx = useChartController({
     chartType,
@@ -62,9 +60,6 @@ export function CartesianRoot(
     stackType,
     dimensions: size,
     margins,
-    animate,
-    animationDuration,
-    replayToken,
     markerIndex,
     hovered,
     bloom,
@@ -72,6 +67,12 @@ export function CartesianRoot(
     defaultSelectedDataKey,
     onSelectionChange,
   })
+
+  useEffect(() => {
+    setPinnedIndex(null)
+    ctx.setHoverIndex(null)
+    onHoverChange?.(null)
+  }, [data])
 
   const backChildren = []
   const svgChildren = []

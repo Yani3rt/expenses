@@ -1,14 +1,15 @@
 import { PageHeader } from "../../components/DashboardPrimitives.js";
 import TransactionsLedger from "../../components/TransactionsLedger.js";
-import TransactionsFilters, { ActiveFilterChips } from "../../components/TransactionsFilters.js";
+import TransactionsFilters from "../../components/TransactionsFilters.js";
 import { getTransactionsData } from "../../lib/queries.js";
-import { normalizeCategoryValues } from "../../lib/transaction-filters.js";
+import { normalizeCategoryValues, transactionsRouteIdentity } from "../../lib/transaction-filters.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export default async function TransactionsPage({ searchParams }) {
   const params = await searchParams;
+  const sourceRouteIdentity = transactionsRouteIdentity(params);
   const data = getTransactionsData({
     q: params?.q || "",
     period: params?.period || "this_month",
@@ -25,13 +26,15 @@ export default async function TransactionsPage({ searchParams }) {
         className="transactions-page-header"
         kicker="Transactions"
         title="Expense ledger"
-        titleClassName="transactions-mobile-hide"
-      >
-        Search and narrow down the expenses you need.
-      </PageHeader>
+      />
 
-      <TransactionsFilters meta={data.meta} months={data.months} categories={data.categories} summary={data.summary} />
-      <ActiveFilterChips meta={data.meta} categoryOptions={data.categories} summary={data.summary} />
+      <TransactionsFilters
+        meta={data.meta}
+        months={data.months}
+        categories={data.categories}
+        sourceRouteIdentity={sourceRouteIdentity}
+        summary={data.summary}
+      />
       <TransactionsLedger initialTransactions={data.transactions} meta={data.meta} summary={data.summary} />
     </>
   );

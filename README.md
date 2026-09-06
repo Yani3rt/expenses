@@ -16,7 +16,7 @@ Expense Viewer does not create or own expense data. Hermes Expense Tracker remai
 ## Requirements
 
 - A database created by [Hermes Expense Tracker](https://github.com/Canopix/hermes-expense-tracker)
-- Node.js and [pnpm](https://pnpm.io/)
+- Node.js 22.13.0 or newer and [pnpm](https://pnpm.io/)
 
 ## Quick start
 
@@ -62,7 +62,12 @@ The database remains owned by Hermes Expense Tracker and must never be migrated,
 
 ```bash
 pnpm test
+pnpm test:browser
 pnpm run build
 ```
+
+Database-backed tests create deterministic SQLite fixtures in new temporary directories and set `EXPENSE_DB_PATH` to those fixtures before running queries. They never read the configured Hermes database or a database file in the checkout, and each fixture restores the previous environment value and removes its own temporary directory after the test file completes.
+
+The browser suite requires Google Chrome. It owns a dedicated port, isolated Next.js build directory, and disposable SQLite fixture; it never connects to an existing server. Playwright starts and stops that server automatically.
 
 Local databases, environment files, build output, and logs are excluded from version control.

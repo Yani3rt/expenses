@@ -9,10 +9,12 @@ test("fetchTransactionsPage returns a validated transaction page", async () => {
     summary: { expenseCount: 1, totalSpend: 20 },
   };
 
-  const result = await fetchTransactionsPage("/api/transactions", async (url, options) => {
-    assert.equal(url, "/api/transactions");
-    assert.equal(options.headers.Accept, "application/json");
-    return { ok: true, json: async () => payload };
+  const result = await fetchTransactionsPage("/api/transactions", {
+    fetchImpl: async (url, options) => {
+      assert.equal(url, "/api/transactions");
+      assert.equal(options.headers.Accept, "application/json");
+      return { ok: true, json: async () => payload };
+    },
   });
 
   assert.deepEqual(result, payload);
@@ -20,17 +22,17 @@ test("fetchTransactionsPage returns a validated transaction page", async () => {
 
 test("fetchTransactionsPage reports a recoverable service error", async () => {
   await assert.rejects(
-    () => fetchTransactionsPage("/api/transactions", async () => ({ ok: false, status: 503 })),
+    () => fetchTransactionsPage("/api/transactions", { fetchImpl: async () => ({ ok: false, status: 503 }) }),
     /temporarily unavailable/i,
   );
 });
 
 test("fetchTransactionsPage rejects malformed payloads", async () => {
   await assert.rejects(
-    () => fetchTransactionsPage("/api/transactions", async () => ({
+    () => fetchTransactionsPage("/api/transactions", { fetchImpl: async () => ({
       ok: true,
       json: async () => ({ transactions: "not-an-array", meta: null }),
-    })),
+    }) }),
     /unexpected response/i,
   );
 });

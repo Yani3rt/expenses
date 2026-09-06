@@ -1,26 +1,24 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { getDashboardData, getTransactionDetailData } from "../lib/queries.js";
-import { readFileSync } from "node:fs";
+import { getDashboardData, getStatusData, getTransactionDetailData } from "../lib/queries.js";
 import { currentWeekBounds } from "../lib/date-range.js";
+import { useExpenseFixture } from "../test-support/expense-fixture.js";
 
-const globalsCss = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+useExpenseFixture();
 
 test("dashboard query returns V1 sections", () => {
   const data = getDashboardData();
   assert.equal(data.db.readonly, true);
   assert.equal(data.db.exists, true);
-  assert.ok(data.overview.expenseCount >= 0);
+  assert.equal(data.month.totalSpend, 597.84);
   assert.ok(Array.isArray(data.categories));
   assert.ok(Array.isArray(data.recentExpenses));
-  assert.ok(Array.isArray(data.largestExpenses));
   assert.ok(Array.isArray(data.largestExpensesByRange.week));
   assert.ok(Array.isArray(data.largestExpensesByRange.month));
   assert.ok(Array.isArray(data.largestExpensesByRange.year));
   assert.ok(Array.isArray(data.monthlyTotals));
   assert.ok(Array.isArray(data.dailyTotals));
   assert.ok(data.recentExpenses.length <= 10);
-  assert.ok(data.largestExpenses.length <= 6);
   assert.ok(data.largestExpensesByRange.week.length <= 6);
   assert.ok(data.largestExpensesByRange.month.length <= 6);
   assert.ok(data.largestExpensesByRange.year.length <= 6);
@@ -33,9 +31,17 @@ test("dashboard query returns V1 sections", () => {
   assert.equal(data.people, undefined);
 });
 
-test("transactions load more animation styles are present", () => {
-  assert.match(globalsCss, /\.row-enter/);
-  assert.match(globalsCss, /@keyframes rowEnter/);
+test("status data returns only the database aggregate and source status", () => {
+  const data = getStatusData();
+  assert.equal(data.db.readonly, true);
+  assert.deepEqual(data.overview, {
+    expenseCount: 24,
+    totalSpend: 2296.59,
+    averageExpense: 95.69,
+    firstExpenseDate: "2026-05-01",
+    latestExpenseDate: "2026-07-31",
+  });
+  assert.equal(data.month, undefined);
 });
 
 test("transaction detail derives category-month data from the selected transaction", () => {

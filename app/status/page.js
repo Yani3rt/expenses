@@ -1,12 +1,12 @@
 import { PageHeader } from "../../components/DashboardPrimitives.js";
-import { getDashboardData } from "../../lib/queries.js";
+import { getStatusData } from "../../lib/queries.js";
 import { money, shortDate } from "../../lib/format.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export default function StatusPage() {
-  const data = getDashboardData();
+  const data = getStatusData();
   return (
     <>
       <PageHeader kicker="Database status" title="Read-only source health">

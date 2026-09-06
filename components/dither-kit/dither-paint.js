@@ -1,4 +1,4 @@
-import { rgb } from "./palette";
+import { rgb } from "./palette.js";
 
 // 4×4 ordered (Bayer) matrix, normalized to 0–1 thresholds — the exact matrix
 // the legacy chart dithers with.

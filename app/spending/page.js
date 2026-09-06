@@ -23,16 +23,10 @@ export default async function SpendingPage({ searchParams }) {
         className="spending-page-header"
         kicker="Spending by category"
         title={heading}
-        titleClassName="spending-mobile-hide"
-        ledeClassName="spending-mobile-hide"
         animateTitleOnChange
         titleAnimationKey={data.activeMonth}
         action={<MonthPicker months={data.months} activeMonth={data.activeMonth} />}
-      >
-        {data.comparison.mode === "comparison"
-          ? "Compare each category with the previous month."
-          : "Browse category totals across all recorded spending."}
-      </PageHeader>
+      />
 
       <section className="metrics-grid compact-metrics spending-summary-metrics distilled-spending-metrics">
         <MetricCard

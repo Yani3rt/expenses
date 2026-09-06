@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { getAvailableMonths, getSpendingData, getTransactionsData } from "../lib/queries.js";
+import { useExpenseFixture } from "../test-support/expense-fixture.js";
+
+useExpenseFixture();
 
 test("available months expose ALL plus concrete expense months", () => {
   const months = getAvailableMonths();
@@ -23,6 +26,13 @@ test("transactions support text and category filters", () => {
   assert.ok(tech.transactions.length > 0);
   assert.ok(tech.transactions.every((expense) => expense.categorySlug === "tecnologia"));
   assert.ok(tech.transactions.every((expense) => expense.description.toLowerCase().includes("tech")));
+});
+
+test("transaction search binds arbitrary input instead of interpreting SQL", () => {
+  const data = getTransactionsData({ q: "' OR 1=1 --" });
+  assert.deepEqual(data.transactions, []);
+  assert.equal(data.summary.expenseCount, 0);
+  assert.equal(getTransactionsData().summary.expenseCount, 24);
 });
 
 test("transactions include every selected category with OR filtering", () => {
