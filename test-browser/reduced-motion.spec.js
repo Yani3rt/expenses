@@ -38,34 +38,18 @@ async function paintedGeometry(canvas) {
   });
 }
 
-test("reduced motion keeps every dashboard chart fully painted", async ({ page }) => {
-  await page.goto("/");
-  const cards = page.locator(".dither-chart-card");
-  await expect(cards).toHaveCount(3);
-  const geometry = [];
-  for (const card of await cards.all()) {
-    await card.scrollIntoViewIfNeeded();
-    const crisp = card.locator("canvas").first();
-    await expect.poll(async () => (await paintedGeometry(crisp)).columns).toBeGreaterThan(0);
-    geometry.push(await paintedGeometry(crisp));
-  }
-  expect(geometry[0].columns / geometry[0].width).toBeGreaterThan(0.5);
-  expect((geometry[0].maxX - geometry[0].minX) / geometry[0].width).toBeGreaterThan(0.8);
-  expect((geometry[0].maxY - geometry[0].minY) / geometry[0].height).toBeGreaterThan(0.1);
-  expect(geometry[0].colors).toBeGreaterThan(1);
-  expect(geometry[1].clusters).toBeGreaterThanOrEqual(3);
-  expect((geometry[1].maxX - geometry[1].minX) / geometry[1].width).toBeGreaterThan(0.5);
-  expect((geometry[1].maxY - geometry[1].minY) / geometry[1].height).toBeGreaterThan(0.1);
-  expect(geometry[2].columns / geometry[2].width).toBeGreaterThan(0.5);
-  expect((geometry[2].maxX - geometry[2].minX) / geometry[2].width).toBeGreaterThan(0.8);
-  await expect(cards.nth(0).getByRole("button", { name: "Current month" })).toBeVisible();
-  await expect(cards.nth(0).getByRole("button", { name: "Previous month" })).toBeVisible();
-  for (const month of ["05", "06", "07"]) {
-    await expect(cards.nth(1).locator("svg")).toContainText(month);
-  }
-
-  await page.goto("/transactions");
-  await page.getByRole("button", { name: /Tech accessory/ }).click();
+test("reduced motion keeps the workspace trend and transaction details fully visible", async ({ page }) => {
+  await page.goto("/?range=1m&end=2026-07-31");
+  await expect(page.getByTestId("workspace-total")).toHaveText("$502.84");
+  const chart = page.getByRole("img", { name: /Spending trend,/ });
+  await expect(chart).toBeVisible();
+  const geometry = await chart.locator(".trend-line").evaluate(node => ({ length: node.getTotalLength(), width: node.getBBox().width, height: node.getBBox().height }));
+  expect(geometry.width).toBeGreaterThan(500);
+  expect(geometry.height).toBeGreaterThan(50);
+  await chart.focus();
+  await page.keyboard.press("End");
+  await expect(page.locator(".trend output")).toContainText("$12.99");
+  await page.getByTestId("workspace-transaction").filter({ hasText: "Tech accessory" }).click();
   const detailCanvas = page.locator(".category-month-dither canvas").first();
   await expect.poll(async () => (await paintedGeometry(detailCanvas)).columns).toBeGreaterThan(0);
   const detailGeometry = await paintedGeometry(detailCanvas);

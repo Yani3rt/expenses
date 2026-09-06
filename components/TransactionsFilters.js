@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { compactNumber, money } from "../lib/format.js";
+import { compactNumber, money, monthLabel } from "../lib/format.js";
 import { createDialogBehaviorSession, isBackdropDismissal } from "../lib/dialog-behavior.js";
 import {
   buildTransactionsUrl,
@@ -47,6 +47,7 @@ export function TransactionsPresets({ meta, onSelect, className = "", pathname =
             <button
               className={`preset-chip${isActive ? " is-active" : ""}`}
               key={option.value}
+              aria-pressed={isActive}
               onClick={() => onSelect(nextValues)}
               type="button"
             >
@@ -138,7 +139,7 @@ function CategoryMultiselect({ categories, selectedCategories, onChange, onClear
   useEffect(() => {
     if (!isOpen) return undefined;
 
-    function handlePointerDown(event) {
+    function handleOutsideClick(event) {
       if (!rootRef.current?.contains(event.target)) setIsOpen(false);
     }
 
@@ -149,10 +150,10 @@ function CategoryMultiselect({ categories, selectedCategories, onChange, onClear
       }
     }
 
-    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("click", handleOutsideClick);
     document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("click", handleOutsideClick);
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen]);
@@ -405,13 +406,14 @@ export default function TransactionsFilters({ meta, months, categories, sourceRo
       <div className="transactions-filter-shell" aria-busy={isPending}>
         <div className="transactions-filter-stack">
         <div className="sticky-search-bar">
-          <label className="search-field compact-search-field">
+          <label className="compact-search-field">
             <span className="sr-only">Search</span>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 4 4" /></svg>
             <input
               name="q"
               value={query}
               onChange={(event) => changeQuery(event.target.value)}
-              placeholder="food, t-mobile, tech…"
+              placeholder="Search transactions…"
               aria-label="Search transactions"
             />
           </label>
@@ -423,6 +425,7 @@ export default function TransactionsFilters({ meta, months, categories, sourceRo
             onClick={() => setIsExpanded((open) => !open)}
             ref={filterToggleRef}
           >
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M8 4v6M16 14v6" /></svg>
             <span className="desktop-filter-label">More filters</span>
             <span className="mobile-filter-label">Filters</span>
             {activeAdvancedFilterCount > 0 ? <span className="filter-count">{activeAdvancedFilterCount}</span> : null}
@@ -446,7 +449,6 @@ export default function TransactionsFilters({ meta, months, categories, sourceRo
             <header className="mobile-filter-sheet-head">
               <div>
                 <h2 id="mobile-filter-sheet-title">Filters</h2>
-                <span>{activeAdvancedFilterCount ? `${activeAdvancedFilterCount} active` : "Narrow the ledger"}</span>
               </div>
               <button className="mobile-filter-sheet-close" type="button" onClick={closeFilters} aria-label="Close filters">×</button>
             </header>
@@ -464,7 +466,7 @@ export default function TransactionsFilters({ meta, months, categories, sourceRo
                     onChange={(event) => navigate({ month: event.target.value, period: "all" })}
                     aria-label="Month"
                   >
-                    {months.map((month) => <option value={month.value} key={month.value}>{month.label}</option>)}
+                    {months.map((month) => <option value={month.value} key={month.value}>{month.value === "all" ? "All time" : monthLabel(month.value)}</option>)}
                   </select>
                 </label>
                 <CategoryMultiselect

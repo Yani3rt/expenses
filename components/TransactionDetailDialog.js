@@ -9,19 +9,6 @@ import { Bar } from "./dither-kit/bar";
 import { Tooltip } from "./dither-kit/tooltip";
 import { XAxis } from "./dither-kit/x-axis";
 
-const DITHER_COLORS = {
-  emerald: "green",
-  violet: "purple",
-  amber: "orange",
-  blue: "blue",
-  cyan: "blue",
-  pink: "pink",
-  indigo: "purple",
-  coral: "red",
-  primary: "grey",
-  muted: "grey",
-};
-
 function monthChange(categoryMonth, currency) {
   if (categoryMonth.isNewThisMonth) return "New";
   const percent = Math.abs(Number(categoryMonth.deltaPercent || 0)).toFixed(1);
@@ -78,7 +65,7 @@ export default function TransactionDetailDialog({ transaction, detail, status, e
   const activeChartData = fullChartData.filter((day) => day.totalSpend > 0);
   const chartData = compactChart ? activeChartData : fullChartData;
   const chartConfig = {
-    totalSpend: { label: "Daily total", color: DITHER_COLORS[tone] ?? "grey" },
+    totalSpend: { label: "Daily total", color: "sage" },
   };
   behaviorSessionRef.current?.update({ onClose, status });
 
@@ -120,6 +107,29 @@ export default function TransactionDetailDialog({ transaction, detail, status, e
         ) : null}
         {status === "success" && categoryMonth ? (
           <>
+            <section className="selected-transaction" aria-labelledby="selected-transaction-title">
+              <div className="selected-transaction-main">
+                <div>
+                  <p className="label">Selected transaction</p>
+                  <h3 id="selected-transaction-title">{shownTransaction.description}</h3>
+                  <span>{shortDate(shownTransaction.date)} · Paid by {shownTransaction.paidBy}</span>
+                </div>
+                <strong>{money(shownTransaction.amount, shownTransaction.currency)}</strong>
+              </div>
+              {shownTransaction.notes ? <p className="selected-transaction-notes"><span>Notes</span>{shownTransaction.notes}</p> : null}
+              {shownTransaction.allocations?.length ? (
+                <div className="selected-allocations">
+                  <span>Allocations</span>
+                  {shownTransaction.allocations.map((allocation) => (
+                    <div key={allocation.slug}>
+                      <strong>{allocation.name}</strong>
+                      <span>{allocation.percentage}%</span>
+                      <b>{money(allocation.amount, shownTransaction.currency)}</b>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </section>
             <div className="transaction-detail-summary">
               <div><span>Category total</span><strong>{money(categoryMonth.totalSpend, shownTransaction.currency)}</strong></div>
               <div><span>Transactions</span><strong>{categoryMonth.expenseCount}</strong></div>
@@ -134,7 +144,7 @@ export default function TransactionDetailDialog({ transaction, detail, status, e
               <BarChart
                 data={chartData}
                 config={chartConfig}
-                bloom="low"
+                bloom="off"
                 margins={{ top: 16, right: 12, bottom: 24, left: 8 }}
                 className="category-month-dither"
                 tapToPinTooltip

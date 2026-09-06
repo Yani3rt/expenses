@@ -10,7 +10,7 @@ const distPath = mkdtempSync(join(projectRoot, ".next-browser-"));
 const distDir = basename(distPath);
 let fixture;
 try {
-  fixture = createExpenseFixture();
+  fixture = createExpenseFixture({ empty: process.env.EXPENSE_BROWSER_EMPTY === "1" });
 } catch (error) {
   rmSync(distPath, { recursive: true, force: true });
   throw error;

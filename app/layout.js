@@ -1,18 +1,15 @@
 import Sidebar from "../components/Sidebar.js";
-import MobileBackToTop from "../components/MobileBackToTop.js";
 import "./globals.css";
 
 export const metadata = {
-  title: "Expense Viewer",
-  description: "Read-only expense dashboard",
+  title: "Spending — Expense Viewer",
+  description: "A private, read-only view of household spending",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <div data-top-sentinel aria-hidden="true" />
-        <MobileBackToTop />
         <div className="app-shell">
           <Sidebar />
           <main className="workspace">{children}</main>

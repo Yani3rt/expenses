@@ -1,5 +1,6 @@
 // Each seed: the area-fill hue, the bright series line, and the star sparkle.
 export const PALETTE = {
+  sage: { fill: [172, 191, 145], line: [172, 191, 145], star: [172, 191, 145] },
   green: { fill: [40, 210, 110], line: [150, 255, 180], star: [200, 255, 220] },
   blue: { fill: [53, 143, 243], line: [150, 200, 255], star: [205, 228, 255] },
   purple: {

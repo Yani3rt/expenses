@@ -1,5 +1,6 @@
 "use client";
 
+import { monthLabel } from "../lib/format.js";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -21,7 +22,7 @@ export default function MonthPicker({ months, activeMonth }) {
   return (
     <label className="header-month-picker">
       <select name="month" value={selectedMonth} onChange={handleChange} aria-label="Spending month">
-        {months.map((month) => <option value={month.value} key={month.value}>{month.label}</option>)}
+        {months.map((month) => <option value={month.value} key={month.value}>{month.value === "all" ? "All time" : monthLabel(month.value)}</option>)}
       </select>
     </label>
   );

@@ -19,76 +19,61 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test("charts paint final data, settle idle, and react only to owned interactions", async ({ page }) => {
-  await page.goto("/");
-  const cards = page.locator(".dither-chart-card");
-  await expect(cards).toHaveCount(3);
-  const cumulative = cards.filter({ hasText: "Cumulative daily spend" });
-  const cumulativeCanvas = cumulative.locator("canvas").first();
-  await cumulative.scrollIntoViewIfNeeded();
-  await expect.poll(() => canvasCount(cumulativeCanvas)).toBeGreaterThan(0);
-
-  const settled = await canvasCount(cumulativeCanvas);
-  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-  expect(await canvasCount(cumulativeCanvas)).toBe(settled);
-
-  const chartRoot = cumulative.locator(".dither-chart-stage > div");
-  const beforeHover = await canvasCount(cumulativeCanvas);
-  await chartRoot.hover({ position: { x: 120, y: 140 } });
-  await expect(cumulative.locator(".dither-tooltip-compact")).toBeVisible();
-  await expect.poll(() => canvasCount(cumulativeCanvas)).toBeGreaterThan(beforeHover);
-  const afterCategoryHover = await canvasCount(cumulativeCanvas);
-  const box = await chartRoot.boundingBox();
-  await page.mouse.move(box.x + 121, box.y + 140);
-  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-  expect(await canvasCount(cumulativeCanvas)).toBe(afterCategoryHover);
-
-  const beforeLegend = await canvasCount(cumulativeCanvas);
-  await cumulative.getByRole("button", { name: "Current month" }).click();
-  await expect.poll(() => canvasCount(cumulativeCanvas)).toBeGreaterThan(beforeLegend);
-
-  await chartRoot.dispatchEvent("pointerdown", { pointerType: "touch", clientX: 220, clientY: 150 });
-  await chartRoot.dispatchEvent("pointerleave", { pointerType: "touch" });
-  await expect(cumulative.locator(".dither-tooltip-compact")).toBeVisible();
+test('trend shows actual date gaps and supports keyboard inspection', async ({ page }) => {
+  await page.goto('/?range=1m&end=2026-07-31');
+  const chart = page.getByRole('img', { name: /Spending trend,/ });
+  await expect(chart).toBeVisible();
+  const geometry = await chart.locator('.trend-line').evaluate(node => ({ length: node.getTotalLength(), width: node.getBBox().width, height: node.getBBox().height }));
+  expect(geometry.length).toBeGreaterThan(100);
+  expect(geometry.width).toBeGreaterThan(500);
+  expect(geometry.height).toBeGreaterThan(50);
+  const startPoint = await chart.locator('.trend-line').evaluate(node => {
+    const point = node.getPointAtLength(0);
+    const view = node.ownerSVGElement.viewBox.baseVal;
+    return { x: point.x / view.width, y: point.y / view.height };
+  });
+  const bounds = await chart.boundingBox();
+  await chart.hover({ position: { x: bounds.width * startPoint.x, y: bounds.height * startPoint.y } });
+  await expect(page.locator('.trend output')).toContainText('Jul 2 · $0.00');
+  await chart.focus();
+  await page.keyboard.press('Home');
+  await expect(page.locator('.trend output')).toContainText('Jul 2 · $0.00');
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('.trend output')).toContainText('Jul 3 · $14.50');
+  await page.keyboard.press('End');
+  await expect(page.locator('.trend output')).toContainText('Jul 31 · $12.99');
+  await page.getByRole('button', { name: '1W', exact: true }).click();
+  await expect(page).toHaveURL(/range=1w/);
+  await page.goBack();
+  await expect(page).toHaveURL(/range=1m/);
+  await chart.focus();
+  await page.keyboard.press('End');
+  await page.goForward();
+  await expect(page.getByRole('img', { name: /Spending trend,/ })).toBeVisible();
+  await expect(page.locator('.trend output')).toContainText('Jul 31');
 });
 
-test("offscreen Daily updates wait for that canvas to reenter", async ({ page }) => {
-  await page.goto("/");
-  const daily = page.locator(".dither-chart-card").nth(2);
-  const dailyCanvas = daily.locator("canvas").first();
-  await daily.scrollIntoViewIfNeeded();
-  await expect.poll(() => canvasCount(dailyCanvas)).toBeGreaterThan(0);
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await expect.poll(async () => daily.evaluate((node) => node.getBoundingClientRect().top > innerHeight)).toBe(true);
-  const before = await canvasCount(dailyCanvas);
-  await daily.getByRole("tab", { name: "Week" }).evaluate((button) => button.click());
-  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-  expect(await canvasCount(dailyCanvas)).toBe(before);
-  await daily.scrollIntoViewIfNeeded();
-  await expect.poll(() => canvasCount(dailyCanvas)).toBeGreaterThan(before);
-});
-
-test("pinned tooltips reset across empty range changes and detail charts stop on close", async ({ page }) => {
-  await page.goto("/");
-  const daily = page.locator(".dither-chart-card").nth(2);
-  await daily.scrollIntoViewIfNeeded();
-  const dailyRoot = daily.locator(".dither-chart-stage > div");
-  await dailyRoot.dispatchEvent("pointerdown", { pointerType: "touch", clientX: 300, clientY: 180 });
-  await expect(daily.locator(".dither-tooltip-compact, .dither-chart-stage > div > div:not(:has(> button))")).toBeVisible();
-  await daily.getByRole("tab", { name: "Week" }).click();
-  await expect(daily.locator(".dither-chart-stage > div > div:not(:has(> button))")).toHaveCount(0);
-  await daily.getByRole("tab", { name: "Month" }).click();
-  await expect(daily.locator(".dither-chart-stage > div > div:not(:has(> button))")).toHaveCount(0);
-
-  await page.goto("/transactions");
-  await page.getByRole("button", { name: /Tech accessory/ }).click();
-  const dialog = page.getByRole("dialog", { name: /Technology in July 2026/ });
-  const detailCanvas = dialog.locator("canvas").first();
-  await expect.poll(() => canvasCount(detailCanvas)).toBeGreaterThan(0);
-  const settled = await canvasCount(detailCanvas);
-  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-  expect(await canvasCount(detailCanvas)).toBe(settled);
-  await dialog.getByRole("button", { name: "Close transaction details" }).click();
-  await expect(dialog).toHaveCount(0);
-  await expect(page.locator(".category-month-dither canvas")).toHaveCount(0);
+test('detail canvas paints on demand and stops after close', async ({ page }) => {
+  await page.goto('/?range=all');
+  await page.getByTestId('workspace-transaction').filter({ hasText: 'Tech accessory' }).click();
+  const canvas = page.locator('.category-month-dither canvas').first();
+  await expect.poll(() => canvasCount(canvas)).toBeGreaterThan(0);
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  const hasSageBars = await canvas.evaluate(node => {
+    const pixels = node.getContext("2d").getImageData(0, 0, node.width, node.height).data;
+    for (let i = 0; i < pixels.length; i += 4) {
+      if (pixels[i + 3] > 120 && Math.abs(pixels[i] - 172) < 3 && Math.abs(pixels[i + 1] - 191) < 3 && Math.abs(pixels[i + 2] - 145) < 3) return true;
+    }
+    return false;
+  });
+  expect(hasSageBars).toBe(true);
+  await expect(page.locator(".category-month-dither canvas").nth(1)).toHaveCSS("opacity", "0");
+  const count = await canvasCount(canvas);
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  expect(await canvasCount(canvas)).toBe(count);
+  await page.getByRole('button', { name: 'Close transaction details' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  const after = await page.evaluate(() => [...window.__expenseCanvasOps.values()].reduce((a,b) => a+b,0));
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  expect(await page.evaluate(() => [...window.__expenseCanvasOps.values()].reduce((a,b) => a+b,0))).toBe(after);
 });

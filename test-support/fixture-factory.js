@@ -43,7 +43,7 @@ const expenses = [
   [24, "2026-07-31", "Tech accessory", 12.99, 1, 1, null],
 ];
 
-export function createExpenseFixture() {
+export function createExpenseFixture({ empty = false } = {}) {
   const directory = mkdtempSync(join(tmpdir(), "expense-viewer-test-"));
   const path = join(directory, "expenses.db");
   let db;
@@ -92,12 +92,14 @@ export function createExpenseFixture() {
       VALUES (?, ?, ?, ?)
     `);
 
-    for (const row of categories) insertCategory.run(...row);
-    for (const row of people) insertPerson.run(...row);
-    for (const row of expenses) insertExpense.run(...row);
-    insertAllocation.run(1, 1, 1, 50);
-    insertAllocation.run(2, 1, 2, 50);
-    insertAllocation.run(3, 4, 1, 100);
+    if (!empty) {
+      for (const row of categories) insertCategory.run(...row);
+      for (const row of people) insertPerson.run(...row);
+      for (const row of expenses) insertExpense.run(...row);
+      insertAllocation.run(1, 1, 1, 50);
+      insertAllocation.run(2, 1, 2, 50);
+      insertAllocation.run(3, 4, 1, 100);
+    }
     db.close();
     db = undefined;
   } catch (error) {

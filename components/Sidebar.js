@@ -2,142 +2,60 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { AppIcon } from "./Icons.js";
+import { useEffect, useRef, useState } from "react";
 
-const NAV_ITEMS = [
-  { href: "/", label: "Dashboard", eyebrow: "Home", icon: "dashboard" },
-  { href: "/spending", label: "Spending", eyebrow: "Categories", icon: "spending" },
-  { href: "/transactions", label: "Transactions", eyebrow: "Ledger", icon: "transactions" },
-  { href: "/people", label: "People", eyebrow: "Paid by", icon: "people" },
-  { href: "/status", label: "Status", eyebrow: "DB", icon: "status" },
+const MORE_LINKS = [
+  ["/spending", "Category analysis"],
+  ["/transactions", "Full ledger"],
+  ["/people", "People"],
+  ["/status", "Database status"],
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef(null);
+  const menuTriggerRef = useRef(null);
 
+  useEffect(() => setOpen(false), [pathname]);
   useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    const saved = window.localStorage.getItem("expense-viewer-sidebar-collapsed");
-    setIsCollapsed(saved === "true");
-  }, []);
-
-  useEffect(() => {
-    document.body.classList.toggle("sidebar-collapsed", isCollapsed);
-    window.localStorage.setItem("expense-viewer-sidebar-collapsed", `${isCollapsed}`);
-
-    return () => {
-      document.body.classList.remove("sidebar-collapsed");
+    if (!open) return undefined;
+    const close = (event) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        menuTriggerRef.current?.focus();
+      } else if (event.type === "pointerdown" && !menuRef.current?.contains(event.target)) {
+        setOpen(false);
+      }
     };
-  }, [isCollapsed]);
-
-  useEffect(() => {
-    if (!isOpen) return undefined;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    function handleKeyDown(event) {
-      if (event.key === "Escape") setIsOpen(false);
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", close);
+    document.addEventListener("pointerdown", close);
     return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keydown", close);
+      document.removeEventListener("pointerdown", close);
     };
-  }, [isOpen]);
+  }, [open]);
 
   return (
-    <>
-      <div className="mobile-topbar">
-        <Link className="brand" href="/">
-          <span className="brand-mark">EV</span>
-          <span>
-            <strong>Expense Viewer</strong>
-            <small>Read-only viewer</small>
-          </span>
+    <header className="topbar">
+      <div className="topbar-inner">
+        <Link className="brand" href="/" aria-label="Expense Viewer home">
+          <span className="brand-mark" aria-hidden="true"><i /><i /></span>
+          <strong>Expense Viewer</strong>
         </Link>
-        <button
-          type="button"
-          className={`mobile-nav-toggle${isOpen ? " is-open" : ""}`}
-          aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
-          aria-expanded={isOpen}
-          aria-controls="primary-navigation"
-          onClick={() => setIsOpen((open) => !open)}
-        >
-          <span />
-          <span />
-          <span />
-        </button>
-      </div>
-
-      <button
-        type="button"
-        className={`mobile-backdrop${isOpen ? " is-open" : ""}`}
-        aria-label="Close navigation menu"
-        onClick={() => setIsOpen(false)}
-      />
-
-      <button
-        type="button"
-        className="desktop-sidebar-restore"
-        aria-label="Show navigation sidebar"
-        onClick={() => setIsCollapsed(false)}
-      >
-        <AppIcon name="dashboard" />
-        <span>Menu</span>
-      </button>
-
-      <aside className={`sidebar${isOpen ? " is-open" : ""}`}>
-        <div className="sidebar-head">
-          <Link className="brand desktop-brand" href="/">
-            <span className="brand-mark">EV</span>
-            <span>
-              <strong>Expense Viewer</strong>
-              <small>Read-only viewer</small>
-            </span>
-          </Link>
-          <button
-            type="button"
-            className="desktop-sidebar-collapse"
-            aria-label="Hide navigation sidebar"
-            onClick={() => setIsCollapsed(true)}
-          >
-            <span aria-hidden="true">‹</span>
-          </button>
-          <button
-            type="button"
-            className="mobile-nav-close"
-            aria-label="Close navigation menu"
-            onClick={() => setIsOpen(false)}
-          >
-            ×
-          </button>
-        </div>
-        <nav className="side-nav" id="primary-navigation" aria-label="Primary navigation">
-          {NAV_ITEMS.map((item) => {
-            const active = pathname === item.href;
-            return (
-              <Link className={active ? "active" : ""} href={item.href} key={item.href}>
-                <span className="nav-item-main">
-                  <span className="nav-icon-wrap">
-                    <AppIcon name={item.icon} />
-                  </span>
-                  <span className="nav-copy">
-                    <span>{item.label}</span>
-                    <small>{item.eyebrow}</small>
-                  </span>
-                </span>
-              </Link>
-            );
-          })}
+        <nav className="topnav" aria-label="Primary navigation">
+          {pathname === "/" ? <a className="active" href="#spending">Spending</a> : <Link href="/">Spending</Link>}
+          {pathname === "/" ? <a href="#transactions">Ledger</a> : <Link href="/#transactions">Ledger</Link>}
+          <div className="more-menu" ref={menuRef}>
+            <button type="button" ref={menuTriggerRef} aria-expanded={open} aria-controls="more-navigation" onClick={() => setOpen(value => !value)}>More <span aria-hidden="true">⌄</span></button>
+            {open ? <div className="more-menu-panel" id="more-navigation" onClick={() => setOpen(false)}>
+              {pathname === "/" ? <a href="#transactions">Ledger</a> : null}
+              {MORE_LINKS.map(([href, label]) => <Link key={href} href={href}>{label}</Link>)}
+            </div> : null}
+          </div>
         </nav>
-      </aside>
-    </>
+        <Link className="topbar-status" href="/status"><span aria-hidden="true" />Read only</Link>
+      </div>
+    </header>
   );
 }

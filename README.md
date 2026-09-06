@@ -71,3 +71,19 @@ Database-backed tests create deterministic SQLite fixtures in new temporary dire
 The browser suite requires Google Chrome. It owns a dedicated port, isolated Next.js build directory, and disposable SQLite fixture; it never connects to an existing server. Playwright starts and stops that server automatically.
 
 Local databases, environment files, build output, and logs are excluded from version control.
+
+## Spending workspace
+
+The dark-first home view combines period totals, a spending trend, category filters, transactions, and payer/allocation breakdowns. `1W`, `1M`, `3M`, and `1Y` are trailing windows of 7, 30, 90, and 365 days. The displayed dates are authoritative. Previous/next controls browse adjacent windows; the date field sets the end date. `All` includes every recorded expense.
+
+The comparison uses the immediately preceding equally sized window. Currency selection keeps unlike currencies out of the same total. Category and search filters narrow the ledger without changing the period overview. Full transaction details remain available, and deeper views are accessible through More.
+
+The default range ends today. If your database contains only older data, choose **Latest activity** rather than treating the latest recorded month as the present.
+
+To preview this worktree alongside another checkout:
+
+```bash
+EXPENSE_DB_PATH=/absolute/path/to/expenses.db pnpm exec next dev -H 127.0.0.1 -p 8789
+```
+
+The database is still opened read-only. Do not copy or modify the database to preview a design.
