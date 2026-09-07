@@ -1,5 +1,7 @@
 "use client";
 
+import Select from "./Select.js";
+
 import { useCallback, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -51,8 +53,8 @@ export default function PeriodDatePicker({ value, onChange }) {
       <header><h2 id="period-calendar-title">Period end date</h2><button type="button" onClick={close} aria-label="Close calendar">×</button></header>
       <div className="calendar-navigation">
         <button type="button" aria-label="Previous calendar month" onClick={() => shiftMonth(-1)}>←</button>
-        <label><span className="sr-only">Calendar month</span><select aria-label="Calendar month" value={month} onChange={event => setView([year, Number(event.target.value) + 1])}>{MONTHS.map((label, i) => <option value={i} key={label}>{label}</option>)}</select></label>
-        <label><span className="sr-only">Calendar year</span><select aria-label="Calendar year" value={year} onChange={event => setView([Number(event.target.value), monthNumber])}>{Array.from({ length: Math.max(2100, year) - Math.min(1900, year) + 1 }, (_, i) => Math.min(1900, year) + i).map(option => <option key={option}>{option}</option>)}</select></label>
+        <label><span className="sr-only">Calendar month</span><Select aria-label="Calendar month" value={month} onChange={event => setView([year, Number(event.target.value) + 1])}>{MONTHS.map((label, i) => <option value={i} key={label}>{label}</option>)}</Select></label>
+        <label><span className="sr-only">Calendar year</span><Select aria-label="Calendar year" value={year} onChange={event => setView([Number(event.target.value), monthNumber])}>{Array.from({ length: Math.max(2100, year) - Math.min(1900, year) + 1 }, (_, i) => Math.min(1900, year) + i).map(option => <option key={option}>{option}</option>)}</Select></label>
         <button type="button" aria-label="Next calendar month" onClick={() => shiftMonth(1)}>→</button>
       </div>
       <div className="calendar-days">

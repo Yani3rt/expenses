@@ -1,3 +1,4 @@
+import { chooseOption } from './select-helpers.js';
 import { expect, test } from "@playwright/test";
 
 test("custom calendar preserves filters and restores focus", async ({ page }) => {
@@ -10,7 +11,7 @@ test("custom calendar preserves filters and restores focus", async ({ page }) =>
   const calendar = page.getByRole("dialog", { name: "Period end date" });
   await expect(calendar).toBeVisible();
   await expect(calendar.getByRole("button", { name: "July 31, 2026", exact: true })).toBeFocused();
-  await calendar.getByRole("combobox", { name: "Calendar month", exact: true }).selectOption("5");
+  await chooseOption(page, calendar.getByRole("combobox", { name: "Calendar month", exact: true }), "5");
   await calendar.getByRole("button", { name: "June 30, 2026", exact: true }).click();
   await expect(page).toHaveURL(/end=2026-06-30/);
   await expect(page).toHaveURL(/category=tecnologia/);
@@ -18,7 +19,7 @@ test("custom calendar preserves filters and restores focus", async ({ page }) =>
   await expect(trigger).toBeFocused();
   await trigger.click();
   await calendar.getByRole("button", { name: "Previous calendar month" }).click();
-  await expect(calendar.getByRole("combobox", { name: "Calendar month", exact: true })).toHaveValue("4");
+  await expect(calendar.getByRole("combobox", { name: "Calendar month", exact: true })).toHaveAttribute("data-value", "4");
   await page.keyboard.press("Escape");
   await expect(calendar).toHaveCount(0);
   await expect(trigger).toBeFocused();

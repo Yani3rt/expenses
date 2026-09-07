@@ -1,0 +1,27 @@
+/* Shared, top-layer pickers for both visual themes. */
+.custom-select { position: relative; display: inline-block; min-width: 0; width: 100%; }
+.custom-select .custom-select-trigger { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-width: 0; min-height: 44px; height: auto; padding: 9px 12px; border: 1px solid var(--outline); border-radius: 7px; background: var(--surface-lowest); color: var(--on-surface); font: inherit; font-size: 14px; text-align: left; cursor: pointer; }
+.custom-select-trigger > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.custom-select-trigger svg { width: 14px; height: 14px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; }
+.custom-select-trigger:hover, .custom-select-trigger[aria-expanded="true"] { border-color: var(--primary); }
+.custom-select-trigger:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.custom-select-trigger:disabled { opacity: .5; cursor: default; }
+.custom-select-list { position: fixed; inset: auto; margin: 0; padding: 5px; overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--outline); border-radius: 8px; background: var(--surface-lowest); color: var(--on-surface); box-shadow: 0 8px 24px rgb(0 0 0 / 20%); scrollbar-width: thin; font: 14px/1.4 "Hanken Grotesk", sans-serif; }
+.custom-select-option { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 44px; padding: 9px 10px; border-radius: 4px; cursor: pointer; overflow-wrap: anywhere; }
+.custom-select-option:hover, .custom-select-option.is-active { background: var(--surface-low); outline: 1px solid var(--outline); outline-offset: -1px; }
+.custom-select-option[aria-selected="true"] { color: var(--primary); background: var(--surface-container); }
+.custom-select-option[aria-disabled="true"] { opacity: .5; cursor: default; }
+.custom-select-check { flex: none; min-width: 14px; }
+.header-month-picker:has(.custom-select)::after { display: none; }
+.year-overview-header .custom-select { min-width: 90px; }
+.calendar-navigation .custom-select .custom-select-trigger { padding: 8px; font-size: 14px; gap: 4px; }
+.ledger-filters > label:has(.custom-select) { min-width: 125px; }
+[data-theme="momentum"] .custom-select .custom-select-trigger { font: 400 18px/1.35 var(--font-hand); border-radius: var(--radius-control); }
+[data-theme="momentum"] .custom-select-list { font: 400 18px/1.35 var(--font-hand); border-radius: var(--radius-card); box-shadow: var(--shadow-raised); }
+[data-theme="momentum"] .custom-select-option { border-radius: 0; }
+[data-theme="momentum"] .custom-select-option[aria-selected="true"] { color: var(--on-surface); background: var(--paper-yellow); }
+[data-theme="momentum"] .category-multiselect-panel { border-radius: var(--radius-card); box-shadow: var(--shadow); }
+[data-theme="momentum"] .category-multiselect-trigger, [data-theme="momentum"] .category-multiselect-option { font-family: var(--font-hand); font-size: 18px; border-radius: var(--radius-control); }
+[data-theme="momentum"] .category-multiselect-option[aria-checked="true"] { background: var(--paper-yellow); color: var(--on-surface); }
+@media (max-width: 760px) { .custom-select .custom-select-trigger { font-size: 16px; } }
+[data-theme="momentum"] .more-menu-panel a { font: 400 18px/1.35 var(--font-hand); border-radius: 0; }

@@ -1,5 +1,7 @@
 "use client";
 
+import Select from "./Select.js";
+
 import { useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { compactNumber, money, monthLabel } from "../lib/format.js";
@@ -460,14 +462,14 @@ export default function TransactionsFilters({ meta, months, categories, sourceRo
                 <label>
                   <span className="mobile-filter-field-label" aria-hidden="true">Month</span>
                   <span className="sr-only">Month</span>
-                  <select
+                  <Select
                     name="month"
                     value={filterIntent.month}
                     onChange={(event) => navigate({ month: event.target.value, period: "all" })}
                     aria-label="Month"
                   >
                     {months.map((month) => <option value={month.value} key={month.value}>{month.value === "all" ? "All time" : monthLabel(month.value)}</option>)}
-                  </select>
+                  </Select>
                 </label>
                 <CategoryMultiselect
                   categories={categories}
@@ -478,9 +480,9 @@ export default function TransactionsFilters({ meta, months, categories, sourceRo
                 <label>
                   <span className="mobile-filter-field-label" aria-hidden="true">Sort</span>
                   <span className="sr-only">Sort</span>
-                  <select name="sort" value={filterIntent.sort} onChange={(event) => navigate({ sort: event.target.value })} aria-label="Sort">
+                  <Select name="sort" value={filterIntent.sort} onChange={(event) => navigate({ sort: event.target.value })} aria-label="Sort">
                     {SORT_OPTIONS.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}
-                  </select>
+                  </Select>
                 </label>
               </form>
             </div>

@@ -1,0 +1,392 @@
+/* Momentum is the default; Classic remains selectable. All Momentum paint lives here. */
+.theme-switcher { position: relative; color: var(--primary); }
+.theme-trigger { display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 6px; border: 1px solid transparent; border-radius: 7px; background: transparent; color: var(--on-surface); cursor: pointer; font-size: 12px; }
+.theme-trigger svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; flex: none; }
+.theme-trigger .theme-chevron { width: 12px; height: 12px; }
+.theme-trigger:hover, .theme-trigger[aria-expanded="true"] { background: var(--surface-low); border-color: var(--outline); }
+.theme-trigger:focus-visible, .theme-menu button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.theme-menu { position: absolute; top: calc(100% + 6px); right: 0; width: 190px; padding: 6px; border: 1px solid var(--outline); border-radius: 9px; background: var(--surface-lowest); box-shadow: 0 6px 18px rgb(0 0 0 / 15%); }
+.theme-menu button { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; border: 0; border-radius: 5px; padding: 8px 10px; background: transparent; color: var(--on-surface); font: inherit; font-size: 14px; text-align: left; cursor: pointer; }
+.theme-menu button:hover, .theme-menu button:focus-visible, .theme-menu button[aria-checked="true"] { background: var(--surface-low); }
+.theme-swatch { width: 20px; height: 24px; border: 1px solid var(--outline); border-radius: 3px; flex: none; }
+.theme-swatch-classic { background: #20251f; box-shadow: inset 0 -6px #acbf91; }
+.theme-swatch-momentum { background: #fffdf6; box-shadow: inset 0 -6px #f8edba; }
+.theme-check { margin-left: auto; color: var(--primary); }
+.topbar-preferences { justify-self: end; display: flex; align-items: center; gap: 18px; }
+
+@media (max-width: 900px) { .topbar-preferences { gap: 6px; } .topbar-preferences .topbar-status { display: none; } }
+@media (max-width: 700px) {
+  .topbar-inner { gap: 8px; grid-template-columns: 1fr auto auto; }
+  .topbar .brand strong { font-size: 12px; display: none; }
+  .theme-trigger .theme-symbol { display: none; }
+  .theme-trigger { font-size: 11px; gap: 4px; padding: 0 2px; }
+}
+@media (max-width: 380px) {
+  .topbar-inner { width: calc(100% - 24px); gap: 6px; }
+  .topnav { gap: 4px; }
+  .theme-trigger { font-size: 10px; }
+}
+
+@font-face { font-family: "Kalam"; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/kalam-regular.woff2') format('woff2'); }
+@font-face { font-family: "Kalam"; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/kalam-bold.woff2') format('woff2'); }
+
+/* Momentum / paper ledger. No selectors below affect Classic. */
+:root[data-theme="momentum"] {
+  color-scheme: light;
+  --surface: #eeece4;
+  --surface-lowest: #fffdf6;
+  --surface-low: #f4f0e5;
+  --surface-container: #e9e5d9;
+  --surface-high: #ded9c9;
+  --on-surface: #303b36;
+  --on-variant: #64695e;
+  --outline: #d0cdbf;
+  --primary: #335f4d;
+  --secondary: #765335;
+  --accent: #e9c96c;
+  --success: #2b6149;
+  --warning: #855018;
+  --danger: #a4393e;
+  --emerald: #43765c;
+  --violet: #77628c;
+  --amber: #9b731d;
+  --blue: #496c89;
+  --cyan: #477b7a;
+  --pink: #995d78;
+  --indigo: #636788;
+  --coral: #ae6548;
+  --on-primary: #fffdf6;
+  --background: var(--surface);
+  --elevated-surface: var(--surface-lowest);
+  --text: var(--on-surface);
+  --muted-text: var(--on-variant);
+  --border: var(--outline);
+  --paper-yellow: #f8edba;
+  --paper-green: #e4ecda;
+  --paper-pink: #f1e0d7;
+  --paper-rule: #dce3d9;
+  --paper-margin: #d7a797;
+  --paper-tape: #d4d6b5;
+  --shadow: 0 2px 3px rgb(68 58 30 / 5%), 0 10px 24px rgb(68 58 30 / 7%);
+  --shadow-raised: 0 5px 8px rgb(68 58 30 / 8%), 0 16px 28px rgb(68 58 30 / 10%);
+  --gradient-panel: linear-gradient(115deg, var(--surface-lowest), var(--surface-low));
+  --gradient-action: linear-gradient(transparent 40%, var(--paper-yellow) 40% 92%, transparent 92%);
+  --radius-card: 3px 7px 4px 6px;
+  --radius-control: 5px;
+  --font-hand: "Kalam", "Segoe Print", cursive;
+  --motion-fast: 160ms;
+  --motion-reveal: 280ms;
+  --motion-ease: cubic-bezier(.22, 1, .36, 1);
+}
+[data-theme="momentum"] body { background-image: radial-gradient(color-mix(in srgb, var(--on-variant) 13%, transparent) .6px, transparent .6px); background-size: 6px 6px; }
+[data-theme="momentum"] ::selection { background: var(--paper-yellow); color: var(--on-surface); }
+[data-theme="momentum"] .topbar { background: var(--surface-lowest); border-color: var(--outline); backdrop-filter: none; }
+[data-theme="momentum"] .topbar .brand-mark { border-color: var(--primary); border-radius: 3px 6px 4px 8px; }
+[data-theme="momentum"] .topbar .brand strong { font-family: var(--font-hand); font-size: 20px; font-weight: 700; }
+[data-theme="momentum"] .topnav { align-items: center; gap: 20px; }
+[data-theme="momentum"] .topnav > a, [data-theme="momentum"] .more-menu > button { font-family: var(--font-hand); font-size: 19px; color: var(--on-variant); }
+[data-theme="momentum"] .topnav > a.active { background: var(--gradient-action); color: var(--on-surface); }
+[data-theme="momentum"] .topnav > a.active::after { height: 2px; bottom: 6px; background: var(--primary); border-radius: 50%; transform: rotate(-2deg); }
+[data-theme="momentum"] .more-menu-panel { background: var(--surface-lowest); border-radius: var(--radius-card); box-shadow: var(--shadow-raised); }
+[data-theme="momentum"] .workspace { padding-top: 36px; }
+[data-theme="momentum"] .workspace-heading { padding-bottom: 10px; align-items: center; }
+[data-theme="momentum"] .workspace-heading h1 { font: 700 clamp(46px, 6vw, 68px)/1.15 var(--font-hand); letter-spacing: -.04em; }
+[data-theme="momentum"] .eyebrow { color: var(--on-variant); font-size: 10px; letter-spacing: .16em; }
+[data-theme="momentum"] .range-bar { border: 0; gap: 8px; margin-bottom: 28px; }
+[data-theme="momentum"] .range-bar > button { font-family: var(--font-hand); font-size: 18px; font-weight: 400; border-radius: 3px 5px 2px 6px; height: 40px; letter-spacing: 0; }
+[data-theme="momentum"] .range-bar > button.active { color: var(--on-surface); background: var(--paper-yellow); box-shadow: 1px 2px 0 color-mix(in srgb, var(--amber) 20%, transparent); transform: rotate(-3deg); }
+[data-theme="momentum"] :is(.period-navigation button, .search-field, .ledger-filters select, .currency-control select, .year-overview-header select, .transaction-dialog-close, .load-more) { border-radius: var(--radius-control); border-color: var(--outline); background-color: var(--surface-lowest); }
+[data-theme="momentum"] .period-navigation button:hover:not(:disabled) { border-color: var(--primary); }
+[data-theme="momentum"] .overview-shell { grid-template-columns: minmax(0, 1fr) 310px; gap: 28px; border: 0; background: transparent; overflow: visible; align-items: start; }
+[data-theme="momentum"] .analysis-panel { position: relative; border: 1px solid var(--outline); border-radius: var(--radius-card); padding: 30px 32px 24px; background: var(--surface-lowest); box-shadow: var(--shadow), 3px 4px 0 -1px var(--surface-lowest), 3px 4px 0 var(--outline); }
+[data-theme="momentum"] .analysis-panel::before { content: ""; position: absolute; width: 94px; height: 25px; top: -13px; left: calc(50% - 47px); background: var(--paper-tape); opacity: .7; transform: rotate(-3deg); clip-path: polygon(0 4%, 100% 0, 97% 25%, 100% 48%, 97% 75%, 100% 100%, 0 96%, 3% 75%, 0 50%, 3% 25%); pointer-events: none; }
+[data-theme="momentum"] .total-lockup { gap: 10px 20px; }
+[data-theme="momentum"] .total-lockup p { font-family: var(--font-hand); font-size: 21px; color: var(--on-variant); }
+[data-theme="momentum"] .total-lockup strong { color: var(--primary); font: 700 clamp(42px, 5vw, 64px)/1.1 "Manrope", sans-serif; letter-spacing: -.065em; overflow-wrap: anywhere; }
+[data-theme="momentum"] .total-lockup > span { max-width: 205px; color: var(--primary); font-family: var(--font-hand); font-size: 18px; line-height: 1.4; text-align: left; background: linear-gradient(transparent 65%, var(--paper-green) 65%); }
+[data-theme="momentum"] .summary-strip { margin: 26px 0 22px; border: 0; gap: 12px; }
+[data-theme="momentum"] .summary-strip > div { min-width: 0; padding: 12px 14px; border: 0; border-radius: 1px 4px 2px 3px; background: var(--paper-green); }
+[data-theme="momentum"] .summary-strip > div:nth-child(2) { background: var(--paper-yellow); }
+[data-theme="momentum"] .summary-strip > div:nth-child(3) { background: var(--paper-pink); }
+[data-theme="momentum"] .summary-strip dt { color: var(--on-surface); font: 400 16px/1.3 var(--font-hand); letter-spacing: 0; }
+[data-theme="momentum"] .summary-strip dd { color: var(--on-surface); font-size: 19px; font-weight: 700; overflow-wrap: anywhere; }
+[data-theme="momentum"] :is(.section-title-row h2, .year-overview-header h2, .year-overview-toggle, .category-disclosure-toggle, .people-disclosure summary strong) { font: 700 25px/1.4 var(--font-hand); letter-spacing: -.025em; }
+[data-theme="momentum"] .trend-graphic { background-image: linear-gradient(to right, var(--paper-rule) 1px, transparent 1px), linear-gradient(to bottom, var(--paper-rule) 1px, transparent 1px); background-size: 28px 28px; background-clip: content-box; }
+[data-theme="momentum"] .trend-rule { stroke: var(--outline); stroke-dasharray: 2 5; }
+[data-theme="momentum"] .trend-line { stroke-width: 2.5; }
+[data-theme="momentum"] .trend-area { fill: color-mix(in srgb, var(--emerald) 5%, transparent); }
+[data-theme="momentum"] .category-panel { position: relative; margin-top: 12px; padding: 24px 22px 32px; border: 1px solid color-mix(in srgb, var(--amber) 25%, var(--paper-yellow)); border-radius: 2px 3px 18px 2px; background: var(--paper-yellow); box-shadow: var(--shadow); }
+[data-theme="momentum"] .category-panel::before { content: ""; position: absolute; top: -12px; right: 28px; width: 12px; height: 40px; border: 2px solid var(--on-variant); border-radius: 8px; transform: rotate(12deg); box-shadow: inset 0 0 0 2px var(--paper-yellow); pointer-events: none; }
+[data-theme="momentum"] .section-title-row > span { color: var(--on-surface); border: 1px solid currentColor; border-radius: 45% 55% 48% 52%; min-width: 26px; padding: 3px 6px; text-align: center; font-family: var(--font-hand); }
+[data-theme="momentum"] .category-row { --category-color: var(--primary); min-height: 69px; padding: 9px 0 16px; border-top: 1px dashed color-mix(in srgb, var(--amber) 25%, transparent); }
+[data-theme="momentum"] .category-row:nth-child(5n + 2) { --category-color: var(--coral); }
+[data-theme="momentum"] .category-row:nth-child(5n + 3) { --category-color: var(--violet); }
+[data-theme="momentum"] .category-row:nth-child(5n + 4) { --category-color: var(--amber); }
+[data-theme="momentum"] .category-row:nth-child(5n + 5) { --category-color: var(--blue); }
+[data-theme="momentum"] .category-row > span strong { font-weight: 600; }
+[data-theme="momentum"] .category-row small { color: var(--on-variant); }
+[data-theme="momentum"] .category-swatch { width: 8px; height: 8px; border-radius: 50% 40% 60% 40%; background: var(--category-color); }
+[data-theme="momentum"] .category-row em { height: 4px; bottom: 5px; background: var(--category-color); border-radius: 30% 5% 40% 20%; opacity: .75; }
+[data-theme="momentum"] .category-row.active { outline: 1px dashed var(--primary); outline-offset: 3px; background: color-mix(in srgb, var(--surface-lowest) 45%, transparent); }
+[data-theme="momentum"] .desktop-categories .category-list { scrollbar-color: var(--outline) transparent; }
+[data-theme="momentum"] .year-overview { margin-top: 32px; background: var(--surface-lowest); border: 1px solid var(--outline); border-radius: var(--radius-card); box-shadow: var(--shadow); }
+[data-theme="momentum"] .year-total { margin: 4px 0 20px; }
+[data-theme="momentum"] .year-total span { font-family: var(--font-hand); font-size: 18px; }
+[data-theme="momentum"] .year-months { background: repeating-linear-gradient(to top, transparent 0 29px, var(--paper-rule) 29px 30px); }
+[data-theme="momentum"] .year-month { color: var(--on-variant); border-radius: 2px; }
+[data-theme="momentum"] .year-bar-track i { background: color-mix(in srgb, var(--emerald) 68%, var(--surface-lowest)); box-shadow: inset 0 0 0 1px var(--emerald); border-radius: 4px 6px 0 0; }
+[data-theme="momentum"] .ledger { margin-top: 40px; }
+[data-theme="momentum"] .ledger-heading h2 { font: 700 clamp(34px, 4vw, 44px)/1.2 var(--font-hand); letter-spacing: -.03em; }
+[data-theme="momentum"] .transaction-table { border: 1px solid var(--outline); border-radius: var(--radius-card); padding: 0 24px; background: var(--surface-lowest); background-image: linear-gradient(to right, transparent 132px, var(--paper-margin) 132px 133px, transparent 133px); box-shadow: var(--shadow); }
+[data-theme="momentum"] .transaction-head { font-size: 10px; min-height: 44px; }
+[data-theme="momentum"] .transaction-row { border-color: var(--paper-rule); }
+[data-theme="momentum"] .transaction-row:hover { background: color-mix(in srgb, var(--paper-yellow) 30%, transparent); }
+[data-theme="momentum"] .transaction-description strong { font-weight: 500; }
+[data-theme="momentum"] .transaction-row > b { font-weight: 700; }
+[data-theme="momentum"] .search-field input::placeholder { color: var(--on-variant); }
+[data-theme="momentum"] .people-disclosure { border-color: var(--outline); }
+[data-theme="momentum"] :is(.card, .month-picker-card, .filter-panel, .category-detail-card, .dither-chart-card) { border-radius: var(--radius-card); }
+[data-theme="momentum"] :is(.page-header h1, .section-head h2, .transaction-dialog-head h2) { font-family: var(--font-hand); letter-spacing: -.03em; }
+[data-theme="momentum"] .page-header h1 { font-size: clamp(36px, 5vw, 52px); }
+[data-theme="momentum"] .section-head h2 { font-size: 27px; }
+[data-theme="momentum"] .transaction-dialog-backdrop { background: rgb(48 51 39 / 38%); backdrop-filter: blur(2px); }
+[data-theme="momentum"] .transaction-dialog { border-radius: var(--radius-card); box-shadow: var(--shadow-raised); }
+[data-theme="momentum"] .transaction-dialog-head { background: var(--surface-lowest); backdrop-filter: none; }
+[data-theme="momentum"] .transaction-dialog-head h2 { font-size: 29px; }
+[data-theme="momentum"] .selected-transaction { background: var(--paper-yellow); border-color: var(--outline); border-radius: var(--radius-card); }
+[data-theme="momentum"] .selected-transaction-main h3 { font: 700 24px/1.3 var(--font-hand); letter-spacing: -.02em; overflow-wrap: anywhere; }
+[data-theme="momentum"] :is(.selected-transaction .label, .selected-transaction-notes > span, .selected-allocations > span) { font: 400 16px/1.35 var(--font-hand); letter-spacing: 0; text-transform: none; color: var(--on-variant); }
+/* Small paper slips, not rounded dashboard cards. */
+[data-theme="momentum"] .transaction-detail-summary > div {
+  border-radius: 0;
+  border-color: var(--outline);
+  background: var(--surface-low);
+  box-shadow: 1px 2px 0 color-mix(in srgb, var(--outline) 35%, transparent);
+}
+[data-theme="momentum"] .transaction-detail-summary > div:nth-child(2) { background: var(--paper-green); }
+[data-theme="momentum"] .transaction-detail-summary > div:nth-child(3) { background: var(--paper-pink); }
+[data-theme="momentum"] .transaction-detail-summary > div:nth-child(4) { background: var(--paper-yellow); }
+[data-theme="momentum"] .transaction-detail-summary span { color: var(--on-surface); font: 400 16px/1.35 var(--font-hand); }
+/* Canvas charts have fixed dark-theme palette seeds; make their ink legible on paper. */
+[data-theme="momentum"] canvas { filter: brightness(.52) saturate(.8); }
+[data-theme="momentum"] .latest-activity { border-color: var(--primary); }
+[data-theme="momentum"] .load-error { color: var(--danger); }
+[data-theme="momentum"] .change-signal.is-up { color: var(--warning); background: var(--paper-yellow); }
+[data-theme="momentum"] .change-signal.is-down { color: var(--success); background: var(--paper-green); }
+[data-theme="momentum"] :is(button, .topnav > a, a.year-month) { transition: background var(--motion-fast) ease, transform var(--motion-fast) var(--motion-ease); }
+[data-theme="momentum"] button:active:not(:disabled) { transform: translateY(1px); }
+[data-theme="momentum"] :focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+@media (max-width: 1080px) {
+  [data-theme="momentum"] .overview-shell { grid-template-columns: minmax(0, 1fr) 280px; gap: 20px; }
+  [data-theme="momentum"] .total-lockup { grid-template-columns: 1fr; }
+  [data-theme="momentum"] .total-lockup > span { max-width: none; justify-self: start; }
+  [data-theme="momentum"] .analysis-panel { padding: 28px 22px 20px; }
+}
+@media (max-width: 760px) {
+  [data-theme="momentum"] .topnav { gap: 12px; }
+  [data-theme="momentum"] .topnav > a, [data-theme="momentum"] .more-menu > button { font-size: 16px; }
+  [data-theme="momentum"] .workspace { padding-top: 18px; }
+  [data-theme="momentum"] .workspace-heading { gap: 10px; }
+  [data-theme="momentum"] .workspace-heading h1 { font-size: 48px; }
+  [data-theme="momentum"] .range-bar { margin: 8px 0 26px; padding: 5px 0; background: var(--surface); gap: 5px; }
+  [data-theme="momentum"] .range-bar > button { height: 44px; }
+  [data-theme="momentum"] .analysis-panel { padding: 26px 16px 20px; }
+  [data-theme="momentum"] .total-lockup strong { font-size: clamp(36px, 11vw, 50px); }
+  [data-theme="momentum"] .total-lockup > span { display: inline-block; font-size: 17px; }
+  [data-theme="momentum"] .summary-strip { gap: 7px; margin: 20px 0; }
+  [data-theme="momentum"] .summary-strip > div { padding: 10px 7px; }
+  [data-theme="momentum"] .summary-strip dt { font-size: 14px; }
+  [data-theme="momentum"] .summary-strip dd { font-size: 16px; }
+  [data-theme="momentum"] .section-title-row h2 { font-size: 23px; }
+  [data-theme="momentum"] .category-panel { margin-top: 24px; padding: 16px; }
+  [data-theme="momentum"] .category-panel::before { right: 24px; height: 30px; }
+  [data-theme="momentum"] .year-overview { margin-top: 22px; }
+  [data-theme="momentum"] .year-overview-toggle { font-size: 22px; }
+  [data-theme="momentum"] .transaction-table { padding: 0 14px; background-image: none; }
+  [data-theme="momentum"] .transaction-dialog { border-radius: 0; }
+}
+@media (max-width: 380px) {
+  [data-theme="momentum"] .topnav { gap: 4px; }
+  [data-theme="momentum"] .topnav > a, [data-theme="momentum"] .more-menu > button { font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="momentum"] { --motion-fast: 0ms; --motion-reveal: 0ms; }
+  [data-theme="momentum"] *, [data-theme="momentum"] *::before, [data-theme="momentum"] *::after { animation: none !important; transition: none !important; }
+}
+
+/* Spending analysis: handwritten labels, precision typography for values. */
+[data-theme="momentum"] .spending-page-header h1 { font-weight: 700; }
+[data-theme="momentum"] :is(.spending-page-header .label, .spending-summary-metrics .label, .category-comparison-head .label) {
+  font: 400 16px/1.35 var(--font-hand);
+  letter-spacing: 0;
+  text-transform: none;
+}
+[data-theme="momentum"] .spending-page-header .header-month-picker select { font: 400 18px/1.35 var(--font-hand); }
+[data-theme="momentum"] .category-comparison-name strong { font: 700 20px/1.35 var(--font-hand); }
+[data-theme="momentum"] .category-comparison-period > span { font: 400 16px/1.35 var(--font-hand); letter-spacing: 0; text-transform: none; }
+
+[data-theme="momentum"] .theme-trigger { font-family: var(--font-hand); font-size: 16px; border-radius: var(--radius-control); }
+[data-theme="momentum"] .theme-menu { border-radius: var(--radius-card); box-shadow: var(--shadow-raised); }
+[data-theme="momentum"] .theme-menu button { font: 400 18px/1.35 var(--font-hand); border-radius: 0; }
+[data-theme="momentum"] .theme-menu button[aria-checked="true"] { background: var(--paper-yellow); }
+@media (max-width: 700px) { [data-theme="momentum"] .theme-trigger { font-size: 13px; } }
+@media (max-width: 380px) { [data-theme="momentum"] .theme-trigger { font-size: 12px; } }
+
+/* Spending summary: a clipped ledger slip and a taped comparison note. */
+[data-theme="momentum"] .spending-summary-metrics { gap: 24px; margin-top: 26px; }
+[data-theme="momentum"] .spending-summary-metrics > .metric {
+  overflow: visible;
+  border-radius: 2px;
+  background: var(--surface-lowest) !important;
+  box-shadow: var(--shadow) !important;
+  padding: 28px;
+}
+[data-theme="momentum"] .spending-summary-metrics > .metric:nth-child(2) { background: var(--paper-yellow) !important; }
+[data-theme="momentum"] .spending-summary-metrics .metric-icon { display: none; }
+[data-theme="momentum"] .spending-summary-metrics .metric-head { padding-right: 30px; }
+[data-theme="momentum"] .spending-summary-metrics > .metric::after { content: none; }
+[data-theme="momentum"] .spending-summary-metrics > .metric:first-child::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: -11px;
+  right: 26px;
+  width: 14px;
+  height: 43px;
+  border: 2px solid var(--on-variant);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 2px var(--surface-lowest), inset 0 0 0 3px var(--outline);
+  transform: rotate(12deg);
+  pointer-events: none;
+}
+[data-theme="momentum"] .spending-summary-metrics > .metric:nth-child(2)::before {
+  content: "";
+  position: absolute;
+  top: -11px;
+  left: calc(50% - 44px);
+  width: 88px;
+  height: 24px;
+  background: var(--paper-tape);
+  opacity: .75;
+  transform: rotate(-3deg);
+  clip-path: polygon(0 4%, 100% 0, 97% 25%, 100% 48%, 97% 75%, 100% 100%, 0 96%, 3% 75%, 0 50%, 3% 25%);
+  pointer-events: none;
+}
+[data-theme="momentum"] .spending-summary-metrics > .metric > strong { padding-bottom: 14px; border-bottom: 1px solid var(--outline); }
+@media (max-width: 700px) {
+  [data-theme="momentum"] .spending-summary-metrics > .metric { padding: 24px 16px 18px; }
+  [data-theme="momentum"] .spending-summary-metrics > .metric:first-child::before { right: 18px; }
+}
+
+/* Full ledger: filing labels, square forms, and a clipped sheet of entries. */
+[data-theme="momentum"] .transactions-page-header h1 { font-weight: 700; }
+[data-theme="momentum"] .transactions-page-header .label { font: 400 16px/1.35 var(--font-hand); letter-spacing: 0; text-transform: none; }
+[data-theme="momentum"] .transactions-filter-shell .sticky-search-bar { border-radius: 2px; box-shadow: var(--shadow); }
+[data-theme="momentum"] .transactions-filter-shell .compact-search-field input { border-radius: 0; }
+[data-theme="momentum"] .transactions-filter-shell .compact-search-field input::placeholder { font-family: var(--font-hand); font-size: 18px; }
+[data-theme="momentum"] .transactions-filter-shell :is(.mobile-filter-toggle, .preset-chip, .filter-chip, .clear-filters-link) { font: 400 17px/1.35 var(--font-hand); border-radius: 2px; }
+[data-theme="momentum"] .transactions-filter-shell .preset-chip { background: var(--surface-lowest); color: var(--on-surface); }
+[data-theme="momentum"] .transactions-filter-shell .preset-chip.is-active { background: var(--paper-yellow); border-color: var(--outline); box-shadow: 0 2px 0 color-mix(in srgb, var(--outline) 50%, transparent); }
+[data-theme="momentum"] .transactions-filter-shell .filter-chip { background: var(--paper-green); border: 1px solid var(--outline); }
+[data-theme="momentum"] .transactions-filter-shell .filter-results-summary { border-radius: 2px; background: var(--surface-low); border: 1px dashed var(--outline); }
+[data-theme="momentum"] .transactions-filter-shell .filter-count { border-radius: 2px; }
+[data-theme="momentum"] .transactions-filter-shell .custom-select .custom-select-trigger,
+[data-theme="momentum"] .transactions-filter-shell .filter-card .category-multiselect-trigger { border-radius: 2px; font-weight: 400; }
+[data-theme="momentum"] .transactions-filter-shell .category-option-check { border-radius: 2px; }
+[data-theme="momentum"] .transactions-filter-shell :is(.mobile-filter-field-label, .mobile-filter-field-head, .mobile-filter-sheet-result) { font-family: var(--font-hand); font-size: 18px; }
+[data-theme="momentum"] .transactions-filter-shell .mobile-filter-sheet-head h2 { font: 700 28px/1.3 var(--font-hand); }
+[data-theme="momentum"] .transactions-filter-shell :is(.mobile-filter-sheet, .mobile-filter-sheet-close, .mobile-filter-sheet-result) { border-radius: 2px; }
+[data-theme="momentum"] .ledger-card {
+  position: relative;
+  margin-top: 30px;
+  border-radius: 2px;
+  box-shadow: var(--shadow) !important;
+  background: var(--surface-lowest) !important;
+}
+[data-theme="momentum"] .ledger-card::before {
+  content: "";
+  position: absolute;
+  top: -13px;
+  left: 36px;
+  width: 14px;
+  height: 40px;
+  border: 2px solid var(--on-variant);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 2px var(--surface-lowest), inset 0 0 0 3px var(--outline);
+  transform: rotate(-10deg);
+  pointer-events: none;
+}
+[data-theme="momentum"] .ledger-card .section-head h2 { font: 700 28px/1.35 var(--font-hand); }
+[data-theme="momentum"] .ledger-card .readonly-chip { font: 400 16px/1.35 var(--font-hand); text-transform: none; letter-spacing: 0; border-radius: 2px; border-color: var(--outline); background: var(--paper-yellow); color: var(--on-surface); }
+[data-theme="momentum"] .ledger-card .expense-row { border-radius: 0; border-bottom-color: var(--paper-rule); }
+[data-theme="momentum"] .ledger-card .expense-row:hover { background: color-mix(in srgb, var(--paper-yellow) 25%, transparent); }
+[data-theme="momentum"] :is(.ledger-card .expense-icon, .category-comparison-icon) { border-radius: 2px; width: 36px; height: 40px; background: color-mix(in srgb, currentColor 8%, var(--surface-lowest)); border: 1px solid color-mix(in srgb, currentColor 30%, var(--outline)); }
+[data-theme="momentum"] .ledger-card .expense-copy > strong { font: 700 19px/1.4 var(--font-hand); }
+[data-theme="momentum"] .ledger-card .pill { border-radius: 2px; border: 1px solid var(--outline); background: var(--surface-low); font: 400 16px/1.3 var(--font-hand); }
+[data-theme="momentum"] :is(.ledger-card .load-more-link, .load-more) { border-radius: 2px; font: 400 18px/1.35 var(--font-hand); background: var(--paper-yellow); color: var(--on-surface); border-color: var(--outline); }
+@media (max-width: 700px) {
+  [data-theme="momentum"] .ledger-card::before { left: 26px; }
+  [data-theme="momentum"] .ledger-card .expense-copy > strong { font-size: 18px; }
+  [data-theme="momentum"] .transactions-filter-shell .mobile-filter-sheet { border-radius: 0; }
+}
+[data-theme="momentum"] .active-filter-row .filter-results-summary { border-radius: 2px; background: var(--surface-low); border: 1px dashed var(--outline); }
+[data-theme="momentum"] .active-filter-row .filter-chip { background: var(--paper-green); border: 1px solid var(--outline); border-radius: 2px; font: 400 17px/1.35 var(--font-hand); }
+[data-theme="momentum"] .active-filter-row .clear-filters-link { border-radius: 2px; font: 400 17px/1.35 var(--font-hand); }
+[data-theme="momentum"] .transactions-filter-shell :is(.category-multiselect-mobile-options, .category-multiselect-panel, .category-multiselect-option) { border-radius: 2px; }
+
+[data-theme="momentum"] .load-more { padding: 10px 24px; box-shadow: 2px 3px 0 var(--outline); }
+[data-theme="momentum"] .load-more:hover { background: var(--paper-green); border-color: var(--primary); }
+[data-theme="momentum"] .load-more:active { box-shadow: none; }
+[data-theme] .trend-empty-character { display: none; }
+[data-theme="momentum"] .trend-empty { align-content: center; gap: 8px; padding: 12px 0; }
+[data-theme="momentum"] .trend-empty-character { display: block; object-fit: contain; }
+[data-theme="momentum"] .trend-empty > span { font: 400 17px/1.4 var(--font-hand); }
+
+/* An irregular desktop still life, kept outside the readable workspace. */
+.desk-details { display: none; }
+@media (min-width: 1440px) {
+  [data-theme="momentum"] .app-shell { isolation: isolate; }
+  [data-theme="momentum"] .desk-details {
+    display: block; position: fixed; inset: 64px 0 0; z-index: -1;
+    overflow: hidden; pointer-events: none; user-select: none;
+    --desk-ink: color-mix(in srgb, var(--primary) 22%, transparent);
+    --desk-coffee: color-mix(in srgb, var(--secondary) 12%, transparent);
+  }
+  .desk-paper { position: absolute; width: 145px; height: 215px; border: 1px solid var(--outline); background-color: var(--surface-lowest); box-shadow: var(--shadow); opacity: .6; }
+  .desk-paper-grid {
+    left: calc(50% - 706px); top: 260px; transform: rotate(-13deg);
+    background-image: linear-gradient(var(--paper-rule) 1px, transparent 1px), linear-gradient(90deg, var(--paper-rule) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+  .desk-paper-receipt {
+    right: calc(50% - 704px); top: 48%; width: 104px; height: 177px;
+    transform: rotate(17deg);
+    background-image: repeating-linear-gradient(transparent 0 20px, var(--outline) 20px 21px, transparent 21px 28px);
+    background-origin: content-box; padding: 20px 14px;
+    clip-path: polygon(0 0,100% 0,100% 96%,90% 100%,80% 96%,70% 100%,60% 96%,50% 100%,40% 96%,30% 100%,20% 96%,10% 100%,0 96%);
+  }
+  .desk-doodle { position: absolute; stroke: var(--desk-ink); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .desk-doodle-star { width: 52px; height: 60px; right: calc(50% - 720px); top: 66px; transform: rotate(12deg); }
+  .desk-doodle-loop { width: 58px; height: 104px; left: calc(50% - 727px); top: 55%; transform: rotate(-11deg); }
+  .desk-coffee-ring {
+    position: absolute; width: 132px; height: 126px; right: calc(50% - 716px); bottom: 34px;
+    border: 5px solid var(--desk-coffee); border-left-width: 2px; border-bottom-color: transparent;
+    border-radius: 46% 54% 49% 51%; transform: rotate(-24deg);
+    box-shadow: inset 0 0 0 2px var(--desk-coffee), 2px 1px 0 1px var(--desk-coffee);
+    opacity: .7;
+  }
+}
+
+.mobile-heading-doodle { display: none; }
+@media (max-width: 700px) {
+  [data-theme="momentum"] .workspace-heading { position: relative; }
+  [data-theme="momentum"] .mobile-heading-doodle {
+    display: block; position: absolute; right: 12px; top: 22px; width: 68px; height: 86px;
+    pointer-events: none; stroke: var(--primary); stroke-width: 1.6;
+    stroke-linecap: round; stroke-linejoin: round; opacity: .55; transform: rotate(9deg);
+  }
+  [data-theme="momentum"] .doodle-star-fill { fill: var(--paper-yellow); }
+}
+@media (max-width: 390px) {
+  [data-theme="momentum"] .mobile-heading-doodle { top: 0; right: 6px; width: 44px; height: 55px; }
+}

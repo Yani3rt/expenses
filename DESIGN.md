@@ -279,3 +279,39 @@ Use these stable category colors for the current expense database:
 - **Pets:** Amber (`accent-amber`)
 - **Education:** Indigo (`accent-indigo`)
 - **Unknown/Other:** `on-surface-variant`
+
+## Optional Momentum theme
+
+Momentum is the default; Classic remains available with its original dark sage design. The global **Visual theme**
+selector offers Classic and Momentum, persisted only in browser local storage
+(`expense-viewer-theme`). The root pre-paint initializer prevents a flash of the
+wrong palette; unavailable storage falls back to Momentum and still permits
+switching for the current page. Changes synchronize across tabs.
+
+Momentum is a light paper-ledger variant: warm ivory sheets, forest-green ink,
+ruled chart paper, a clipped yellow category note, tape details, and muted
+highlighter accents. Self-hosted Kalam (400/700, SIL OFL) is reserved for headings
+and annotations. Money and transaction rows retain clear tabular typography.
+Classic's stylesheet and theme selection behavior are unchanged.
+
+Tokens and strictly scoped overrides live in `app/momentum.css`. The paper
+texture and stationery details use CSS, not raster assets. The two Latin WOFF2
+font files total approximately 27 KB and load only when used. Reduced motion is
+respected. Fixed-palette canvas charts receive a scoped ink-darkening treatment
+for readability on light paper, without changing their data or interactions.
+
+Category tracks retain their original relative-to-largest-category calculation;
+they are not budget completion or savings progress. No achievements, financial
+health scores, account balances, or streaks are inferred from expense records.
+Financial numbers are never animated through fictitious intermediate values.
+
+### Shared dropdowns
+
+All single-value data pickers use `components/Select.js`, with shared theme-aware
+styling in `app/select.css`. It is a select-only ARIA combobox/listbox with arrow,
+Home/End, type-to-find, Enter/Space, Tab, Escape, and outside-click handling.
+Lists use the browser top layer to avoid clipping inside the calendar dialog or
+mobile filter panel; they remain in their owning dialog's DOM for focus handling.
+Month, year, currency, and sort values retain the original navigation callbacks.
+The category multi-select retains its checkbox behavior and matches the same
+paper styling. No native HTML select controls remain in app components.

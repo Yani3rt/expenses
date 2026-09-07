@@ -69,7 +69,10 @@ export default function SpendingTrend({ trend, range, currency }) {
         <div className="trend-y-axis" aria-hidden="true">{[[inset.top, max], [(height - inset.bottom + inset.top) / 2, (max + min) / 2], [height - inset.bottom, min]].map(([position, value]) => <span key={position} style={{ top: `${position / height * 100}%` }}>{axisFormatter.format(value)}</span>)}</div>
         </div>
         <div className="trend-axis" aria-hidden="true"><span>{shortDate(points[0].date)}</span><span>{shortDate(points.at(-1).date)}</span></div>
-      </div> : <div className="trend-empty">No spending in this period.</div>}
+      </div> : <div className="trend-empty">
+        <img className="trend-empty-character" src="/illustrations/receipt-detective.png" width="136" height="136" alt="" aria-hidden="true" />
+        <span>No spending in this period.</span>
+      </div>}
     </section>
   );
 }

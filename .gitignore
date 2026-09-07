@@ -54,3 +54,6 @@ docs/
 *.db-*
 *.sqlite
 *.sqlite3
+
+# Alternate local Next.js development output
+.next-dev-webpack/

@@ -1653,7 +1653,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 /* Existing detail and deeper pages inherit the dark material system. */
 .card, .month-picker-card, .filter-panel, .category-detail-card, .dither-chart-card { background: var(--surface-lowest) !important; border-color: var(--outline) !important; box-shadow: none !important; }
-.advanced-filters-panel .category-multiselect-panel { position: static; width: 100%; margin-top: 8px; }
 .transaction-dialog-backdrop { background: rgba(7, 9, 7, .76); }
 .transaction-dialog { width: min(760px, 100%); padding: 0; border-color: var(--outline); border-radius: 11px; background: var(--surface-lowest); box-shadow: 0 30px 90px rgba(0,0,0,.42); }
 .transaction-dialog-head { position: sticky; top: 0; z-index: 2; padding: 24px 26px 20px; border-bottom: 1px solid var(--outline); background: color-mix(in srgb, var(--surface-lowest) 96%, transparent); backdrop-filter: blur(12px); }

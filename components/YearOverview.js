@@ -1,5 +1,7 @@
 "use client";
 
+import Select from "./Select.js";
+
 import { useState } from "react";
 import Link from "next/link";
 import { money } from "../lib/format.js";
@@ -25,7 +27,7 @@ export default function YearOverview({ calendar, currency }) {
       <div className="year-overview-header">
         <h2 id="year-overview-title">Year overview</h2>
         <button className="year-overview-toggle" type="button" aria-expanded={open} aria-controls="year-overview-content" onClick={() => setOpen(value => !value)}>Year overview <span aria-hidden="true">{open ? "−" : "+"}</span></button>
-        <label><span className="sr-only">Overview year</span><select aria-label="Overview year" value={year} onChange={event => setSelectedYear(event.target.value)}>{years.map(value => <option key={value}>{value}</option>)}</select></label>
+        <label><span className="sr-only">Overview year</span><Select aria-label="Overview year" value={year} onChange={event => setSelectedYear(event.target.value)}>{years.map(value => <option key={value}>{value}</option>)}</Select></label>
       </div>
       <div id="year-overview-content" className="year-overview-content">
         <div className="year-total"><span>{year === currentYear ? "Year to date" : "Year total"}</span><strong>{money(total, currency)}</strong></div>

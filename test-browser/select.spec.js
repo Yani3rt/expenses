@@ -1,0 +1,63 @@
+import { expect, test } from '@playwright/test';
+import { selectTheme } from './theme-helpers.js';
+import { chooseOption } from './select-helpers.js';
+
+for (const theme of ['classic', 'momentum']) {
+  test(`${theme}: dropdown keyboard, scrolling, nested Escape, and route preservation`, async ({ page }, testInfo) => {
+    await page.goto('/?range=3m&end=2026-07-31&currency=USD');
+    await selectTheme(page, theme);
+    await expect(page.locator('select')).toHaveCount(0);
+    const sort = page.getByRole('combobox', { name: 'Sort transactions', exact: true });
+    await sort.focus();
+    await page.keyboard.press('ArrowDown');
+    await expect(sort).toHaveAttribute('aria-expanded', 'true');
+    await page.keyboard.press('End');
+    await page.keyboard.press('Enter');
+    await expect(sort).toBeFocused();
+    await expect(sort).toHaveAttribute('aria-expanded', 'false');
+    await expect(page).toHaveURL(/range=3m/);
+    await expect(page).toHaveURL(/currency=USD/);
+
+    await page.getByRole('button', { name: 'Period end date', exact: true }).click();
+    const calendar = page.getByRole('dialog', { name: 'Period end date' });
+    const year = calendar.getByRole('combobox', { name: 'Calendar year' });
+    await year.click();
+    await expect(page.getByRole('listbox', { name: 'Calendar year' })).toBeVisible();
+    const popup = page.getByRole('listbox', { name: 'Calendar year' });
+    const box = await popup.boundingBox();
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(page.viewportSize().width);
+    expect(box.y + box.height).toBeLessThanOrEqual(page.viewportSize().height);
+    await page.screenshot({ path: `/tmp/select-${theme}-${testInfo.project.name}.png`, animations: 'disabled' });
+    await page.keyboard.type('2025');
+    await page.keyboard.press('Enter');
+    await expect(year).toHaveAttribute('data-value', '2025');
+    await year.click();
+    await page.keyboard.press('Escape');
+    await expect(year).toHaveAttribute('aria-expanded', 'false');
+    await expect(calendar).toBeVisible();
+    await year.click();
+    await page.keyboard.press('Tab');
+    await expect(year).toHaveAttribute('aria-expanded', 'false');
+    await expect(calendar).toBeVisible();
+    await year.click();
+    await calendar.getByRole('heading').click();
+    await expect(year).toHaveAttribute('aria-expanded', 'false');
+    await chooseOption(page, year, '2026');
+    await page.keyboard.press('Escape');
+    await expect(calendar).toHaveCount(0);
+    await page.goto('/transactions');
+    await expect(page.locator('select')).toHaveCount(0);
+    await page.getByRole('button', { name: /More filters|Filters/ }).first().click();
+    const filterMonth = page.getByRole('combobox', { name: 'Month', exact: true });
+    await chooseOption(page, filterMonth, '2026-06');
+    await expect(page).toHaveURL(/month=2026-06/);
+    const filterSort = page.getByRole('combobox', { name: 'Sort', exact: true });
+    await chooseOption(page, filterSort, 'highest');
+    await expect(page).toHaveURL(/sort=highest/);
+    await expect(filterSort).toHaveAttribute('aria-expanded', 'false');
+    await page.goto('/spending');
+    await expect(page.locator('select')).toHaveCount(0);
+  });
+}

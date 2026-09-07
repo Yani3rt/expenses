@@ -1,9 +1,11 @@
+import { selectTheme } from './theme-helpers.js';
 import { expect, test } from '@playwright/test';
 
 test('workspace is complete, dark, and operable on a narrow screen', async ({ page }) => {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/?range=1m&end=2026-07-31');
+  await selectTheme(page, 'classic');
   await expect(page.getByTestId('workspace-total')).toHaveText('$502.84');
   await expect(page.getByRole('button', { name: '1Y', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Previous period' })).toBeVisible();
@@ -35,7 +37,7 @@ test('phone category totals and additional views remain accessible by keyboard',
   await menu.focus();
   await page.keyboard.press('Enter');
   await page.keyboard.press('Tab');
-  await expect(page.getByRole('link', { name: 'Ledger', exact: true }).last()).toBeFocused();
+  await expect(page.getByRole('link', { name: 'Category analysis', exact: true })).toBeFocused();
   await page.keyboard.press('Escape');
   await expect(menu).toBeFocused();
   await expect(menu).toHaveAttribute('aria-expanded', 'false');

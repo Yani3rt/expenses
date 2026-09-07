@@ -1,3 +1,4 @@
+import { chooseOption } from './select-helpers.js';
 import { expect, test } from "@playwright/test";
 
 function waitForPaginationLifecycle(page) {
@@ -31,10 +32,11 @@ test("initial ledger, all-time reset, controls, and pagination continuation", as
   await page.getByRole("button", { name: "More filters" }).click();
   await page.getByRole("button", { name: /All categories/ }).click();
   await page.getByRole("checkbox", { name: "Technology" }).click();
+  await page.keyboard.press("Escape");
   await expect(page).toHaveURL(/category=tecnologia/);
   await expect(page.getByText("3 matches", { exact: true })).toBeVisible();
 
-  await page.getByLabel("Month").selectOption("2026-06");
+  await chooseOption(page, page.getByRole("combobox", { name: "Month", exact: true }), "2026-06");
   await expect(page).toHaveURL(/month=2026-06/);
   await expect(page.getByText("2 matches", { exact: true })).toBeVisible();
 
@@ -62,7 +64,7 @@ test("pending search ownership composes with filters, chips, clear, and history"
   await page.getByRole("button", { name: "More filters" }).click();
   const search = page.getByLabel("Search transactions");
   await search.fill("tech");
-  await page.getByLabel("Sort").selectOption("highest");
+  await chooseOption(page, page.getByRole("combobox", { name: "Sort", exact: true }), "highest");
   await expect(page).toHaveURL(/q=tech/);
   await expect(page).toHaveURL(/sort=highest/);
   await expect(search).toHaveValue("tech");
@@ -73,6 +75,7 @@ test("pending search ownership composes with filters, chips, clear, and history"
   await page.getByRole("button", { name: "Search: tech ×", exact: true }).click();
   await page.getByRole("button", { name: "Category Travel", exact: true }).click();
   await page.getByRole("checkbox", { name: "Technology" }).click();
+  await page.keyboard.press("Escape");
   await expect(page).toHaveURL(/category=viajes/);
   await expect(page).toHaveURL(/category=tecnologia/);
   await expect(page).not.toHaveURL(/q=/);

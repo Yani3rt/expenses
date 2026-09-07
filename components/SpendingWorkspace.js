@@ -1,5 +1,7 @@
 "use client";
 
+import Select from "./Select.js";
+
 import { useEffect, useLayoutEffect, useReducer, useRef, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { compactNumber, money, shortDate } from "../lib/format.js";
@@ -192,6 +194,10 @@ export default function SpendingWorkspace({ data, sourceRouteIdentity }) {
   return (
     <div id="spending" className={pending ? "spending-workspace is-pending" : "spending-workspace"}>
       <header className="workspace-heading">
+        <svg className="mobile-heading-doodle" viewBox="0 0 80 100" fill="none" aria-hidden="true" focusable="false">
+          <path className="doodle-star-fill" d="m25 12 7 17 19 1-15 12 4 19-16-11-17 9 6-19L2 27l18 1 5-16Z" />
+          <path d="M50 55c1-12 21-14 22-2 1 9-15 10-13 21M57 84l2 1M10 69l25-5m-19 11 16-5M56 19l5-5m4 17 7-1" />
+        </svg>
         <div><p className="eyebrow">Household ledger</p><h1>Spending</h1></div>
         <div className="date-controls">
           <div className="period-navigation">
@@ -205,7 +211,7 @@ export default function SpendingWorkspace({ data, sourceRouteIdentity }) {
 
       <div className="range-bar" role="group" aria-label="Spending period">
         {RANGES.map(([value, label]) => <button type="button" className={data.range.range === value ? "active" : ""} aria-pressed={data.range.range === value} key={value} onClick={() => navigate({ range: value })}>{label}</button>)}
-        {data.currencies.length > 1 ? <label className="currency-control"><span className="sr-only">Currency</span><select value={data.currency} onChange={event => navigate({ currency: event.target.value })}>{data.currencies.map(currency => <option key={currency}>{currency}</option>)}</select></label> : null}
+        {data.currencies.length > 1 ? <label className="currency-control"><span className="sr-only">Currency</span><Select aria-label="Currency" value={data.currency} onChange={event => navigate({ currency: event.target.value })}>{data.currencies.map(currency => <option key={currency}>{currency}</option>)}</Select></label> : null}
       </div>
 
       <section className="overview-shell">
@@ -243,7 +249,7 @@ export default function SpendingWorkspace({ data, sourceRouteIdentity }) {
           <div><p className="eyebrow">{compactNumber(data.meta.totalMatches)} records</p><h2 id="transactions-title">Transactions</h2></div>
           <div className="ledger-filters">
             <form className="search-field" role="search" onSubmit={event => { event.preventDefault(); queryDirty.current = false; navigate({ q: query }, "replace"); }}><label className="sr-only" htmlFor="workspace-search">Search transactions</label><input id="workspace-search" type="search" aria-label="Search transactions" placeholder="Search transactions" value={query} onChange={event => { queryDirty.current = true; setQuery(event.target.value); }} /><button type="submit" aria-label="Submit search"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></svg></button></form>
-            <label><span className="sr-only">Sort transactions</span><select aria-label="Sort transactions" value={intent.sort} onChange={event => navigate({ sort: event.target.value })}>{SORTS.map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
+            <label><span className="sr-only">Sort transactions</span><Select aria-label="Sort transactions" value={intent.sort} onChange={event => navigate({ sort: event.target.value })}>{SORTS.map(([value, label]) => <option value={value} key={value}>{label}</option>)}</Select></label>
             {filtersActive ? <button className="clear-filters" type="button" onClick={clearFilters}>Clear filters</button> : null}
           </div>
         </div>
