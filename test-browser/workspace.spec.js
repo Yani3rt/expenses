@@ -208,7 +208,7 @@ test("Spending returns to the overview without resetting the range or filters", 
     await nav.getByRole("link", { name: "Ledger", exact: true }).click();
     await nav.getByRole("link", { name: "Spending", exact: true }).click();
     await expect(page).toHaveURL(/range=3m&end=2026-07-31&currency=USD&q=rent&sort=highest/);
-    await expect(page.getByLabel("Period end date")).toHaveValue("2026-07-31");
+    await expect(page.getByRole("button", { name: "Period end date", exact: true })).toContainText("Jul 31, 2026");
     await expect(page.getByRole("button", { name: "3M", exact: true })).toHaveAttribute("aria-pressed", "true");
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(100);
   }

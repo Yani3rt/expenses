@@ -37,12 +37,12 @@ export default defineConfig({
     },
     {
       name: "desktop",
-      testMatch: ["**/charts.spec.js", "**/transactions.spec.js", "**/workspace.spec.js", "**/spending-page.spec.js", "**/ledger-visual.spec.js", "**/year-overview.spec.js"],
+      testMatch: ["**/charts.spec.js", "**/transactions.spec.js", "**/workspace.spec.js", "**/spending-page.spec.js", "**/ledger-visual.spec.js", "**/year-overview.spec.js", "**/period-calendar.spec.js"],
       use: { viewport: { width: 1280, height: 900 } },
     },
     {
       name: "mobile",
-      testMatch: ["**/mobile.spec.js", "**/workspace-responsive.spec.js", "**/spending-page.spec.js", "**/ledger-visual.spec.js", "**/year-overview.spec.js"],
+      testMatch: ["**/mobile.spec.js", "**/workspace-responsive.spec.js", "**/spending-page.spec.js", "**/ledger-visual.spec.js", "**/year-overview.spec.js", "**/period-calendar.spec.js"],
       use: { ...devices["Pixel 7"], viewport: { width: 390, height: 844 } },
     },
     {

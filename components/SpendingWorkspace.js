@@ -6,6 +6,7 @@ import { compactNumber, money, shortDate } from "../lib/format.js";
 import { workspaceUrl } from "../lib/workspace-range.js";
 import { createTransactionsPageRequester, fetchTransactionDetail } from "../lib/transactions-client.js";
 import { createInitialTransactionDetailState, transactionDetailReducer } from "../lib/transaction-detail-state.js";
+import PeriodDatePicker from "./PeriodDatePicker.js";
 import YearOverview from "./YearOverview.js";
 import SpendingTrend from "./SpendingTrend.js";
 import TransactionDetailDialog from "./TransactionDetailDialog.js";
@@ -195,7 +196,7 @@ export default function SpendingWorkspace({ data, sourceRouteIdentity }) {
         <div className="date-controls">
           <div className="period-navigation">
             <button type="button" aria-label="Previous period" disabled={!data.range.days} onClick={() => navigate({ end: changeDate(data.range.end, -data.range.days) })}>←</button>
-            <label><span className="sr-only">Period end date</span><input type="date" value={data.range.end} onChange={event => navigate({ end: event.target.value })} /></label>
+            <PeriodDatePicker value={data.range.end} onChange={end => navigate({ end })} />
             <button type="button" aria-label="Next period" disabled={!hasNext} onClick={() => navigate({ end: changeDate(data.range.end, data.range.days) })}>→</button>
           </div>
           <span className="date-label">{data.range.label}</span>
