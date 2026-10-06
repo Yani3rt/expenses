@@ -74,7 +74,7 @@ Local databases, environment files, build output, and logs are excluded from ver
 
 ## Spending workspace
 
-The dark-first home view combines period totals, a spending trend, category filters, transactions, and payer/allocation breakdowns. `1W`, `1M`, `3M`, and `1Y` are trailing windows of 7, 30, 90, and 365 days. The displayed dates are authoritative. Previous/next controls browse adjacent windows; the date field sets the end date. `All` includes every recorded expense.
+The dark-first home view combines period totals, a spending trend, category filters, transactions, and payer/allocation breakdowns. `1M` shows the selected calendar month (the current month through today by default) and compares against the full previous month. Daily average uses the number of days displayed. `3M` includes the selected month and the two preceding calendar months, through today for the current month, and compares against the preceding three full calendar months. Previous/next controls browse adjacent one- or three-month blocks, and picking a date selects the ending month. `1W` and `1Y` remain trailing windows of 7 and 365 days, with the date field setting their end date. The displayed dates are authoritative. `All` includes every recorded expense.
 
 The comparison uses the immediately preceding equally sized window. Currency selection keeps unlike currencies out of the same total. Category and search filters narrow the ledger without changing the period overview. Full transaction details remain available, and deeper views are accessible through More.
 

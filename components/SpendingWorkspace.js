@@ -21,9 +21,14 @@ function routeIdentity(params) {
   return JSON.stringify(ROUTE_KEYS.map(key => [key, String(params.get(key) || "")]));
 }
 
-function changeDate(value, days) {
-  const date = new Date(`${value}T00:00:00Z`);
-  date.setUTCDate(date.getUTCDate() + days);
+function changePeriod(range, direction) {
+  const date = new Date(`${range.end}T00:00:00Z`);
+  if (range.range === "1m" || range.range === "3m") {
+    const months = range.range === "3m" ? 3 : 1;
+    date.setUTCMonth(date.getUTCMonth() + direction * months + 1, 0);
+  } else {
+    date.setUTCDate(date.getUTCDate() + direction * range.days);
+  }
   return date.toISOString().slice(0, 10);
 }
 
@@ -46,11 +51,12 @@ function apiUrl(intent, offset) {
   return `${home.pathname}${home.search}`;
 }
 
-function comparisonText(summary, currency) {
+function comparisonText(summary, currency, range) {
+  const period = range === "1m" ? "prior month" : range === "3m" ? "prior 3 months" : "prior period";
   if (summary.previousSpend === null) return "All recorded activity";
-  if (summary.previousSpend === 0) return summary.totalSpend ? "No spend in the prior period" : "No change from the prior period";
+  if (summary.previousSpend === 0) return summary.totalSpend ? `No spend in the ${period}` : `No change from the ${period}`;
   const direction = summary.deltaAmount > 0 ? "more" : summary.deltaAmount < 0 ? "less" : "the same";
-  return `${money(Math.abs(summary.deltaAmount), currency)} ${direction} than prior period`;
+  return `${money(Math.abs(summary.deltaAmount), currency)} ${direction} than ${period}`;
 }
 
 function inclusiveDays(from, to) {
@@ -201,9 +207,9 @@ export default function SpendingWorkspace({ data, sourceRouteIdentity }) {
         <div><p className="eyebrow">Household ledger</p><h1>Spending</h1></div>
         <div className="date-controls">
           <div className="period-navigation">
-            <button type="button" aria-label="Previous period" disabled={!data.range.days} onClick={() => navigate({ end: changeDate(data.range.end, -data.range.days) })}>←</button>
+            <button type="button" aria-label="Previous period" disabled={!data.range.days} onClick={() => navigate({ end: changePeriod(data.range, -1) })}>←</button>
             <PeriodDatePicker value={data.range.end} onChange={end => navigate({ end })} />
-            <button type="button" aria-label="Next period" disabled={!hasNext} onClick={() => navigate({ end: changeDate(data.range.end, data.range.days) })}>→</button>
+            <button type="button" aria-label="Next period" disabled={!hasNext} onClick={() => navigate({ end: changePeriod(data.range, 1) })}>→</button>
           </div>
           <span className="date-label">{data.range.label}</span>
         </div>
@@ -219,7 +225,7 @@ export default function SpendingWorkspace({ data, sourceRouteIdentity }) {
           <div className="total-lockup">
             <p>Total spent</p>
             <strong data-testid="workspace-total">{money(data.summary.totalSpend, displayCurrency)}</strong>
-            <span>{comparisonText(data.summary, displayCurrency)}</span>
+            <span>{comparisonText(data.summary, displayCurrency, data.range.range)}</span>
           </div>
           <dl className="summary-strip">
             <div><dt>Expenses</dt><dd>{compactNumber(data.summary.expenseCount)}</dd></div>

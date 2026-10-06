@@ -26,3 +26,32 @@ test("custom calendar preserves filters and restores focus", async ({ page }) =>
   await expect(trigger).toContainText("Jun 30, 2026");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
+
+test("1M shows a full historical month and navigates calendar months", async ({ page }) => {
+  await page.goto("/?range=1m&end=2026-07-15");
+  await expect(page.locator(".date-label")).toHaveText("Jul 1 – Jul 31, 2026");
+  await expect(page.getByTestId("workspace-total")).toHaveText("$597.84");
+  await expect(page.locator(".total-lockup")).toContainText("$58.41 less than prior month");
+  await expect(page.locator(".summary-strip")).toContainText("$19.29");
+  await expect(page.getByTestId("workspace-transaction")).toHaveCount(12);
+  await expect(page.getByTestId("workspace-transaction").last()).toContainText("Flight change");
+  await page.getByRole("button", { name: "Previous period", exact: true }).click();
+  await expect(page.locator(".date-label")).toHaveText("Jun 1 – Jun 30, 2026");
+  await expect(page.getByTestId("workspace-total")).toHaveText("$656.25");
+  await page.getByRole("button", { name: "Next period", exact: true }).click();
+  await expect(page.locator(".date-label")).toHaveText("Jul 1 – Jul 31, 2026");
+  await expect(page.getByTestId("workspace-total")).toHaveText("$597.84");
+});
+
+test("3M includes calendar boundaries and navigates three-month blocks", async ({ page }) => {
+  await page.goto("/?range=3m&end=2026-07-15");
+  await expect(page.locator(".date-label")).toHaveText("May 1 – Jul 31, 2026");
+  await expect(page.getByTestId("workspace-total")).toHaveText("$2,296.59");
+  await expect(page.locator(".summary-strip")).toContainText("$24.96");
+  await expect(page.locator(".total-lockup")).toContainText("No spend in the prior 3 months");
+  await page.getByRole("button", { name: "Previous period", exact: true }).click();
+  await expect(page.locator(".date-label")).toHaveText("Feb 1 – Apr 30, 2026");
+  await page.getByRole("button", { name: "Next period", exact: true }).click();
+  await expect(page.locator(".date-label")).toHaveText("May 1 – Jul 31, 2026");
+  await expect(page.getByTestId("workspace-total")).toHaveText("$2,296.59");
+});

@@ -6,7 +6,7 @@ test('workspace is complete, dark, and operable on a narrow screen', async ({ pa
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/?range=1m&end=2026-07-31');
   await selectTheme(page, 'classic');
-  await expect(page.getByTestId('workspace-total')).toHaveText('$502.84');
+  await expect(page.getByTestId('workspace-total')).toHaveText('$597.84');
   await expect(page.getByRole('button', { name: '1Y', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Previous period' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
@@ -32,7 +32,7 @@ test('phone category totals and additional views remain accessible by keyboard',
   await page.goto('/?range=1m&end=2026-07-31');
   const categories = page.locator('.mobile-categories');
   await categories.getByRole('button', { name: /^Categories/ }).press('Enter');
-  await expect(categories.getByRole('button', { name: 'Filter by Travel' })).toContainText('$254.50');
+  await expect(categories.getByRole('button', { name: 'Filter by Travel' })).toContainText('$349.50');
   const menu = page.getByRole('button', { name: 'More', exact: true });
   await menu.focus();
   await page.keyboard.press('Enter');

@@ -5,7 +5,7 @@ const july = '/?range=1m&end=2026-07-31';
 test('one date range controls the overview and ledger, with navigable history', async ({ page }) => {
   await page.goto(july);
   await expect(page.getByRole('heading', { name: 'Spending', exact: true })).toBeVisible();
-  await expect(page.getByTestId('workspace-total')).toHaveText('$502.84');
+  await expect(page.getByTestId('workspace-total')).toHaveText('$597.84');
   await page.getByRole('button', { name: '1W', exact: true }).click();
   await expect(page).toHaveURL(/range=1w/);
   await expect(page.getByTestId('workspace-total')).toHaveText('$108.09');
@@ -24,7 +24,7 @@ test('category and search filter the ledger without changing period totals', asy
   await expect(page).toHaveURL(/category=tecnologia/);
   await expect(page.getByTestId('workspace-transaction')).toHaveCount(1);
   await expect(page.getByTestId('workspace-transaction')).toContainText('Tech accessory');
-  await expect(page.getByTestId('workspace-total')).toHaveText('$502.84');
+  await expect(page.getByTestId('workspace-total')).toHaveText('$597.84');
   await page.getByRole('button', { name: 'Clear filters', exact: true }).click();
   await page.getByRole('searchbox', { name: 'Search transactions' }).fill('groceries');
   await page.getByRole('searchbox', { name: 'Search transactions' }).press('Enter');

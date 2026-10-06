@@ -40,7 +40,7 @@ async function paintedGeometry(canvas) {
 
 test("reduced motion keeps the workspace trend and transaction details fully visible", async ({ page }) => {
   await page.goto("/?range=1m&end=2026-07-31");
-  await expect(page.getByTestId("workspace-total")).toHaveText("$502.84");
+  await expect(page.getByTestId("workspace-total")).toHaveText("$597.84");
   const chart = page.getByRole("img", { name: /Spending trend,/ });
   await expect(chart).toBeVisible();
   const geometry = await chart.locator(".trend-line").evaluate(node => ({ length: node.getTotalLength(), width: node.getBBox().width, height: node.getBBox().height }));

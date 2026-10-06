@@ -29,30 +29,30 @@ test("returns the bounded workspace contract with July overview and ledger data"
   const data = getWorkspaceData({ range: "1m", end: "2026-07-31" }, new Date("2026-07-31T12:00:00Z"));
 
   assert.deepEqual(data.range, {
-    range: "1m", end: "2026-07-31", from: "2026-07-02", to: "2026-08-01",
-    previousFrom: "2026-06-02", previousTo: "2026-07-02", days: 30,
-    label: "Jul 2 – Jul 31, 2026",
+    range: "1m", end: "2026-07-31", from: "2026-07-01", to: "2026-08-01",
+    previousFrom: "2026-06-01", previousTo: "2026-07-01", days: 31,
+    label: "Jul 1 – Jul 31, 2026",
   });
   assert.equal(data.currency, "USD");
   assert.deepEqual(data.currencies, ["USD"]);
   assert.deepEqual(data.summary, {
-    totalSpend: 502.84,
-    expenseCount: 11,
-    averageExpense: 45.71,
-    previousSpend: 706.25,
-    deltaAmount: -203.41,
-    deltaPercent: -28.8,
+    totalSpend: 597.84,
+    expenseCount: 12,
+    averageExpense: 49.82,
+    previousSpend: 656.25,
+    deltaAmount: -58.41,
+    deltaPercent: -8.9,
   });
   assert.deepEqual(data.categories.find(({ slug }) => slug === "tecnologia"), {
     slug: "tecnologia", name: "Technology", totalSpend: 12.99, expenseCount: 1,
   });
   assert.deepEqual(data.transactions.at(-1), {
-    id: 14, date: "2026-07-03", description: "Breakfast", amount: 14.5, currency: "USD",
-    category: "Food", categorySlug: "comida", paidBy: "Alex", notes: null,
+    id: 13, date: "2026-07-01", description: "Flight change", amount: 95, currency: "USD",
+    category: "Travel", categorySlug: "viajes", paidBy: "Yani", notes: null,
   });
   assert.deepEqual(data.meta, {
     q: "", category: "all", sort: "newest", offset: 0, limit: 20,
-    hasMore: false, totalMatches: 11,
+    hasMore: false, totalMatches: 12,
   });
   assert.equal(data.latestDate, "2026-07-31");
   assert.equal(data.status.readonly, true);
@@ -138,7 +138,7 @@ test("separates every monetary aggregate and ledger row by selected currency", (
     assert.equal(eur.transactions.every(({ currency }) => currency === "EUR"), true);
 
     const usd = getWorkspaceData({ range: "1m", end: "2026-07-31", currency: "USD" }, new Date("2026-07-31T12:00:00Z"));
-    assert.equal(usd.summary.totalSpend, 502.84);
+    assert.equal(usd.summary.totalSpend, 597.84);
     assert.equal(usd.categories.find(({ slug }) => slug === "comida").totalSpend, 235.35);
   });
 });
@@ -223,4 +223,28 @@ test("calendar totals ignore rolling and ledger filters and stop at today", () =
   assert.equal(a.calendar.months.find(row => row.month === "2026-07").totalSpend, 597.84);
   const earlier = getWorkspaceData({}, new Date("2026-06-30T12:00:00Z"));
   assert.equal(earlier.calendar.months.some(row => row.month === "2026-07"), false);
+});
+
+test("current-month aggregates include the first day, exclude future dates, and use the full prior month", () => {
+  const data = getWorkspaceData({}, new Date(2026, 6, 6, 12));
+  assert.equal(data.summary.totalSpend, 141.5);
+  assert.equal(data.summary.previousSpend, 656.25);
+  assert.equal(data.summary.expenseCount, 3);
+  assert.equal(data.range.days, 6);
+  assert.deepEqual(data.trend.map(row => row.date), ["2026-07-01", "2026-07-03", "2026-07-05"]);
+  assert.deepEqual(data.transactions.map(row => row.id), [15, 14, 13]);
+  assert.equal(data.categories.find(row => row.slug === "viajes").totalSpend, 127);
+  assert.equal(data.people.find(row => row.slug === "yani").totalPaid, 127);
+});
+
+test("3M includes the first calendar day across every workspace aggregate", () => {
+  const data = getWorkspaceData({ range: "3m", end: "2026-07-31", limit: 100 }, new Date(2026, 9, 6, 12));
+  assert.equal(data.summary.totalSpend, 2296.59);
+  assert.equal(data.summary.expenseCount, 24);
+  assert.equal(data.summary.previousSpend, 0);
+  assert.equal(data.range.days, 92);
+  assert.equal(data.trend[0].date, "2026-05-01");
+  assert.equal(data.transactions.at(-1).description, "May rent");
+  assert.equal(data.categories.find(row => row.slug === "alquiler").totalSpend, 900);
+  assert.equal(data.allocations.find(row => row.slug === "alex").totalAllocated, 450);
 });

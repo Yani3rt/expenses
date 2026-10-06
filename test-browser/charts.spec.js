@@ -34,12 +34,12 @@ test('trend shows actual date gaps and supports keyboard inspection', async ({ p
   });
   const bounds = await chart.boundingBox();
   await chart.hover({ position: { x: bounds.width * startPoint.x, y: bounds.height * startPoint.y } });
-  await expect(page.locator('.trend output')).toContainText('Jul 2 · $0.00');
+  await expect(page.locator('.trend output')).toContainText('Jul 1 · $95.00');
   await chart.focus();
   await page.keyboard.press('Home');
-  await expect(page.locator('.trend output')).toContainText('Jul 2 · $0.00');
+  await expect(page.locator('.trend output')).toContainText('Jul 1 · $95.00');
   await page.keyboard.press('ArrowRight');
-  await expect(page.locator('.trend output')).toContainText('Jul 3 · $14.50');
+  await expect(page.locator('.trend output')).toContainText('Jul 2 · $0.00');
   await page.keyboard.press('End');
   await expect(page.locator('.trend output')).toContainText('Jul 31 · $12.99');
   await page.getByRole('button', { name: '1W', exact: true }).click();

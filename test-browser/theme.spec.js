@@ -11,7 +11,7 @@ test('theme is optional, persistent, and preserves financial workflows', async (
   const originalSurface = await page.locator('html').evaluate(el => getComputedStyle(el).getPropertyValue('--surface'));
   await selectTheme(page, 'momentum');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'momentum');
-  await expect(page.getByTestId('workspace-total')).toHaveText('$502.84');
+  await expect(page.getByTestId('workspace-total')).toHaveText('$597.84');
   await expect(page).toHaveURL(route);
   await page.reload();
   await expect(selector).toHaveAttribute('data-theme-value', 'momentum');
@@ -49,7 +49,7 @@ test('blocked local storage does not break theme switching', async ({ page }) =>
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'momentum');
   await selectTheme(page, 'classic');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'classic');
-  await expect(page.getByTestId('workspace-total')).toHaveText('$502.84');
+  await expect(page.getByTestId('workspace-total')).toHaveText('$597.84');
 });
 
 test('theme persists across existing routes and synchronizes tabs', async ({ page, context }) => {
